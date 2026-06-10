@@ -1,0 +1,1852 @@
+import type { RequestPayload } from '@inertiajs/core';
+import { router, usePage } from '@inertiajs/react';
+import {
+    Activity,
+    ChevronRight,
+    Eye,
+    EyeOff,
+    ListTree,
+    Loader2,
+    MessageSquare,
+    Paperclip,
+    Plus,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { TaskComment } from '@/components/task-comment';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
+import {
+    destroy as destroyTask,
+    show as showTask,
+    store as storeTask,
+    update as updateTask,
+} from '@/routes/projects/tasks';
+import {
+    destroy as destroyAttachment,
+    store as storeAttachment,
+} from '@/routes/projects/tasks/attachments';
+import {
+    destroy as destroyComment,
+    store as storeComment,
+    update as updateComment,
+} from '@/routes/projects/tasks/comments';
+import {
+    destroy as destroyRelation,
+    store as storeRelation,
+} from '@/routes/projects/tasks/relations';
+
+interface UserRef {
+    id: number;
+    name: string;
+    avatar: string | null;
+}
+
+interface TaskDetail {
+    id: number;
+    task_number: number;
+    code: string;
+    title: string;
+    description: string | null;
+    status: string;
+    due_date: string | null;
+    start_date: string | null;
+    completed_at: string | null;
+    parent_id: number | null;
+    created_at: string;
+    updated_at: string;
+    priority: {
+        id: number;
+        name: string;
+        key: string;
+        level: number;
+        color: string | null;
+    } | null;
+    task_type: { id: number; name: string; key: string; color: string | null };
+    reporter: UserRef | null;
+    assignees: UserRef[];
+    labels: Array<{
+        id: number;
+        name: string;
+        slug: string;
+        color: string | null;
+    }>;
+    epics: Array<{
+        id: number;
+        name: string;
+        color: string | null;
+        status: string;
+    }>;
+    sprints: Array<{
+        id: number;
+        name: string;
+        status: string;
+        start_date: string | null;
+        end_date: string | null;
+    }>;
+    board_column: {
+        id: number;
+        name: string;
+        status_key: string;
+        color: string | null;
+    };
+    watchers: UserRef[];
+    watcher_count: number;
+    children: Array<{
+        id: number;
+        code: string;
+        title: string;
+        completed_at: string | null;
+        priority: {
+            id: number;
+            name: string;
+            key: string;
+            level: number;
+            color: string | null;
+        } | null;
+    }>;
+    parent: {
+        id: number;
+        code: string;
+        title: string;
+    } | null;
+    relations: Array<{
+        id: number;
+        type: string;
+        related_task: {
+            id: number;
+            code: string;
+            title: string;
+        };
+    }>;
+}
+
+interface CommentItem {
+    id: number;
+    body: string;
+    created_at: string;
+    edited_at: string | null;
+    user: UserRef;
+    replies: Array<{
+        id: number;
+        body: string;
+        created_at: string;
+        user: UserRef;
+    }>;
+}
+
+interface ActivityItem {
+    id: number;
+    action: string;
+    field_name: string | null;
+    old_value: string | null;
+    new_value: string | null;
+    created_at: string;
+    user: UserRef | null;
+}
+
+interface AttachmentItem {
+    id: number;
+    file_name: string;
+    file_size: number;
+    mime_type: string | null;
+    url: string;
+    created_at: string;
+    uploader: UserRef;
+}
+
+interface TaskOptions {
+    assignees: Array<UserRef & { email: string }>;
+    labels: Array<{
+        id: number;
+        name: string;
+        slug: string;
+        color: string | null;
+    }>;
+    epics: Array<{
+        id: number;
+        name: string;
+        color: string | null;
+        status: string;
+    }>;
+    sprints: Array<{
+        id: number;
+        name: string;
+        status: string;
+        start_date: string | null;
+        end_date: string | null;
+    }>;
+    priorities: Array<{
+        id: number;
+        name: string;
+        key: string;
+        level: number;
+        color: string | null;
+    }>;
+    task_types: Array<{
+        id: number;
+        name: string;
+        key: string;
+        color: string | null;
+    }>;
+    board_columns: Array<{
+        id: number;
+        name: string;
+        status_key: string;
+        color: string | null;
+    }>;
+    available_parent_tasks: Array<{
+        id: number;
+        code: string;
+        title: string;
+    }>;
+    project_tasks: Array<{
+        id: number;
+        code: string;
+        title: string;
+    }>;
+}
+
+interface Props {
+    workspaceSlug: string | null;
+    projectSlug: string | null;
+    taskId: number | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onDelete?: () => void;
+}
+
+const priorityColors: Record<string, string> = {
+    lowest: 'bg-gray-400',
+    low: 'bg-blue-400',
+    medium: 'bg-amber-400',
+    high: 'bg-orange-400',
+    highest: 'bg-red-400',
+    urgent: 'bg-red-500',
+};
+
+export function TaskDetailDrawer({
+    workspaceSlug,
+    projectSlug,
+    taskId,
+    open,
+    onOpenChange,
+    onDelete,
+}: Props) {
+    const user = usePage().props.auth?.user as { id: number } | null;
+    const [loading, setLoading] = useState(false);
+    const [task, setTask] = useState<TaskDetail | null>(null);
+    const [options, setOptions] = useState<TaskOptions>({
+        assignees: [],
+        labels: [],
+        epics: [],
+        sprints: [],
+        priorities: [],
+        task_types: [],
+        board_columns: [],
+        available_parent_tasks: [],
+        project_tasks: [],
+    });
+    const [comments, setComments] = useState<CommentItem[]>([]);
+    const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
+    const [activities, setActivities] = useState<ActivityItem[]>([]);
+    const [commentBody, setCommentBody] = useState('');
+    const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+    const commentInputRef = useRef<HTMLInputElement>(null);
+    const [newRelationTaskId, setNewRelationTaskId] = useState<string>('none');
+    const [newRelationType, setNewRelationType] = useState<string>('relates_to');
+    const [subTaskTitle, setSubTaskTitle] = useState('');
+    const abortRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        if (!open || !workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+        /* eslint-disable react-hooks/set-state-in-effect */
+        setLoading(true);
+        setTask(null);
+        setOptions({
+            assignees: [],
+            labels: [],
+            epics: [],
+            sprints: [],
+            priorities: [],
+            task_types: [],
+            board_columns: [],
+            available_parent_tasks: [],
+            project_tasks: [],
+        });
+        setComments([]);
+        setAttachments([]);
+        setActivities([]);
+        /* eslint-enable react-hooks/set-state-in-effect */
+
+        fetch(
+            showTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: controller.signal,
+            },
+        )
+            .then((r) => r.json())
+            .then((data) => {
+                setTask(data.task);
+
+                setOptions(data.options);
+
+                setComments(data.comments);
+
+                setAttachments(data.attachments);
+
+                setActivities(data.activities);
+            })
+            .catch((err: unknown) => {
+                if ((err as Error)?.name !== 'AbortError') {
+                    console.error(err);
+                }
+            })
+            .finally(() => setLoading(false));
+
+        return () => {
+            controller.abort();
+        };
+    }, [open, taskId, workspaceSlug, projectSlug]);
+
+    const refreshTaskDetails = () => {
+        if (!workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        fetch(
+            showTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            },
+        )
+            .then((r) => r.json())
+            .then((data) => {
+                setTask(data.task);
+                setOptions(data.options);
+                setComments(data.comments);
+                setAttachments(data.attachments);
+                setActivities(data.activities);
+            });
+    };
+
+    const patchTask = (
+        payload: RequestPayload,
+        optimisticTask?: TaskDetail,
+    ) => {
+        if (!workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        if (optimisticTask) {
+            setTask(optimisticTask);
+        }
+
+        router.patch(
+            updateTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            payload,
+            { preserveScroll: true },
+        );
+    };
+
+    const updateTaskDraft = (partial: Partial<TaskDetail>) => {
+        setTask((current) => (current ? { ...current, ...partial } : current));
+    };
+
+    const handleAssigneeToggle = (assignee: UserRef, checked: boolean) => {
+        if (!task) {
+            return;
+        }
+
+        const assignees = checked
+            ? [...task.assignees, assignee]
+            : task.assignees.filter((item) => item.id !== assignee.id);
+
+        patchTask(
+            { assignee_ids: assignees.map((item) => item.id) },
+            { ...task, assignees },
+        );
+    };
+
+    const handleLabelToggle = (
+        label: TaskOptions['labels'][number],
+        checked: boolean,
+    ) => {
+        if (!task) {
+            return;
+        }
+
+        const labels = checked
+            ? [...task.labels, label]
+            : task.labels.filter((item) => item.id !== label.id);
+
+        patchTask(
+            { label_ids: labels.map((item) => item.id) },
+            { ...task, labels },
+        );
+    };
+
+    const handleEpicChange = (value: string) => {
+        if (!task) {
+            return;
+        }
+
+        const epics =
+            value === 'none'
+                ? []
+                : options.epics.filter((item) => item.id === Number(value));
+
+        patchTask(
+            { epic_ids: epics.map((item) => item.id) },
+            { ...task, epics },
+        );
+    };
+
+    const handleSprintChange = (value: string) => {
+        if (!task) {
+            return;
+        }
+
+        const sprints =
+            value === 'none'
+                ? []
+                : options.sprints.filter((item) => item.id === Number(value));
+
+        patchTask(
+            { sprint_ids: sprints.map((item) => item.id) },
+            { ...task, sprints },
+        );
+    };
+
+    const handleAddComment = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!commentBody.trim() || !workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        router.post(
+            storeComment.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            { body: commentBody },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setCommentBody('');
+                    refreshTaskDetails();
+                },
+            },
+        );
+    };
+
+    const handleUpdateComment = (commentId: number, body: string) => {
+        if (!workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        router.patch(
+            updateComment.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+                comment: commentId,
+            }),
+            { body },
+            {
+                preserveScroll: true,
+                onSuccess: refreshTaskDetails,
+            },
+        );
+    };
+
+    const handleDeleteComment = (commentId: number) => {
+        if (
+            !workspaceSlug ||
+            !projectSlug ||
+            !taskId ||
+            !confirm('Delete this comment?')
+        ) {
+            return;
+        }
+
+        router.delete(
+            destroyComment.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+                comment: commentId,
+            }),
+            {
+                preserveScroll: true,
+                onSuccess: refreshTaskDetails,
+            },
+        );
+    };
+
+    const handleUploadAttachment = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!attachmentFile || !workspaceSlug || !projectSlug || !taskId) {
+            return;
+        }
+
+        router.post(
+            storeAttachment.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            { file: attachmentFile },
+            {
+                forceFormData: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setAttachmentFile(null);
+                    refreshTaskDetails();
+                },
+            },
+        );
+    };
+
+    const handleDeleteAttachment = (attachmentId: number) => {
+        if (
+            !workspaceSlug ||
+            !projectSlug ||
+            !taskId ||
+            !confirm('Delete this attachment?')
+        ) {
+            return;
+        }
+
+        router.delete(
+            destroyAttachment.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+                attachment: attachmentId,
+            }),
+            {
+                preserveScroll: true,
+                onSuccess: refreshTaskDetails,
+            },
+        );
+    };
+
+    const isWatchedByCurrentUser = () => {
+        if (!task || !user) {
+            return false;
+        }
+
+        return task.watchers.some((w) => w.id === user.id);
+    };
+
+    const handleWatcherToggle = () => {
+        if (!workspaceSlug || !projectSlug || !taskId || !task) {
+            return;
+        }
+
+        const currentlyWatching = isWatchedByCurrentUser();
+        const newWatchers = currentlyWatching
+            ? task.watchers.filter((w) => w.id !== user!.id)
+            : [...task.watchers, user as unknown as UserRef];
+
+        const optimisticWatcherCount = currentlyWatching
+            ? task.watcher_count - 1
+            : task.watcher_count + 1;
+
+        setTask({
+            ...task,
+            watchers: newWatchers,
+            watcher_count: Math.max(0, optimisticWatcherCount),
+        });
+
+        router.patch(
+            updateTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            {
+                watcher_ids: newWatchers.map((w) => w.id),
+            },
+            { preserveScroll: true },
+        );
+    };
+
+    const handleParentChange = (value: string) => {
+        if (!workspaceSlug || !projectSlug || !taskId || !task) {
+            return;
+        }
+
+        const parentId = value === 'none' ? null : Number(value);
+        const parent =
+            value === 'none'
+                ? null
+                : (options.available_parent_tasks.find(
+                      (item) => item.id === Number(value),
+                  ) ?? null);
+
+        patchTask(
+            { parent_id: parentId },
+            { ...task, parent_id: parentId, parent },
+        );
+    };
+
+    const handleSubTaskToggle = (childId: number, completed: boolean) => {
+        if (!workspaceSlug || !projectSlug || !task) {
+            return;
+        }
+
+        router.patch(
+            updateTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: childId,
+            }),
+            {
+                completed_at: completed ? new Date().toISOString() : null,
+            },
+            { preserveScroll: true, onSuccess: refreshTaskDetails },
+        );
+    };
+
+    const handleAddSubTask = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!subTaskTitle.trim() || !workspaceSlug || !projectSlug || !task) {
+            return;
+        }
+
+        router.post(
+            storeTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+            }),
+            {
+                title: subTaskTitle,
+                task_type_id: options.task_types[0]?.id ?? 1,
+                parent_id: task.id,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSubTaskTitle('');
+                    refreshTaskDetails();
+                },
+            },
+        );
+    };
+
+    const handleAddRelation = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (
+            !workspaceSlug ||
+            !projectSlug ||
+            !taskId ||
+            !task ||
+            newRelationTaskId === 'none'
+        ) {
+            return;
+        }
+
+        router.post(
+            storeRelation.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            {
+                related_task_id: Number(newRelationTaskId),
+                relation_type: newRelationType,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setNewRelationTaskId('none');
+                    setNewRelationType('relates_to');
+                    refreshTaskDetails();
+                },
+            },
+        );
+    };
+
+    const handleRemoveRelation = (relationId: number) => {
+        if (
+            !workspaceSlug ||
+            !projectSlug ||
+            !taskId ||
+            !task ||
+            !confirm('Remove this relation?')
+        ) {
+            return;
+        }
+
+        router.delete(
+            destroyRelation.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+                relation: relationId,
+            }),
+            {
+                preserveScroll: true,
+                onSuccess: refreshTaskDetails,
+            },
+        );
+    };
+
+    const handleDeleteTask = () => {
+        if (
+            !workspaceSlug ||
+            !projectSlug ||
+            !taskId ||
+            !confirm('Delete this task?')
+        ) {
+            return;
+        }
+
+        router.delete(
+            destroyTask.url({
+                workspace: workspaceSlug,
+                project: projectSlug,
+                task: taskId,
+            }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onOpenChange(false);
+                    setTask(null);
+                    onDelete?.();
+                },
+            },
+        );
+    };
+
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-[720px] max-w-[90vw] overflow-y-auto p-0 sm:max-w-[720px]">
+                <SheetTitle className="sr-only">
+                    {task ? task.title : 'Task details'}
+                </SheetTitle>
+                <SheetDescription className="sr-only">
+                    View and edit task details, comments, attachments, and activity.
+                </SheetDescription>
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                    </div>
+                ) : task ? (
+                    <div className="flex flex-col">
+                        <div className="border-b px-6 pt-8 pb-5">
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0 flex-1">
+                                        <span className="font-mono text-xs text-muted-foreground">
+                                            {task.code}
+                                        </span>
+                                        <Input
+                                            value={task.title}
+                                            onChange={(event) =>
+                                                updateTaskDraft({
+                                                    title: event.target.value,
+                                                })
+                                            }
+                                            onBlur={() =>
+                                                patchTask({ title: task.title })
+                                            }
+                                            className="mt-1 h-auto border-0 bg-transparent px-0 py-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+                                            aria-label="Task title"
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                                        onClick={handleDeleteTask}
+                                        aria-label="Delete task"
+                                    >
+                                        <Trash2 className="size-5" />
+                                    </Button>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {task.priority && (
+                                        <Badge
+                                            variant="outline"
+                                            className="gap-1.5"
+                                        >
+                                            <div
+                                                className={cn(
+                                                    'size-2 rounded-full',
+                                                    priorityColors[
+                                                        task.priority.key
+                                                    ] ?? 'bg-muted-foreground',
+                                                )}
+                                            />
+                                            {task.priority.name}
+                                        </Badge>
+                                    )}
+                                    <Badge variant="secondary">
+                                        {task.task_type.name}
+                                    </Badge>
+                                    <Badge
+                                        variant="outline"
+                                        className="font-mono text-xs"
+                                    >
+                                        {task.board_column.name}
+                                    </Badge>
+                                    {task.epics.map((epic) => (
+                                        <Badge
+                                            key={epic.id}
+                                            variant="outline"
+                                            className="gap-1.5"
+                                            style={{
+                                                borderColor:
+                                                    epic.color ?? undefined,
+                                                color: epic.color ?? undefined,
+                                            }}
+                                        >
+                                            <span
+                                                className="size-2 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        epic.color ?? '#64748b',
+                                                }}
+                                            />
+                                            {epic.name}
+                                        </Badge>
+                                    ))}
+                                    {task.sprints.map((sprint) => (
+                                        <Badge key={sprint.id} variant="secondary">
+                                            {sprint.name}
+                                        </Badge>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        variant={
+                                            isWatchedByCurrentUser()
+                                                ? 'secondary'
+                                                : 'outline'
+                                        }
+                                        size="sm"
+                                        onClick={handleWatcherToggle}
+                                        className="gap-1.5"
+                                    >
+                                        {isWatchedByCurrentUser() ? (
+                                            <Eye className="size-4" />
+                                        ) : (
+                                            <EyeOff className="size-4" />
+                                        )}
+                                        <span>
+                                            {isWatchedByCurrentUser()
+                                                ? 'Watching'
+                                                : 'Watch'}
+                                        </span>
+                                    {task.watcher_count > 0 && (
+                                        <span className="ml-0.5 text-muted-foreground">
+                                            {task.watcher_count}
+                                        </span>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div className="flex flex-col gap-6 px-6 py-4">
+                            <div>
+                                <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                    Description
+                                </Label>
+                                <textarea
+                                    value={task.description ?? ''}
+                                    onChange={(event) =>
+                                        updateTaskDraft({
+                                            description: event.target.value,
+                                        })
+                                    }
+                                    onBlur={() =>
+                                        patchTask({
+                                            description: task.description ?? '',
+                                        })
+                                    }
+                                    placeholder="Add a description..."
+                                    className="mt-2 min-h-28 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Status
+                                    </Label>
+                                    <Select
+                                        value={String(task.board_column.id)}
+                                        onValueChange={(value) => {
+                                            const column =
+                                                options.board_columns.find(
+                                                    (item) =>
+                                                        item.id ===
+                                                        Number(value),
+                                                );
+
+                                            if (!column) {
+                                                return;
+                                            }
+
+                                            patchTask(
+                                                { board_column_id: column.id },
+                                                {
+                                                    ...task,
+                                                    status: column.status_key,
+                                                    board_column: column,
+                                                },
+                                            );
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {options.board_columns.map(
+                                                (column) => (
+                                                    <SelectItem
+                                                        key={column.id}
+                                                        value={String(
+                                                            column.id,
+                                                        )}
+                                                    >
+                                                        {column.name}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Task type
+                                    </Label>
+                                    <Select
+                                        value={String(task.task_type.id)}
+                                        onValueChange={(value) => {
+                                            const taskType =
+                                                options.task_types.find(
+                                                    (item) =>
+                                                        item.id ===
+                                                        Number(value),
+                                                );
+
+                                            if (!taskType) {
+                                                return;
+                                            }
+
+                                            patchTask(
+                                                { task_type_id: taskType.id },
+                                                {
+                                                    ...task,
+                                                    task_type: taskType,
+                                                },
+                                            );
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {options.task_types.map(
+                                                (taskType) => (
+                                                    <SelectItem
+                                                        key={taskType.id}
+                                                        value={String(
+                                                            taskType.id,
+                                                        )}
+                                                    >
+                                                        {taskType.name}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Priority
+                                    </Label>
+                                    <Select
+                                        value={
+                                            task.priority
+                                                ? String(task.priority.id)
+                                                : 'none'
+                                        }
+                                        onValueChange={(value) => {
+                                            const priority =
+                                                value === 'none'
+                                                    ? null
+                                                    : (options.priorities.find(
+                                                          (item) =>
+                                                              item.id ===
+                                                              Number(value),
+                                                      ) ?? null);
+
+                                            patchTask(
+                                                {
+                                                    priority_id:
+                                                        priority?.id ?? null,
+                                                },
+                                                { ...task, priority },
+                                            );
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">
+                                                No priority
+                                            </SelectItem>
+                                            {options.priorities.map(
+                                                (priority) => (
+                                                    <SelectItem
+                                                        key={priority.id}
+                                                        value={String(
+                                                            priority.id,
+                                                        )}
+                                                    >
+                                                        {priority.name}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Epic
+                                    </Label>
+                                    <Select
+                                        value={
+                                            task.epics[0]
+                                                ? String(task.epics[0].id)
+                                                : 'none'
+                                        }
+                                        onValueChange={handleEpicChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">
+                                                No epic
+                                            </SelectItem>
+                                            {options.epics.map((epic) => (
+                                                <SelectItem
+                                                    key={epic.id}
+                                                    value={String(epic.id)}
+                                                >
+                                                    {epic.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Sprint
+                                    </Label>
+                                    <Select
+                                        value={
+                                            task.sprints[0]
+                                                ? String(task.sprints[0].id)
+                                                : 'none'
+                                        }
+                                        onValueChange={handleSprintChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">
+                                                No sprint
+                                            </SelectItem>
+                                            {options.sprints.map((sprint) => (
+                                                <SelectItem
+                                                    key={sprint.id}
+                                                    value={String(sprint.id)}
+                                                >
+                                                    {sprint.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Parent task
+                                    </Label>
+                                    <Select
+                                        value={
+                                            task.parent_id
+                                                ? String(task.parent_id)
+                                                : 'none'
+                                        }
+                                        onValueChange={handleParentChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">
+                                                No parent
+                                            </SelectItem>
+                                            {options.available_parent_tasks.map(
+                                                (parentTask) => (
+                                                    <SelectItem
+                                                        key={parentTask.id}
+                                                        value={String(
+                                                            parentTask.id,
+                                                        )}
+                                                    >
+                                                        {parentTask.code}:{' '}
+                                                        {parentTask.title}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Start date
+                                    </Label>
+                                    <Input
+                                        type="date"
+                                        value={formatDateInput(task.start_date)}
+                                        onChange={(event) => {
+                                            const value =
+                                                event.target.value || null;
+                                            updateTaskDraft({
+                                                start_date: value,
+                                            });
+                                            patchTask({ start_date: value });
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Due date
+                                    </Label>
+                                    <Input
+                                        type="date"
+                                        value={formatDateInput(task.due_date)}
+                                        onChange={(event) => {
+                                            const value =
+                                                event.target.value || null;
+                                            updateTaskDraft({
+                                                due_date: value,
+                                            });
+                                            patchTask({ due_date: value });
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Reporter
+                                    </Label>
+                                    <p className="mt-1 text-sm">
+                                        {task.reporter?.name ?? 'Unknown'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <ListTree className="size-4" />
+                                    <h3 className="text-sm font-semibold">
+                                        Sub-tasks
+                                    </h3>
+                                    <span className="text-xs text-muted-foreground">
+                                        {task.children.filter((c) => c.completed_at).length}
+                                        /{task.children.length}
+                                    </span>
+                                </div>
+
+                                {task.children.length > 0 ? (
+                                    <div className="mb-3 flex flex-col rounded-md border">
+                                        {task.children.map((child) => (
+                                            <div
+                                                key={child.id}
+                                                className="flex items-center gap-2 border-b px-3 py-2 last:border-0"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!child.completed_at}
+                                                    onChange={() =>
+                                                        handleSubTaskToggle(
+                                                            child.id,
+                                                            !child.completed_at,
+                                                        )
+                                                    }
+                                                    className="size-4 shrink-0 accent-primary"
+                                                />
+                                                <span
+                                                    className={cn(
+                                                        'min-w-0 flex-1 truncate text-sm',
+                                                        child.completed_at &&
+                                                            'text-muted-foreground line-through',
+                                                    )}
+                                                >
+                                                    {child.code}: {child.title}
+                                                </span>
+                                                {child.priority && (
+                                                    <div
+                                                        className={cn(
+                                                            'size-2 shrink-0 rounded-full',
+                                                            priorityColors[
+                                                                child.priority
+                                                                    .key
+                                                            ] ??
+                                                                'bg-muted-foreground',
+                                                        )}
+                                                    />
+                                                )}
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-6 text-muted-foreground"
+                                                    onClick={() => {
+                                                        onOpenChange(false);
+                                                        window.setTimeout(
+                                                            () => {
+                                                                const event =
+                                                                    new CustomEvent(
+                                                                        'open-task',
+                                                                        {
+                                                                            detail: {
+                                                                                taskId:
+                                                                                    child.id,
+                                                                            },
+                                                                        },
+                                                                    );
+                                                                window.dispatchEvent(
+                                                                    event,
+                                                                );
+                                                            },
+                                                            300,
+                                                        );
+                                                    }}
+                                                >
+                                                    <ChevronRight className="size-3" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="mb-3 text-sm text-muted-foreground">
+                                        No sub-tasks yet.
+                                    </p>
+                                )}
+
+                                <form
+                                    onSubmit={handleAddSubTask}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Input
+                                        value={subTaskTitle}
+                                        onChange={(e) =>
+                                            setSubTaskTitle(e.target.value)
+                                        }
+                                        placeholder="Add sub-task..."
+                                        className="h-8 text-sm"
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={!subTaskTitle.trim()}
+                                    >
+                                        <Plus className="size-3" />
+                                        <span>Add</span>
+                                    </Button>
+                                </form>
+                            </div>
+
+                            <Separator />
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Assignees
+                                    </Label>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {options.assignees.map((assignee) => {
+                                            const selected =
+                                                task.assignees.some(
+                                                    (item) =>
+                                                        item.id === assignee.id,
+                                                );
+
+                                            return (
+                                                <Button
+                                                    key={assignee.id}
+                                                    type="button"
+                                                    variant={
+                                                        selected
+                                                            ? 'secondary'
+                                                            : 'outline'
+                                                    }
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleAssigneeToggle(
+                                                            assignee,
+                                                            !selected,
+                                                        )
+                                                    }
+                                                >
+                                                    {assignee.name}
+                                                </Button>
+                                            );
+                                        })}
+                                        {options.assignees.length === 0 && (
+                                            <span className="text-sm text-muted-foreground">
+                                                No project members.
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                        Labels
+                                    </Label>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {options.labels.map((label) => {
+                                            const selected = task.labels.some(
+                                                (item) => item.id === label.id,
+                                            );
+
+                                            return (
+                                                <Button
+                                                    key={label.id}
+                                                    type="button"
+                                                    variant={
+                                                        selected
+                                                            ? 'secondary'
+                                                            : 'outline'
+                                                    }
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleLabelToggle(
+                                                            label,
+                                                            !selected,
+                                                        )
+                                                    }
+                                                >
+                                                    <span
+                                                        className="size-2 rounded-full"
+                                                        style={{
+                                                            backgroundColor:
+                                                                label.color ??
+                                                                '#64748b',
+                                                        }}
+                                                    />
+                                                    {label.name}
+                                                </Button>
+                                            );
+                                        })}
+                                        {options.labels.length === 0 && (
+                                            <span className="text-sm text-muted-foreground">
+                                                No labels yet.
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label className="text-xs tracking-wider text-muted-foreground uppercase">
+                                    Created
+                                </Label>
+                                <p className="mt-1 text-sm">
+                                    {new Date(
+                                        task.created_at,
+                                    ).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                    })}
+                                </p>
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <Paperclip className="size-4" />
+                                    <h3 className="text-sm font-semibold">
+                                        Attachments
+                                    </h3>
+                                </div>
+
+                                <form
+                                    onSubmit={handleUploadAttachment}
+                                    className="mb-4 flex flex-col gap-2 sm:flex-row"
+                                >
+                                    <Input
+                                        type="file"
+                                        onChange={(event) =>
+                                            setAttachmentFile(
+                                                event.target.files?.[0] ?? null,
+                                            )
+                                        }
+                                        className="text-sm"
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        disabled={!attachmentFile}
+                                    >
+                                        <Upload className="size-4" />
+                                        <span>Upload</span>
+                                    </Button>
+                                </form>
+
+                                {attachments.length > 0 ? (
+                                    <div className="flex flex-col rounded-md border">
+                                        {attachments.map((attachment) => (
+                                            <div
+                                                key={attachment.id}
+                                                className="flex items-center justify-between gap-3 border-b px-3 py-2 last:border-0"
+                                            >
+                                                <a
+                                                    href={attachment.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="min-w-0 flex-1"
+                                                >
+                                                    <span className="block truncate text-sm font-medium hover:underline">
+                                                        {attachment.file_name}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {formatBytes(
+                                                            attachment.file_size,
+                                                        )}{' '}
+                                                        by{' '}
+                                                        {
+                                                            attachment.uploader
+                                                                .name
+                                                        }
+                                                    </span>
+                                                </a>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8 text-muted-foreground hover:text-destructive"
+                                                    onClick={() =>
+                                                        handleDeleteAttachment(
+                                                            attachment.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="py-4 text-center text-sm text-muted-foreground">
+                                        No attachments yet.
+                                    </p>
+                                )}
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <ListTree className="size-4" />
+                                    <h3 className="text-sm font-semibold">
+                                        Relations
+                                    </h3>
+                                </div>
+
+                                {task.relations.length > 0 ? (
+                                    <div className="mb-3 flex flex-col rounded-md border">
+                                        {task.relations.map((rel) => (
+                                            <div
+                                                key={rel.id}
+                                                className="flex items-center gap-2 border-b px-3 py-2 last:border-0"
+                                            >
+                                                <span className="text-xs font-medium uppercase text-muted-foreground">
+                                                    {rel.type.replace(
+                                                        /_/g,
+                                                        ' ',
+                                                    )}
+                                                </span>
+                                                <span className="min-w-0 flex-1 truncate text-sm">
+                                                    {rel.related_task.code}:{' '}
+                                                    {rel.related_task.title}
+                                                </span>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-6 text-muted-foreground hover:text-destructive"
+                                                    onClick={() =>
+                                                        handleRemoveRelation(
+                                                            rel.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <X className="size-3" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="mb-3 text-sm text-muted-foreground">
+                                        No relations yet.
+                                    </p>
+                                )}
+
+                                <form
+                                    onSubmit={handleAddRelation}
+                                    className="flex flex-wrap items-end gap-2"
+                                >
+                                    <div className="flex flex-col gap-1">
+                                        <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                                            Task
+                                        </Label>
+                                        <Select
+                                            value={newRelationTaskId}
+                                            onValueChange={
+                                                setNewRelationTaskId
+                                            }
+                                        >
+                                            <SelectTrigger className="h-8 w-40 text-xs">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">
+                                                    Select task...
+                                                </SelectItem>
+                                                {options.project_tasks
+                                                    .filter(
+                                                        (t) =>
+                                                            t.id !== task.id &&
+                                                            !task.relations.some(
+                                                                (r) =>
+                                                                    r
+                                                                        .related_task
+                                                                        .id ===
+                                                                    t.id,
+                                                            ),
+                                                    )
+                                                    .map((t) => (
+                                                        <SelectItem
+                                                            key={t.id}
+                                                            value={String(
+                                                                t.id,
+                                                            )}
+                                                        >
+                                                            {t.code}:{' '}
+                                                            {t.title}
+                                                        </SelectItem>
+                                                    ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                                            Type
+                                        </Label>
+                                        <Select
+                                            value={newRelationType}
+                                            onValueChange={
+                                                setNewRelationType
+                                            }
+                                        >
+                                            <SelectTrigger className="h-8 w-28 text-xs">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="relates_to">
+                                                    Relates to
+                                                </SelectItem>
+                                                <SelectItem value="blocks">
+                                                    Blocks
+                                                </SelectItem>
+                                                <SelectItem value="duplicates">
+                                                    Duplicates
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={
+                                            newRelationTaskId === 'none'
+                                        }
+                                    >
+                                        <Plus className="size-3" />
+                                        <span>Add</span>
+                                    </Button>
+                                </form>
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <MessageSquare className="size-4" />
+                                    <h3 className="text-sm font-semibold">
+                                        Comments
+                                    </h3>
+                                </div>
+
+                                <form
+                                    onSubmit={handleAddComment}
+                                    className="mb-4"
+                                >
+                                    <Input
+                                        ref={commentInputRef}
+                                        value={commentBody}
+                                        onChange={(e) =>
+                                            setCommentBody(e.target.value)
+                                        }
+                                        placeholder="Write a comment..."
+                                        className="text-sm"
+                                    />
+                                </form>
+
+                                {comments.length > 0 ? (
+                                    <div className="flex flex-col gap-4">
+                                        {comments.map((comment) => (
+                                            <TaskComment
+                                                key={comment.id}
+                                                comment={comment}
+                                                currentUserId={user?.id ?? null}
+                                                onUpdate={handleUpdateComment}
+                                                onDelete={handleDeleteComment}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="py-4 text-center text-sm text-muted-foreground">
+                                        No comments yet.
+                                    </p>
+                                )}
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <Activity className="size-4" />
+                                    <h3 className="text-sm font-semibold">
+                                        Activity
+                                    </h3>
+                                </div>
+
+                                {activities.length > 0 ? (
+                                    <div className="flex flex-col">
+                                        {activities.map((item, i) => (
+                                            <div
+                                                key={item.id}
+                                                className="flex items-start gap-3 py-2"
+                                            >
+                                                <div className="flex flex-col items-center gap-1 pt-0.5">
+                                                    <div className="size-2 rounded-full bg-muted-foreground/30" />
+                                                    {i <
+                                                        activities.length -
+                                                            1 && (
+                                                        <div className="w-px flex-1 bg-border" />
+                                                    )}
+                                                </div>
+                                                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                                    <p className="text-sm">
+                                                        {item.user && (
+                                                            <span className="font-medium">
+                                                                {item.user.name}
+                                                            </span>
+                                                        )}{' '}
+                                                        {formatAction(
+                                                            item.action,
+                                                            item.field_name,
+                                                            item.old_value,
+                                                            item.new_value,
+                                                        )}
+                                                    </p>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {formatTimeAgo(
+                                                            item.created_at,
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="py-4 text-center text-sm text-muted-foreground">
+                                        No activity yet.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center py-20">
+                        <p className="text-sm text-muted-foreground">
+                            Task not found.
+                        </p>
+                    </div>
+                )}
+            </SheetContent>
+        </Sheet>
+    );
+}
+
+function formatAction(
+    action: string,
+    field: string | null,
+    oldVal: string | null,
+    newVal: string | null,
+): string {
+    switch (action) {
+        case 'created':
+            return 'created this task';
+        case 'status_changed':
+            return `changed status from "${oldVal}" to "${newVal}"`;
+        case 'priority_changed':
+            return `changed priority from "${oldVal}" to "${newVal}"`;
+        case 'due_date_changed':
+            return `changed due date from "${oldVal}" to "${newVal}"`;
+        case 'parent_changed':
+            return `changed parent from "${oldVal ?? 'none'}" to "${newVal ?? 'none'}"`;
+        case 'assigned':
+            return `assigned ${newVal}`;
+        case 'unassigned':
+            return `unassigned ${oldVal}`;
+        case 'watcher_added':
+            return `added watcher ${newVal}`;
+        case 'watcher_removed':
+            return `removed watcher ${oldVal}`;
+        case 'relation_added':
+            return `added ${newVal ?? 'relation'}`;
+        case 'relation_removed':
+            return `removed relation`;
+        case 'epic_changed':
+            return `changed epic from "${oldVal ?? 'none'}" to "${newVal ?? 'none'}"`;
+        case 'sprint_changed':
+            return `changed sprint from "${oldVal ?? 'none'}" to "${newVal ?? 'none'}"`;
+        case 'updated':
+            return field ? `updated ${field}` : 'updated this task';
+        default:
+            return action.replace(/_/g, ' ');
+    }
+}
+
+function formatDateInput(date: string | null): string {
+    return date ? date.slice(0, 10) : '';
+}
+
+function formatBytes(bytes: number): string {
+    if (bytes === 0) {
+        return '0 B';
+    }
+
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const index = Math.min(
+        Math.floor(Math.log(bytes) / Math.log(1024)),
+        units.length - 1,
+    );
+
+    return `${(bytes / 1024 ** index).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
+function formatTimeAgo(date: string): string {
+    const now = new Date();
+    const then = new Date(date);
+    const diffMs = now.getTime() - then.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) {
+        return 'just now';
+    }
+
+    if (diffMins < 60) {
+        return `${diffMins}m ago`;
+    }
+
+    if (diffHours < 24) {
+        return `${diffHours}h ago`;
+    }
+
+    if (diffDays < 7) {
+        return `${diffDays}d ago`;
+    }
+
+    return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
