@@ -2,9 +2,22 @@
 
 namespace App\Providers;
 
+use App\Models\Board;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\TaskComment;
+use App\Models\User;
+use App\Models\Workspace;
+use App\Policies\BoardPolicy;
+use App\Policies\ProjectPolicy;
+use App\Policies\TaskCommentPolicy;
+use App\Policies\TaskPolicy;
+use App\Policies\WorkspacePolicy;
+use App\Support\Rbac;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +37,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureAuthorization();
+    }
+
+    protected function configureAuthorization(): void
+    {
+        Gate::policy(Workspace::class, WorkspacePolicy::class);
+        Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(Board::class, BoardPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
+        Gate::policy(TaskComment::class, TaskCommentPolicy::class);
+
+        Gate::before(function (User $user, string $ability, mixed ...$arguments): ?bool {
+            return Rbac::ownsAuthorizationWorkspace($user, $arguments) ? true : null;
+        });
     }
 
     /**
