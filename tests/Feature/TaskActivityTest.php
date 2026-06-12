@@ -1,5 +1,10 @@
 <?php
 
+use App\Events\ActivityLogged;
+use App\Events\CommentCreated;
+use App\Events\TaskFieldUpdated;
+use App\Events\TaskMoved;
+use App\Events\TaskUpdated;
 use App\Models\ActivityLog;
 use App\Models\Notification;
 use App\Models\User;
@@ -41,7 +46,13 @@ test('task creation logs activity and assignment notifications', function () {
 });
 
 test('task updates and moves log activity', function () {
-    Event::fake();
+    Event::fake([
+        ActivityLogged::class,
+        TaskFieldUpdated::class,
+        TaskMoved::class,
+        CommentCreated::class,
+        TaskUpdated::class,
+    ]);
 
     $developer = User::factory()->create();
     $workspace = createWorkspaceMember($developer, 'manager');

@@ -68,10 +68,16 @@ class User extends Authenticatable implements PasskeyUser
      *
      * @return array<string, string>
      */
+    public function isSuperAdmin(): bool
+    {
+        return (bool) $this->is_super_admin;
+    }
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_super_admin' => 'boolean',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'last_login_at' => 'datetime',

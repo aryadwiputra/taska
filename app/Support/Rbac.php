@@ -22,6 +22,10 @@ class Rbac
 
     public static function userCanInWorkspace(User $user, Workspace $workspace, string $permission): bool
     {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
         if (self::workspaceRole($user, $workspace) === null) {
             return false;
         }

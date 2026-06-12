@@ -158,3 +158,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::scopeBindings()->post('/workspaces/{workspace:slug}/projects/{project:slug}/github/webhook', [GitHubWebhookController::class, 'handle'])->name('projects.github.webhook');
 
 require __DIR__.'/settings.php';
+require __DIR__.'/admin.php';

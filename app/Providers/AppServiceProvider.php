@@ -49,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TaskComment::class, TaskCommentPolicy::class);
 
         Gate::before(function (User $user, string $ability, mixed ...$arguments): ?bool {
+            if ($user->isSuperAdmin()) {
+                return true;
+            }
+
             return Rbac::ownsAuthorizationWorkspace($user, $arguments) ? true : null;
         });
 

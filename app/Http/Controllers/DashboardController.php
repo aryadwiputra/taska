@@ -3,15 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function show(Request $request): Response
+    public function show(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
+
+        if ($user->workspaces()->count() === 0) {
+            Inertia::flash('toast', ['type' => 'info', 'message' => 'Create your first workspace to get started.']);
+
+            return to_route('workspaces.create');
+        }
 
         return Inertia::render('dashboard', [
             'stats' => [

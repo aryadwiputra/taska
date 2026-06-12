@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetPermissionsTeamId;
@@ -18,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'super-admin' => EnsureUserIsSuperAdmin::class,
+        ]);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
