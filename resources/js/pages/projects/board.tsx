@@ -7,7 +7,11 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import type { DragOverEvent, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
+import type {
+    DragOverEvent,
+    DragStartEvent,
+    DragEndEvent,
+} from '@dnd-kit/core';
 import {
     SortableContext,
     useSortable,
@@ -15,13 +19,25 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDown, ArrowLeft, GripVertical } from 'lucide-react';
+import { ArrowDown, ArrowLeft, GripVertical, Settings2 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { BoardColumnManager } from '@/components/board-column-manager';
 import { TaskCard } from '@/components/task-card';
 import { TaskCreateDialog } from '@/components/task-create-dialog';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { cn } from '@/lib/utils';
+import { board as projectBoard, show as projectShow } from '@/routes/projects';
+import { move as moveTask } from '@/routes/projects/tasks';
 
 interface Assignee {
     id: number;
@@ -94,10 +110,17 @@ interface BoardData {
     type: string;
 }
 
+interface BoardOption {
+    id: number;
+    name: string;
+    type: string;
+}
+
 interface Props {
     workspace: Workspace;
     project: ProjectData;
     board: BoardData;
+    allBoards: BoardOption[];
     columns: Column[];
     taskTypes: Array<{
         id: number;
@@ -183,9 +206,11 @@ function DroppableColumn({
         <div
             ref={setNodeRef}
             className={cn(
-                'flex w-72 shrink-0 flex-col rounded-lg bg-muted/50 transition-colors',
+                'flex w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-lg bg-muted/50 transition-colors sm:w-72',
                 isOver && !isEmpty && 'ring-2 ring-primary/50',
-                isOver && isEmpty && 'border-2 border-dashed border-primary/50 bg-primary/5',
+                isOver &&
+                    isEmpty &&
+                    'border-2 border-dashed border-primary/50 bg-primary/5',
             )}
         >
             {children}
@@ -201,9 +226,7 @@ function DroppableColumn({
             )}
             {!isOver && isEmpty && !hasActiveTask && (
                 <div className="flex flex-1 items-center justify-center py-8">
-                    <p className="text-xs text-muted-foreground">
-                        No tasks
-                    </p>
+                    <p className="text-xs text-muted-foreground">No tasks</p>
                 </div>
             )}
         </div>
@@ -217,6 +240,8 @@ export default function Board(props: Props) {
 function BoardClient({
     workspace,
     project,
+    board,
+    allBoards,
     columns: initialColumns,
     taskTypes,
     priorities,
@@ -228,6 +253,29 @@ function BoardClient({
     const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [columnManagerOpen, setColumnManagerOpen] = useState(false);
+    const [newTaskOpen, setNewTaskOpen] = useState(false);
+
+    useKeyboardShortcuts([
+        {
+            key: 'n',
+            handler: () => setNewTaskOpen(true),
+            enabled: !newTaskOpen,
+            description: 'New task',
+        },
+        {
+            sequence: ['g', 's'],
+            handler: () => {
+                router.visit(
+                    projectBoard({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    }),
+                );
+            },
+            description: 'Go to settings',
+        },
+    ]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -241,7 +289,9 @@ function BoardClient({
 
     const handleDragStart = (event: DragStartEvent) => {
         columnsSnapshotRef.current = columns;
-        const task = columns.flatMap((c) => c.tasks).find((t) => t.id === event.active.id);
+        const task = columns
+            .flatMap((c) => c.tasks)
+            .find((t) => t.id === event.active.id);
         setActiveTask(task ?? null);
     };
 
@@ -260,7 +310,9 @@ function BoardClient({
         if (typeof overId === 'string' && overId.startsWith('col:')) {
             toColId = Number(overId.slice(4));
         } else {
-            const col = columns.find((c) => c.tasks.some((t) => t.id === overId));
+            const col = columns.find((c) =>
+                c.tasks.some((t) => t.id === overId),
+            );
             toColId = col?.id;
         }
 
@@ -269,7 +321,9 @@ function BoardClient({
         }
 
         setColumns((prev) => {
-            const src = prev.find((c) => c.tasks.some((t) => t.id === activeTaskId));
+            const src = prev.find((c) =>
+                c.tasks.some((t) => t.id === activeTaskId),
+            );
             const tgt = prev.find((c) => c.id === toColId);
 
             if (!src || !tgt || src.id === tgt.id) {
@@ -296,7 +350,10 @@ function BoardClient({
 
             return prev.map((col) => {
                 if (col.id === src.id) {
-                    return { ...col, tasks: col.tasks.filter((t) => t.id !== activeTaskId) };
+                    return {
+                        ...col,
+                        tasks: col.tasks.filter((t) => t.id !== activeTaskId),
+                    };
                 }
 
                 if (col.id === tgt.id) {
@@ -353,22 +410,24 @@ function BoardClient({
             if (typeof overId === 'string' && overId.startsWith('col:')) {
                 position = toColumn.tasks.length;
             } else {
-                position = toColumn.tasks.findIndex((t) => t.id === (overId as number));
+                position = toColumn.tasks.findIndex(
+                    (t) => t.id === (overId as number),
+                );
                 position = Math.max(0, position);
             }
 
             setColumns((prev) =>
                 prev.map((col) => {
                     if (col.id !== toColumn!.id) {
-return col;
-}
+                        return col;
+                    }
 
                     const tasks = col.tasks.filter((t) => t.id !== taskId);
                     const found = col.tasks.find((t) => t.id === taskId);
 
                     if (!found) {
-return col;
-}
+                        return col;
+                    }
 
                     tasks.splice(position, 0, found);
 
@@ -381,7 +440,11 @@ return col;
         }
 
         router.post(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/tasks/${taskId}/move`,
+            moveTask({
+                workspace: workspace.slug,
+                project: project.slug,
+                task: taskId,
+            }),
             {
                 board_column_id: toColumn.id,
                 position,
@@ -396,28 +459,87 @@ return col;
         <>
             <Head title={`${project.name} — Board`} />
 
-            <div className="flex h-full flex-1 flex-col overflow-hidden p-6" suppressHydrationWarning>
-                <div className="mb-4 flex shrink-0 items-center justify-between">
+            <div
+                className="flex h-full flex-1 flex-col overflow-hidden p-6"
+                suppressHydrationWarning
+            >
+                <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link
-                            href={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                            href={projectShow({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
                             className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                         >
                             <ArrowLeft className="size-4" />
                             <span>{project.name}</span>
                         </Link>
+
+                        {allBoards.length > 1 && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                    Board:
+                                </span>
+                                <Select
+                                    value={String(board.id)}
+                                    onValueChange={(value) => {
+                                        router.visit(
+                                            projectBoard.url(
+                                                {
+                                                    workspace: workspace.slug,
+                                                    project: project.slug,
+                                                },
+                                                {
+                                                    query: {
+                                                        board_id: value,
+                                                    },
+                                                },
+                                            ),
+                                        );
+                                    }}
+                                >
+                                    <SelectTrigger className="h-8 w-44">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {allBoards.map((b) => (
+                                            <SelectItem
+                                                key={b.id}
+                                                value={String(b.id)}
+                                            >
+                                                {b.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
-                    <TaskCreateDialog
-                        workspaceSlug={workspace.slug}
-                        projectSlug={project.slug}
-                        taskTypes={taskTypes}
-                        priorities={priorities}
-                        epics={epics}
-                        sprints={sprints}
-                        onCreated={() => {
-                            router.reload();
-                        }}
-                    />
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setColumnManagerOpen(true)}
+                        >
+                            <Settings2 className="size-3.5" />
+                            <span>Columns</span>
+                        </Button>
+                        <TaskCreateDialog
+                            workspaceSlug={workspace.slug}
+                            projectSlug={project.slug}
+                            taskTypes={taskTypes}
+                            priorities={priorities}
+                            epics={epics}
+                            sprints={sprints}
+                            open={newTaskOpen}
+                            onOpenChange={setNewTaskOpen}
+                            onCreated={() => {
+                                router.reload();
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <DndContext
@@ -463,14 +585,17 @@ return col;
                                     <div
                                         className={cn(
                                             'flex min-h-[100px] flex-col gap-2 px-2 pb-2',
-                                            column.tasks.length === 0 && 'hidden',
+                                            column.tasks.length === 0 &&
+                                                'hidden',
                                         )}
                                     >
                                         {column.tasks.map((task) => (
                                             <SortableTask
                                                 key={task.id}
                                                 task={task}
-                                                isDragging={activeTask?.id === task.id}
+                                                isDragging={
+                                                    activeTask?.id === task.id
+                                                }
                                                 onClick={() => {
                                                     setDrawerTaskId(task.id);
                                                     setDrawerOpen(true);
@@ -491,6 +616,15 @@ return col;
                         )}
                     </DragOverlay>
                 </DndContext>
+
+                <BoardColumnManager
+                    workspaceSlug={workspace.slug}
+                    projectSlug={project.slug}
+                    boardId={board.id}
+                    columns={columns}
+                    open={columnManagerOpen}
+                    onOpenChange={setColumnManagerOpen}
+                />
 
                 <TaskDetailDrawer
                     workspaceSlug={workspace.slug}

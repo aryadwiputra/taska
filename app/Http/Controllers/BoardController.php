@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBoardRequest;
+use App\Http\Requests\UpdateBoardRequest;
+use App\Models\Board;
 use App\Models\Project;
 use App\Models\Workspace;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class BoardController extends Controller
 {
-    public function show(Workspace $workspace, Project $project): Response
+    public function show(Workspace $workspace, Project $project, Request $request): Response
     {
-        $board = $project->boards()->where('is_default', true)->firstOrFail();
+        $boardId = $request->query('board_id');
+        $board = $boardId
+            ? $project->boards()->findOrFail($boardId)
+            : $project->boards()->where('is_default', true)->firstOrFail();
 
         Gate::authorize('view', $board);
 
@@ -88,11 +96,70 @@ class BoardController extends Controller
                 'name' => $board->name,
                 'type' => $board->type,
             ],
+            'allBoards' => $project->boards()->orderBy('name')->get(['id', 'name', 'type']),
             'columns' => $columns,
             'taskTypes' => $workspace->taskTypes()->select('id', 'name', 'key', 'color')->get(),
             'priorities' => $workspace->priorities()->select('id', 'name', 'key', 'level')->get(),
             'epics' => $project->epics()->orderBy('name')->get(['id', 'name', 'color', 'status']),
             'sprints' => $project->sprints()->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'planned' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END")->orderByDesc('start_date')->get(['id', 'name', 'status', 'start_date', 'end_date']),
         ]);
+    }
+
+    public function store(StoreBoardRequest $request, Workspace $workspace, Project $project): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $board = $project->boards()->create([
+            'name' => $validated['name'],
+            'type' => $validated['type'] ?? 'kanban',
+            'is_default' => ! $project->boards()->exists(),
+        ]);
+
+        // Create default columns for new board
+        $defaultColumns = [
+            ['name' => 'Todo', 'status_key' => 'todo', 'position' => 0],
+            ['name' => 'In Progress', 'status_key' => 'in_progress', 'position' => 1],
+            ['name' => 'Review', 'status_key' => 'review', 'position' => 2],
+            ['name' => 'Done', 'status_key' => 'done', 'position' => 3, 'is_done_column' => true],
+        ];
+
+        foreach ($defaultColumns as $i => $col) {
+            $board->columns()->create($col);
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Board created.']);
+
+        return back(303);
+    }
+
+    public function update(UpdateBoardRequest $request, Workspace $workspace, Project $project, Board $board): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $board->update([
+            'name' => $validated['name'],
+            'type' => $validated['type'] ?? $board->type,
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Board updated.']);
+
+        return back(303);
+    }
+
+    public function destroy(Workspace $workspace, Project $project, Board $board): RedirectResponse
+    {
+        Gate::authorize('delete', $board);
+
+        if ($board->is_default) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Cannot delete the default board.']);
+
+            return back(303);
+        }
+
+        $board->delete();
+
+        Inertia::flash('toast', ['type' => 'info', 'message' => 'Board deleted.']);
+
+        return back(303);
     }
 }

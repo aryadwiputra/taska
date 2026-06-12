@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpicController;
@@ -111,6 +112,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/activity', [ActivityLogController::class, 'index'])->name('projects.activity.index');
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/board', [BoardController::class, 'show'])->name('projects.board');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/boards', [BoardController::class, 'store'])->name('projects.boards.store');
+        Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}', [BoardController::class, 'update'])->name('projects.boards.update');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}', [BoardController::class, 'destroy'])->name('projects.boards.destroy');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns', [BoardColumnController::class, 'store'])->name('projects.boards.columns.store');
+        Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/{boardColumn}', [BoardColumnController::class, 'update'])->name('projects.boards.columns.update');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/{boardColumn}', [BoardColumnController::class, 'destroy'])->name('projects.boards.columns.destroy');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/reorder', [BoardColumnController::class, 'reorder'])->name('projects.boards.columns.reorder');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
         Route::patch('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
