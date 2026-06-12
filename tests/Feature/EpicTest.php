@@ -36,6 +36,34 @@ test('project viewers cannot manage epics', function () {
         ->assertForbidden();
 });
 
+test('project managers can add and remove tasks from epics', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $task = createTaskForProject($project, $manager);
+    $epic = Epic::create([
+        'project_id' => $project->id,
+        'name' => 'Test epic',
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($manager)->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.epics.add-task', [$workspace, $project, $epic]), [
+            'task_id' => $task->id,
+        ])
+        ->assertRedirect();
+
+    expect($epic->tasks()->where('task_id', $task->id)->exists())->toBeTrue();
+
+    $this->actingAs($manager)->withSession(['current_workspace_id' => $workspace->id])
+        ->delete(route('projects.epics.remove-task', [$workspace, $project, $epic]), [
+            'task_id' => $task->id,
+        ])
+        ->assertRedirect();
+
+    expect($epic->tasks()->where('task_id', $task->id)->exists())->toBeFalse();
+});
+
 test('project managers can update and delete epics attached to tasks', function () {
     $manager = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');

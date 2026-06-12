@@ -4,8 +4,8 @@ import {
     ArrowLeft,
     Bell,
     Check,
-    Globe,
     LayoutGrid,
+    Pencil,
     Plus,
     Trash2,
     UserPlus,
@@ -28,6 +28,39 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    show as projectShow,
+    update as projectUpdate,
+    destroy as projectDestroy,
+    restore as projectRestore,
+} from '@/routes/projects';
+import {
+    store as columnStore,
+    update as columnUpdate,
+    destroy as columnDestroy,
+} from '@/routes/projects/boards/columns';
+import {
+    update as epicUpdate,
+    destroy as epicDestroy,
+    show as epicShow,
+} from '@/routes/projects/epics';
+import {
+    store as labelStore,
+    update as labelUpdate,
+    destroy as labelDestroy,
+    show as labelShow,
+} from '@/routes/projects/labels';
+import {
+    update as memberUpdate,
+    destroy as memberDestroy,
+} from '@/routes/projects/members';
+import { update as projectSettingsUpdate } from '@/routes/projects/settings';
+import {
+    store as sprintStore,
+    update as sprintUpdate,
+    destroy as sprintDestroy,
+    show as sprintShow,
+} from '@/routes/projects/sprints';
 
 interface Member {
     id: number;
@@ -89,10 +122,20 @@ interface ProjectSettings {
     [key: string]: string | boolean | number | null;
 }
 
+interface BoardColumnOption {
+    id: number;
+    name: string;
+    color: string | null;
+    position: number;
+    is_done_column: boolean;
+    status_key: string;
+}
+
 interface BoardOption {
     id: number;
     name: string;
-    columns: Array<{ id: number; name: string }>;
+    type: string;
+    columns: BoardColumnOption[];
 }
 
 interface Props {
@@ -132,11 +175,17 @@ export default function ProjectSettings({
     const [editingSprint, setEditingSprint] = useState<ProjectSprint | null>(
         null,
     );
+    const [editingColumn, setEditingColumn] =
+        useState<BoardColumnOption | null>(null);
     const isArchived = !!project.deleted_at;
 
     const handleRoleChange = (memberId: number, newRole: string) => {
         router.put(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/members/${memberId}`,
+            memberUpdate({
+                workspace: workspace.slug,
+                project: project.slug,
+                member: memberId,
+            }),
             { role: newRole },
             { preserveScroll: true },
         );
@@ -148,7 +197,11 @@ export default function ProjectSettings({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/members/${memberId}`,
+            memberDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                member: memberId,
+            }),
             { preserveScroll: true },
         );
     };
@@ -159,7 +212,11 @@ export default function ProjectSettings({
         }
 
         router.put(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/labels/${editingLabel.id}`,
+            labelUpdate({
+                workspace: workspace.slug,
+                project: project.slug,
+                label: editingLabel.id,
+            }),
             {
                 name: editingLabel.name,
                 color: editingLabel.color,
@@ -177,7 +234,11 @@ export default function ProjectSettings({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/labels/${labelId}`,
+            labelDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                label: labelId,
+            }),
             { preserveScroll: true },
         );
     };
@@ -188,7 +249,11 @@ export default function ProjectSettings({
         }
 
         router.put(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/epics/${editingEpic.id}`,
+            epicUpdate({
+                workspace: workspace.slug,
+                project: project.slug,
+                epic: editingEpic.id,
+            }),
             {
                 name: editingEpic.name,
                 summary: editingEpic.summary,
@@ -210,7 +275,11 @@ export default function ProjectSettings({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/epics/${epicId}`,
+            epicDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                epic: epicId,
+            }),
             { preserveScroll: true },
         );
     };
@@ -221,7 +290,11 @@ export default function ProjectSettings({
         }
 
         router.put(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${editingSprint.id}`,
+            sprintUpdate({
+                workspace: workspace.slug,
+                project: project.slug,
+                sprint: editingSprint.id,
+            }),
             {
                 name: editingSprint.name,
                 goal: editingSprint.goal,
@@ -244,7 +317,55 @@ export default function ProjectSettings({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${sprintId}`,
+            sprintDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                sprint: sprintId,
+            }),
+            { preserveScroll: true },
+        );
+    };
+
+    const handleUpdateColumn = (boardId: number) => {
+        if (!editingColumn) {
+            return;
+        }
+
+        router.put(
+            columnUpdate({
+                workspace: workspace.slug,
+                project: project.slug,
+                board: boardId,
+                boardColumn: editingColumn.id,
+            }),
+            {
+                name: editingColumn.name,
+                color: editingColumn.color,
+                is_done_column: editingColumn.is_done_column,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => setEditingColumn(null),
+            },
+        );
+    };
+
+    const handleDeleteColumn = (boardId: number, columnId: number) => {
+        if (
+            !confirm(
+                'Delete this column? Tasks in this column will lose their column reference.',
+            )
+        ) {
+            return;
+        }
+
+        router.delete(
+            columnDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                board: boardId,
+                boardColumn: columnId,
+            }),
             { preserveScroll: true },
         );
     };
@@ -256,7 +377,10 @@ export default function ProjectSettings({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
                 <div className="flex items-center gap-4">
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                        href={projectShow({
+                            workspace: workspace.slug,
+                            project: project.slug,
+                        })}
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
@@ -275,6 +399,7 @@ export default function ProjectSettings({
                             <TabsTrigger value="settings">Settings</TabsTrigger>
                             <TabsTrigger value="members">Members</TabsTrigger>
                             <TabsTrigger value="labels">Labels</TabsTrigger>
+                            <TabsTrigger value="board">Board</TabsTrigger>
                             <TabsTrigger value="epics">Epics</TabsTrigger>
                             <TabsTrigger value="sprints">Sprints</TabsTrigger>
                             <TabsTrigger value="danger">
@@ -289,7 +414,10 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent>
                                     <Form
-                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                                        action={projectUpdate.url({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        })}
                                         method="put"
                                         className="flex flex-col gap-4"
                                     >
@@ -414,15 +542,14 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent>
                                     <Form
-                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                                        action={projectSettingsUpdate.url({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        })}
                                         method="put"
                                         className="flex flex-col gap-6"
                                     >
-                                        {({
-                                            errors,
-                                            processing,
-                                            wasSuccessful,
-                                        }) => (
+                                        {({ processing, wasSuccessful }) => (
                                             <>
                                                 <div className="flex flex-col gap-2">
                                                     <Label
@@ -437,8 +564,8 @@ export default function ProjectSettings({
                                                         defaultValue={
                                                             (settings.default_board_id as string) ??
                                                             String(
-                                                                boards[0]
-                                                                    ?.id ?? '',
+                                                                boards[0]?.id ??
+                                                                    '',
                                                             )
                                                         }
                                                     >
@@ -666,7 +793,10 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
-                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}/labels`}
+                                        action={labelStore.url({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        })}
                                         method="post"
                                         className="grid gap-3 sm:grid-cols-[1fr_auto_auto]"
                                         resetOnSuccess
@@ -812,7 +942,15 @@ export default function ProjectSettings({
                                                                 {label.slug}
                                                             </span>
                                                             <Link
-                                                                href={`/workspaces/${workspace.slug}/projects/${project.slug}/labels/${label.id}`}
+                                                                href={labelShow(
+                                                                    {
+                                                                        workspace:
+                                                                            workspace.slug,
+                                                                        project:
+                                                                            project.slug,
+                                                                        label: label.id,
+                                                                    },
+                                                                )}
                                                             >
                                                                 <Button
                                                                     type="button"
@@ -862,6 +1000,273 @@ export default function ProjectSettings({
                             </Card>
                         </TabsContent>
 
+                        <TabsContent value="board">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Columns</CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex flex-col gap-6">
+                                    {boards.length === 0 && (
+                                        <p className="py-8 text-center text-sm text-muted-foreground">
+                                            No board found.
+                                        </p>
+                                    )}
+                                    {boards.map((board) => (
+                                        <div key={board.id}>
+                                            <div className="mb-4 flex items-center gap-3">
+                                                <div className="flex-1">
+                                                    <h3 className="text-sm font-medium">
+                                                        {board.name}
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <Form
+                                                action={columnStore.url({
+                                                    workspace: workspace.slug,
+                                                    project: project.slug,
+                                                    board: board.id,
+                                                })}
+                                                method="post"
+                                                className="grid gap-3 sm:grid-cols-[1fr_auto_auto]"
+                                                resetOnSuccess
+                                            >
+                                                {({ errors, processing }) => (
+                                                    <>
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label
+                                                                htmlFor={`col-name-${board.id}`}
+                                                            >
+                                                                Name
+                                                            </Label>
+                                                            <Input
+                                                                id={`col-name-${board.id}`}
+                                                                name="name"
+                                                                placeholder="In Progress"
+                                                                data-invalid={
+                                                                    !!errors.name
+                                                                }
+                                                            />
+                                                            {errors.name && (
+                                                                <p className="text-sm text-destructive">
+                                                                    {
+                                                                        errors.name
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label
+                                                                htmlFor={`col-status-${board.id}`}
+                                                            >
+                                                                Status Key
+                                                            </Label>
+                                                            <Input
+                                                                id={`col-status-${board.id}`}
+                                                                name="status_key"
+                                                                placeholder="in_progress"
+                                                                data-invalid={
+                                                                    !!errors.status_key
+                                                                }
+                                                            />
+                                                            {errors.status_key && (
+                                                                <p className="text-sm text-destructive">
+                                                                    {
+                                                                        errors.status_key
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-end">
+                                                            <Button
+                                                                type="submit"
+                                                                disabled={
+                                                                    processing
+                                                                }
+                                                            >
+                                                                <Plus className="size-4" />
+                                                                <span>
+                                                                    Add column
+                                                                </span>
+                                                            </Button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </Form>
+
+                                            <Separator className="my-4" />
+
+                                            <div className="flex flex-col">
+                                                {[...board.columns]
+                                                    .sort(
+                                                        (a, b) =>
+                                                            a.position -
+                                                            b.position,
+                                                    )
+                                                    .map((column) => {
+                                                        const isEditing =
+                                                            editingColumn?.id ===
+                                                            column.id;
+
+                                                        return (
+                                                            <div
+                                                                key={column.id}
+                                                                className="flex items-center gap-3 border-b py-3 last:border-0"
+                                                            >
+                                                                {isEditing ? (
+                                                                    <>
+                                                                        <Input
+                                                                            value={
+                                                                                editingColumn.name
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) =>
+                                                                                setEditingColumn(
+                                                                                    {
+                                                                                        ...editingColumn,
+                                                                                        name: e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                            className="min-w-0 flex-1"
+                                                                        />
+                                                                        <Input
+                                                                            type="color"
+                                                                            value={
+                                                                                editingColumn.color ??
+                                                                                '#64748b'
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) =>
+                                                                                setEditingColumn(
+                                                                                    {
+                                                                                        ...editingColumn,
+                                                                                        color: e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                            className="h-10 w-20 p-1"
+                                                                        />
+                                                                        <label className="flex items-center gap-2 text-sm">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={
+                                                                                    editingColumn.is_done_column
+                                                                                }
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    setEditingColumn(
+                                                                                        {
+                                                                                            ...editingColumn,
+                                                                                            is_done_column:
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .checked,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                            Done
+                                                                        </label>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            onClick={() =>
+                                                                                handleUpdateColumn(
+                                                                                    board.id,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Save
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="ghost"
+                                                                            onClick={() =>
+                                                                                setEditingColumn(
+                                                                                    null,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Cancel
+                                                                        </Button>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <div
+                                                                            className="size-3 shrink-0 rounded-full"
+                                                                            style={{
+                                                                                backgroundColor:
+                                                                                    column.color ??
+                                                                                    '#64748b',
+                                                                            }}
+                                                                        />
+                                                                        <span className="min-w-0 flex-1 text-sm">
+                                                                            {
+                                                                                column.name
+                                                                            }
+                                                                        </span>
+                                                                        <span className="text-xs text-muted-foreground">
+                                                                            {
+                                                                                column.status_key
+                                                                            }
+                                                                        </span>
+                                                                        {column.is_done_column && (
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className="text-[10px]"
+                                                                            >
+                                                                                Done
+                                                                            </Badge>
+                                                                        )}
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="ghost"
+                                                                            onClick={() =>
+                                                                                setEditingColumn(
+                                                                                    {
+                                                                                        ...column,
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Pencil className="size-3" />
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="ghost"
+                                                                            onClick={() =>
+                                                                                handleDeleteColumn(
+                                                                                    board.id,
+                                                                                    column.id,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Trash2 className="size-3" />
+                                                                        </Button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {board.columns.length === 0 && (
+                                                    <p className="py-8 text-center text-sm text-muted-foreground">
+                                                        No columns yet.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
                         <TabsContent value="epics">
                             <Card>
                                 <CardHeader>
@@ -869,7 +1274,10 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
-                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}/epics`}
+                                        action={sprintStore({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        })}
                                         method="post"
                                         className="grid gap-3"
                                         resetOnSuccess
@@ -1186,7 +1594,13 @@ export default function ProjectSettings({
                                                                 )}
                                                             </div>
                                                             <Link
-                                                                href={`/workspaces/${workspace.slug}/projects/${project.slug}/epics/${epic.id}`}
+                                                                href={epicShow({
+                                                                    workspace:
+                                                                        workspace.slug,
+                                                                    project:
+                                                                        project.slug,
+                                                                    epic: epic.id,
+                                                                })}
                                                             >
                                                                 <Button
                                                                     type="button"
@@ -1243,7 +1657,10 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
-                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}/sprints`}
+                                        action={sprintStore.url({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        })}
                                         method="post"
                                         className="grid gap-3"
                                         resetOnSuccess
@@ -1523,7 +1940,15 @@ export default function ProjectSettings({
                                                                 )}
                                                             </div>
                                                             <Link
-                                                                href={`/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${sprint.id}`}
+                                                                href={sprintShow(
+                                                                    {
+                                                                        workspace:
+                                                                            workspace.slug,
+                                                                        project:
+                                                                            project.slug,
+                                                                        sprint: sprint.id,
+                                                                    },
+                                                                )}
                                                             >
                                                                 <Button
                                                                     type="button"
@@ -1600,7 +2025,14 @@ export default function ProjectSettings({
                                             {deleteConfirmOpen && (
                                                 <div className="flex items-center gap-2">
                                                     <form
-                                                        action={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                                                        action={projectDestroy.url(
+                                                            {
+                                                                workspace:
+                                                                    workspace.slug,
+                                                                project:
+                                                                    project.slug,
+                                                            },
+                                                        )}
                                                         method="post"
                                                     >
                                                         <input
@@ -1649,7 +2081,10 @@ export default function ProjectSettings({
                                                 active again.
                                             </p>
                                             <form
-                                                action={`/workspaces/${workspace.slug}/projects/${project.slug}/restore`}
+                                                action={projectRestore.url({
+                                                    workspace: workspace.slug,
+                                                    project: project.slug,
+                                                })}
                                                 method="post"
                                             >
                                                 <input

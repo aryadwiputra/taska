@@ -18,13 +18,32 @@ import {
     Upload,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { EpicDialog } from '@/components/epic-dialog';
+import { LabelDialog } from '@/components/label-dialog';
+import { SprintDialog } from '@/components/sprint-dialog';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { board as projectBoard } from '@/routes/projects';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import {
+    board as projectBoard,
+    index as projectsIndex,
+    settings as projectSettings,
+} from '@/routes/projects';
+import { index as activityIndex } from '@/routes/projects/activity';
+import {
+    destroy as destroyEpic,
+    show as epicShow,
+} from '@/routes/projects/epics';
+import { destroy as destroyLabel } from '@/routes/projects/labels';
+import {
+    destroy as destroySprint,
+    show as sprintShow,
+} from '@/routes/projects/sprints';
 
 interface Member {
     id: number;
@@ -125,6 +144,14 @@ interface SprintRow {
     completed_tasks_count: number;
 }
 
+interface LabelRow {
+    id: number;
+    name: string;
+    slug: string;
+    color: string | null;
+    tasks_count: number;
+}
+
 interface AttachmentRow {
     id: number;
     file_name: string;
@@ -161,6 +188,7 @@ interface Props {
     tasks: TaskRow[];
     epics: EpicRow[];
     sprints: SprintRow[];
+    labels: LabelRow[];
     attachments: AttachmentRow[];
     activities: ActivityRow[];
 }
@@ -173,102 +201,156 @@ export default function ProjectShow({
     tasks,
     epics,
     sprints,
+    labels,
     attachments,
     activities,
 }: Props) {
     const [search, setSearch] = useState('');
+    const [activeTab, setActiveTab] = useState('list');
     const [sorting, setSorting] = useState<SortingState>([]);
     const [page, setPage] = useState(0);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [epicDialogOpen, setEpicDialogOpen] = useState(false);
+    const [editingEpic, setEditingEpic] = useState<EpicRow | null>(null);
+    const [deletingEpic, setDeletingEpic] = useState<EpicRow | null>(null);
+    const [sprintDialogOpen, setSprintDialogOpen] = useState(false);
+    const [editingSprint, setEditingSprint] = useState<SprintRow | null>(null);
+    const [deletingSprint, setDeletingSprint] = useState<SprintRow | null>(
+        null,
+    );
+    const [labelDialogOpen, setLabelDialogOpen] = useState(false);
+    const [editingLabel, setEditingLabel] = useState<LabelRow | null>(null);
+    const [deletingLabel, setDeletingLabel] = useState<LabelRow | null>(null);
 
-    const filteredTasks = useMemo(() => tasks.filter((task) => {
-        const query = search.toLowerCase();
-
-        return (
-            task.title.toLowerCase().includes(query) ||
-            task.code.toLowerCase().includes(query) ||
-            task.board_column.name.toLowerCase().includes(query) ||
-            task.assignees.some((assignee) =>
-                assignee.name.toLowerCase().includes(query),
-            )
-        );
-    }), [search, tasks]);
-
-    const columns: Array<ColumnDef<TaskRow>> = useMemo(() => [
+    useKeyboardShortcuts([
         {
-            accessorKey: 'code',
-            header: 'Code',
-            cell: ({ row }) => (
-                <span className="font-mono text-xs text-muted-foreground">
-                    {row.original.code}
-                </span>
-            ),
+            sequence: ['g', 'l'],
+            handler: () => setActiveTab('list'),
+            description: 'Go to list',
         },
         {
-            accessorKey: 'title',
-            header: 'Task',
-            cell: ({ row }) => (
-                <div className="flex min-w-0 flex-col gap-1">
-                    <span className="truncate font-medium">
-                        {row.original.title}
+            sequence: ['g', 'b'],
+            handler: () => {
+                router.visit(
+                    projectBoard({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    }),
+                );
+            },
+            description: 'Go to board',
+        },
+        {
+            sequence: ['g', 's'],
+            handler: () => {
+                router.visit(
+                    projectSettings({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    }),
+                );
+            },
+            description: 'Go to settings',
+        },
+    ]);
+
+    const filteredTasks = useMemo(
+        () =>
+            tasks.filter((task) => {
+                const query = search.toLowerCase();
+
+                return (
+                    task.title.toLowerCase().includes(query) ||
+                    task.code.toLowerCase().includes(query) ||
+                    task.board_column.name.toLowerCase().includes(query) ||
+                    task.assignees.some((assignee) =>
+                        assignee.name.toLowerCase().includes(query),
+                    )
+                );
+            }),
+        [search, tasks],
+    );
+
+    const columns: Array<ColumnDef<TaskRow>> = useMemo(
+        () => [
+            {
+                accessorKey: 'code',
+                header: 'Code',
+                cell: ({ row }) => (
+                    <span className="font-mono text-xs text-muted-foreground">
+                        {row.original.code}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                        {row.original.task_type.name}
-                    </span>
-                </div>
-            ),
-        },
-        {
-            accessorKey: 'board_column.name',
-            header: 'Status',
-            cell: ({ row }) => (
-                <Badge variant="outline">
-                    {row.original.board_column.name}
-                </Badge>
-            ),
-        },
-        {
-            accessorKey: 'priority.name',
-            header: 'Priority',
-            cell: ({ row }) =>
-                row.original.priority ? (
-                    <Badge variant="secondary">
-                        {row.original.priority.name}
-                    </Badge>
-                ) : (
-                    <span className="text-sm text-muted-foreground">None</span>
                 ),
-        },
-        {
-            accessorKey: 'assignees',
-            header: 'Assignees',
-            cell: ({ row }) =>
-                row.original.assignees.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                        {row.original.assignees.map((assignee) => (
-                            <Badge
-                                key={assignee.id}
-                                variant="secondary"
-                                className="text-xs"
-                            >
-                                {assignee.name}
-                            </Badge>
-                        ))}
+            },
+            {
+                accessorKey: 'title',
+                header: 'Task',
+                cell: ({ row }) => (
+                    <div className="flex min-w-0 flex-col gap-1">
+                        <span className="truncate font-medium">
+                            {row.original.title}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                            {row.original.task_type.name}
+                        </span>
                     </div>
-                ) : (
-                    <span className="text-sm text-muted-foreground">
-                        Unassigned
-                    </span>
                 ),
-            enableSorting: false,
-        },
-        {
-            accessorKey: 'due_date',
-            header: 'Due',
-            cell: ({ row }) => formatDate(row.original.due_date),
-        },
-    ], []);
+            },
+            {
+                accessorKey: 'board_column.name',
+                header: 'Status',
+                cell: ({ row }) => (
+                    <Badge variant="outline">
+                        {row.original.board_column.name}
+                    </Badge>
+                ),
+            },
+            {
+                accessorKey: 'priority.name',
+                header: 'Priority',
+                cell: ({ row }) =>
+                    row.original.priority ? (
+                        <Badge variant="secondary">
+                            {row.original.priority.name}
+                        </Badge>
+                    ) : (
+                        <span className="text-sm text-muted-foreground">
+                            None
+                        </span>
+                    ),
+            },
+            {
+                accessorKey: 'assignees',
+                header: 'Assignees',
+                cell: ({ row }) =>
+                    row.original.assignees.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                            {row.original.assignees.map((assignee) => (
+                                <Badge
+                                    key={assignee.id}
+                                    variant="secondary"
+                                    className="text-xs"
+                                >
+                                    {assignee.name}
+                                </Badge>
+                            ))}
+                        </div>
+                    ) : (
+                        <span className="text-sm text-muted-foreground">
+                            Unassigned
+                        </span>
+                    ),
+                enableSorting: false,
+            },
+            {
+                accessorKey: 'due_date',
+                header: 'Due',
+                cell: ({ row }) => formatDate(row.original.due_date),
+            },
+        ],
+        [],
+    );
 
     const table = useReactTable({
         data: filteredTasks,
@@ -291,7 +373,7 @@ export default function ProjectShow({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
                 <div className="flex items-center gap-4">
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects`}
+                        href={projectsIndex({ workspace: workspace.slug })}
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
@@ -303,10 +385,12 @@ export default function ProjectShow({
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-3">
                             <div
-                                className="flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
-                                style={{
-                                    backgroundColor: project.color ?? '#64748B',
-                                }}
+                                className={`flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${project.color ? 'text-white' : 'bg-muted text-muted-foreground'}`}
+                                style={
+                                    project.color
+                                        ? { backgroundColor: project.color }
+                                        : undefined
+                                }
                             >
                                 {project.key.charAt(0).toUpperCase()}
                             </div>
@@ -339,7 +423,10 @@ export default function ProjectShow({
                         )}
                     </div>
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                        href={projectSettings({
+                            workspace: workspace.slug,
+                            project: project.slug,
+                        })}
                     >
                         <Button variant="outline" size="sm">
                             <Settings className="size-4" />
@@ -348,7 +435,11 @@ export default function ProjectShow({
                     </Link>
                 </div>
 
-                <Tabs defaultValue="list" className="flex flex-col gap-4">
+                <Tabs
+                    value={activeTab}
+                    onValueChange={setActiveTab}
+                    className="flex flex-col gap-4"
+                >
                     <TabsList>
                         <TabsTrigger
                             value="board"
@@ -367,6 +458,7 @@ export default function ProjectShow({
                         <TabsTrigger value="list">List</TabsTrigger>
                         <TabsTrigger value="epics">Epics</TabsTrigger>
                         <TabsTrigger value="sprints">Sprints</TabsTrigger>
+                        <TabsTrigger value="labels">Labels</TabsTrigger>
                         <TabsTrigger value="timeline">Timeline</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
                         <TabsTrigger value="activity">Activity</TabsTrigger>
@@ -516,73 +608,150 @@ export default function ProjectShow({
 
                     <TabsContent value="epics">
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
                                     <Flag className="size-5" />
                                     Epics
                                 </CardTitle>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setEditingEpic(null);
+                                        setEpicDialogOpen(true);
+                                    }}
+                                >
+                                    <Flag className="size-3.5" />
+                                    <span>Create epic</span>
+                                </Button>
                             </CardHeader>
                             <CardContent>
                                 {epics.length > 0 ? (
                                     <div className="grid gap-3 md:grid-cols-2">
                                         {epics.map((epic) => (
-                                            <Link
+                                            <div
                                                 key={epic.id}
-                                                href={`/workspaces/${workspace.slug}/projects/${project.slug}/epics/${epic.id}`}
-                                                className="rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-muted/50"
+                                                className="group relative rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-muted/50"
                                             >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span
-                                                                className="size-2.5 rounded-full"
-                                                                style={{
-                                                                    backgroundColor:
-                                                                        epic.color ??
-                                                                        '#64748b',
-                                                                }}
-                                                            />
-                                                            <h3 className="truncate text-sm font-medium">
-                                                                {epic.name}
-                                                            </h3>
+                                                <Link
+                                                    href={epicShow({
+                                                        workspace:
+                                                            workspace.slug,
+                                                        project: project.slug,
+                                                        epic: epic.id,
+                                                    })}
+                                                    className="block"
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <div className="flex items-center gap-2">
+                                                                <span
+                                                                    className="size-2.5 rounded-full"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            epic.color ??
+                                                                            '#64748b',
+                                                                    }}
+                                                                />
+                                                                <h3 className="truncate text-sm font-medium">
+                                                                    {epic.name}
+                                                                </h3>
+                                                            </div>
+                                                            {epic.summary && (
+                                                                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                                                                    {
+                                                                        epic.summary
+                                                                    }
+                                                                </p>
+                                                            )}
                                                         </div>
-                                                        {epic.summary && (
-                                                            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                                                                {epic.summary}
-                                                            </p>
-                                                        )}
+                                                        <Badge variant="outline">
+                                                            {epic.status}
+                                                        </Badge>
                                                     </div>
-                                                    <Badge variant="outline">
-                                                        {epic.status}
-                                                    </Badge>
+                                                    <ProgressSummary
+                                                        completed={
+                                                            epic.completed_tasks_count
+                                                        }
+                                                        total={epic.tasks_count}
+                                                    />
+                                                    <div className="mt-3 flex justify-between text-xs text-muted-foreground">
+                                                        <span>
+                                                            Start:{' '}
+                                                            {formatDate(
+                                                                epic.start_date,
+                                                            )}
+                                                        </span>
+                                                        <span>
+                                                            Due:{' '}
+                                                            {formatDate(
+                                                                epic.due_date,
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </Link>
+                                                <div className="absolute top-2 right-2 hidden gap-1 group-hover:flex">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                        title="Edit epic"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setEditingEpic(
+                                                                epic,
+                                                            );
+                                                            setEpicDialogOpen(
+                                                                true,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                                        title="Delete epic"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setDeletingEpic(
+                                                                epic,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                                <ProgressSummary
-                                                    completed={
-                                                        epic.completed_tasks_count
-                                                    }
-                                                    total={epic.tasks_count}
-                                                />
-                                                <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-                                                    <span>
-                                                        Start:{' '}
-                                                        {formatDate(
-                                                            epic.start_date,
-                                                        )}
-                                                    </span>
-                                                    <span>
-                                                        Due:{' '}
-                                                        {formatDate(
-                                                            epic.due_date,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </Link>
+                                            </div>
                                         ))}
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No epics yet. Create epics in project
-                                        settings.
+                                        No epics yet. Create your first epic to
+                                        group related tasks.
                                     </p>
                                 )}
                             </CardContent>
@@ -591,63 +760,284 @@ export default function ProjectShow({
 
                     <TabsContent value="sprints">
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
                                     <CalendarDays className="size-5" />
                                     Sprints
                                 </CardTitle>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setEditingSprint(null);
+                                        setSprintDialogOpen(true);
+                                    }}
+                                >
+                                    <CalendarDays className="size-3.5" />
+                                    <span>Create sprint</span>
+                                </Button>
                             </CardHeader>
                             <CardContent>
                                 {sprints.length > 0 ? (
                                     <div className="flex flex-col rounded-md border">
                                         {sprints.map((sprint) => (
-                                            <Link
+                                            <div
                                                 key={sprint.id}
-                                                href={`/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${sprint.id}`}
-                                                className="block border-b p-4 last:border-0 transition-colors hover:bg-muted/50"
+                                                className="group relative border-b p-4 transition-colors last:border-0 hover:bg-muted/50"
                                             >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <h3 className="truncate text-sm font-medium">
-                                                            {sprint.name}
-                                                        </h3>
-                                                        {sprint.goal && (
-                                                            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                                                                {sprint.goal}
-                                                            </p>
-                                                        )}
+                                                <Link
+                                                    href={sprintShow({
+                                                        workspace:
+                                                            workspace.slug,
+                                                        project: project.slug,
+                                                        sprint: sprint.id,
+                                                    })}
+                                                    className="block"
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <h3 className="truncate text-sm font-medium">
+                                                                {sprint.name}
+                                                            </h3>
+                                                            {sprint.goal && (
+                                                                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                                                                    {
+                                                                        sprint.goal
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <Badge variant="secondary">
+                                                            {sprint.status}
+                                                        </Badge>
                                                     </div>
-                                                    <Badge variant="secondary">
-                                                        {sprint.status}
-                                                    </Badge>
+                                                    <ProgressSummary
+                                                        completed={
+                                                            sprint.completed_tasks_count
+                                                        }
+                                                        total={
+                                                            sprint.tasks_count
+                                                        }
+                                                    />
+                                                    <div className="mt-3 flex justify-between text-xs text-muted-foreground">
+                                                        <span>
+                                                            Start:{' '}
+                                                            {formatDate(
+                                                                sprint.start_date,
+                                                            )}
+                                                        </span>
+                                                        <span>
+                                                            End:{' '}
+                                                            {formatDate(
+                                                                sprint.end_date,
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </Link>
+                                                <div className="absolute top-2 right-2 hidden gap-1 group-hover:flex">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                        title="Edit sprint"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setEditingSprint(
+                                                                sprint,
+                                                            );
+                                                            setSprintDialogOpen(
+                                                                true,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                                        title="Delete sprint"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setDeletingSprint(
+                                                                sprint,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                                <ProgressSummary
-                                                    completed={
-                                                        sprint.completed_tasks_count
-                                                    }
-                                                    total={sprint.tasks_count}
-                                                />
-                                                <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-                                                    <span>
-                                                        Start:{' '}
-                                                        {formatDate(
-                                                            sprint.start_date,
-                                                        )}
-                                                    </span>
-                                                    <span>
-                                                        End:{' '}
-                                                        {formatDate(
-                                                            sprint.end_date,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </Link>
+                                            </div>
                                         ))}
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No sprints yet. Create sprints in
-                                        project settings.
+                                        No sprints yet. Create your first sprint
+                                        to plan a time-boxed iteration.
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="labels">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <CardTitle className="flex items-center gap-2">
+                                    <svg
+                                        className="size-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+                                        />
+                                    </svg>
+                                    Labels
+                                </CardTitle>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setEditingLabel(null);
+                                        setLabelDialogOpen(true);
+                                    }}
+                                >
+                                    <svg
+                                        className="size-3.5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+                                        />
+                                    </svg>
+                                    <span>Create label</span>
+                                </Button>
+                            </CardHeader>
+                            <CardContent>
+                                {labels.length > 0 ? (
+                                    <div className="flex flex-col rounded-md border">
+                                        {labels.map((label) => (
+                                            <div
+                                                key={label.id}
+                                                className="group relative flex items-center justify-between border-b px-4 py-3 last:border-0"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span
+                                                        className="size-3 rounded-full"
+                                                        style={{
+                                                            backgroundColor:
+                                                                label.color ??
+                                                                '#64748b',
+                                                        }}
+                                                    />
+                                                    <span className="text-sm font-medium">
+                                                        {label.name}
+                                                    </span>
+                                                    <span className="font-mono text-xs text-muted-foreground">
+                                                        {label.slug}
+                                                    </span>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                    >
+                                                        {label.tasks_count} task
+                                                        {label.tasks_count !== 1
+                                                            ? 's'
+                                                            : ''}
+                                                    </Badge>
+                                                </div>
+                                                <div className="hidden gap-1 group-hover:flex">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                        title="Edit label"
+                                                        onClick={() => {
+                                                            setEditingLabel(
+                                                                label,
+                                                            );
+                                                            setLabelDialogOpen(
+                                                                true,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                                        title="Delete label"
+                                                        onClick={() =>
+                                                            setDeletingLabel(
+                                                                label,
+                                                            )
+                                                        }
+                                                    >
+                                                        <svg
+                                                            className="size-3.5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="py-12 text-center text-sm text-muted-foreground">
+                                        No labels yet. Create your first label
+                                        to categorize tasks.
                                     </p>
                                 )}
                             </CardContent>
@@ -765,7 +1155,10 @@ export default function ProjectShow({
                                     Activity
                                 </CardTitle>
                                 <Link
-                                    href={`/workspaces/${workspace.slug}/projects/${project.slug}/activity`}
+                                    href={activityIndex({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    })}
                                 >
                                     <Button variant="outline" size="sm">
                                         View all
@@ -817,6 +1210,144 @@ export default function ProjectShow({
                         </Card>
                     </TabsContent>
                 </Tabs>
+
+                <EpicDialog
+                    workspaceSlug={workspace.slug}
+                    projectSlug={project.slug}
+                    open={epicDialogOpen}
+                    onOpenChange={(open) => {
+                        setEpicDialogOpen(open);
+
+                        if (!open) {
+                            setEditingEpic(null);
+                        }
+                    }}
+                    epic={editingEpic}
+                />
+
+                <SprintDialog
+                    workspaceSlug={workspace.slug}
+                    projectSlug={project.slug}
+                    open={sprintDialogOpen}
+                    onOpenChange={(open) => {
+                        setSprintDialogOpen(open);
+
+                        if (!open) {
+                            setEditingSprint(null);
+                        }
+                    }}
+                    sprint={editingSprint}
+                />
+
+                <ConfirmDialog
+                    open={!!deletingEpic}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setDeletingEpic(null);
+                        }
+                    }}
+                    title="Delete epic"
+                    description={
+                        deletingEpic
+                            ? `Are you sure you want to delete "${deletingEpic.name}"? Tasks in this epic will not be deleted, but they will be unlinked.`
+                            : ''
+                    }
+                    confirmText="Delete epic"
+                    onConfirm={() => {
+                        if (!deletingEpic) {
+                            return;
+                        }
+
+                        const epicId = deletingEpic.id;
+                        setDeletingEpic(null);
+
+                        router.delete(
+                            destroyEpic.url({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                                epic: epicId,
+                            }),
+                        );
+                    }}
+                />
+
+                <ConfirmDialog
+                    open={!!deletingSprint}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setDeletingSprint(null);
+                        }
+                    }}
+                    title="Delete sprint"
+                    description={
+                        deletingSprint
+                            ? `Are you sure you want to delete "${deletingSprint.name}"? Tasks in this sprint will not be deleted, but they will be unlinked.`
+                            : ''
+                    }
+                    confirmText="Delete sprint"
+                    onConfirm={() => {
+                        if (!deletingSprint) {
+                            return;
+                        }
+
+                        const sprintId = deletingSprint.id;
+                        setDeletingSprint(null);
+
+                        router.delete(
+                            destroySprint.url({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                                sprint: sprintId,
+                            }),
+                        );
+                    }}
+                />
+
+                <LabelDialog
+                    workspaceSlug={workspace.slug}
+                    projectSlug={project.slug}
+                    open={labelDialogOpen}
+                    onOpenChange={(open) => {
+                        setLabelDialogOpen(open);
+
+                        if (!open) {
+                            setEditingLabel(null);
+                        }
+                    }}
+                    label={editingLabel}
+                />
+
+                <ConfirmDialog
+                    open={!!deletingLabel}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setDeletingLabel(null);
+                        }
+                    }}
+                    title="Delete label"
+                    description={
+                        deletingLabel
+                            ? `Are you sure you want to delete "${deletingLabel.name}"? Tasks will not be deleted, but they will lose this label.`
+                            : ''
+                    }
+                    confirmText="Delete label"
+                    onConfirm={() => {
+                        if (!deletingLabel) {
+                            return;
+                        }
+
+                        const labelId = deletingLabel.id;
+                        setDeletingLabel(null);
+
+                        router.delete(
+                            destroyLabel.url({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                                label: labelId,
+                            }),
+                        );
+                    }}
+                />
 
                 <TaskDetailDrawer
                     workspaceSlug={workspace.slug}

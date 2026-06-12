@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { settings as projectSettings } from '@/routes/projects';
 
 interface UserRef {
     id: number;
@@ -68,12 +69,12 @@ interface Props {
 }
 
 const priorityColors: Record<string, string> = {
-    lowest: 'bg-gray-400',
-    low: 'bg-blue-400',
-    medium: 'bg-amber-400',
-    high: 'bg-orange-400',
-    highest: 'bg-red-400',
-    urgent: 'bg-red-500',
+    lowest: 'bg-gray-400 dark:bg-gray-500',
+    low: 'bg-blue-400 dark:bg-blue-500',
+    medium: 'bg-amber-400 dark:bg-amber-500',
+    high: 'bg-orange-400 dark:bg-orange-500',
+    highest: 'bg-red-400 dark:bg-red-500',
+    urgent: 'bg-red-500 dark:bg-red-600',
 };
 
 export default function LabelShow({
@@ -92,7 +93,7 @@ export default function LabelShow({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
                 <div className="flex items-center gap-4">
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                        href={projectSettings({ workspace: workspace.slug, project: project.slug })}
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
@@ -123,7 +124,7 @@ export default function LabelShow({
                             </div>
                         </div>
                         <Link
-                            href={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                            href={projectSettings({ workspace: workspace.slug, project: project.slug })}
                         >
                             <Button variant="outline" size="sm">
                                 Edit label

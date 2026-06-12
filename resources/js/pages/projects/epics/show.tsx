@@ -1,12 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    CalendarDays,
-    Check,
-    Plus,
-    Trash2,
-    X,
-} from 'lucide-react';
+import { ArrowLeft, CalendarDays, Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +12,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import {
+    show as projectShow,
+    settings as projectSettings,
+} from '@/routes/projects';
+import {
+    addTask as epicAddTask,
+    removeTask as epicRemoveTask,
+} from '@/routes/projects/epics';
 
 interface UserRef {
     id: number;
@@ -87,12 +87,12 @@ interface Props {
 }
 
 const priorityColors: Record<string, string> = {
-    lowest: 'bg-gray-400',
-    low: 'bg-blue-400',
-    medium: 'bg-amber-400',
-    high: 'bg-orange-400',
-    highest: 'bg-red-400',
-    urgent: 'bg-red-500',
+    lowest: 'bg-gray-400 dark:bg-gray-500',
+    low: 'bg-blue-400 dark:bg-blue-500',
+    medium: 'bg-amber-400 dark:bg-amber-500',
+    high: 'bg-orange-400 dark:bg-orange-500',
+    highest: 'bg-red-400 dark:bg-red-500',
+    urgent: 'bg-red-500 dark:bg-red-600',
 };
 
 export default function EpicShow({
@@ -108,7 +108,8 @@ export default function EpicShow({
 
     const completedTasks = epicTasks.filter((t) => t.completed_at).length;
     const totalTasks = epicTasks.length;
-    const percent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+    const percent =
+        totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
     const handleRemoveTask = (taskId: number) => {
         if (!confirm('Remove this task from the epic?')) {
@@ -116,7 +117,11 @@ export default function EpicShow({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/epics/${epic.id}/remove-task`,
+            epicRemoveTask({
+                workspace: workspace.slug,
+                project: project.slug,
+                epic: epic.id,
+            }),
             {
                 data: { task_id: taskId },
                 preserveScroll: true,
@@ -130,7 +135,11 @@ export default function EpicShow({
         }
 
         router.post(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/epics/${epic.id}/add-task`,
+            epicAddTask({
+                workspace: workspace.slug,
+                project: project.slug,
+                epic: epic.id,
+            }),
             { task_id: Number(addTaskId) },
             {
                 preserveScroll: true,
@@ -146,7 +155,10 @@ export default function EpicShow({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
                 <div className="flex items-center gap-4">
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                        href={projectShow({
+                            workspace: workspace.slug,
+                            project: project.slug,
+                        })}
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
@@ -172,7 +184,9 @@ export default function EpicShow({
                                     {epic.name}
                                 </h1>
                                 <div className="mt-1 flex items-center gap-2">
-                                    <Badge variant="outline">{epic.status}</Badge>
+                                    <Badge variant="outline">
+                                        {epic.status}
+                                    </Badge>
                                     <Badge variant="secondary">
                                         {completedTasks}/{totalTasks} tasks
                                     </Badge>
@@ -180,7 +194,10 @@ export default function EpicShow({
                             </div>
                         </div>
                         <Link
-                            href={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                            href={projectSettings({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
                         >
                             <Button variant="outline" size="sm">
                                 Edit epic
@@ -205,7 +222,8 @@ export default function EpicShow({
                         <div className="flex items-center gap-1.5">
                             <CalendarDays className="size-4" />
                             <span>
-                                {formatDate(epic.start_date)} — {formatDate(epic.due_date)}
+                                {formatDate(epic.start_date)} —{' '}
+                                {formatDate(epic.due_date)}
                             </span>
                         </div>
                     </div>
@@ -280,10 +298,16 @@ export default function EpicShow({
                                                     </span>
                                                 </div>
                                                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                    <Badge variant="outline" className="text-[10px]">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-[10px]"
+                                                    >
                                                         {task.board_column.name}
                                                     </Badge>
-                                                    <Badge variant="secondary" className="text-[10px]">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="text-[10px]"
+                                                    >
                                                         {task.task_type.name}
                                                     </Badge>
                                                     {task.priority && (
@@ -291,21 +315,34 @@ export default function EpicShow({
                                                             <div
                                                                 className={cn(
                                                                     'size-1.5 rounded-full',
-                                                                    priorityColors[task.priority.key] ??
+                                                                    priorityColors[
+                                                                        task
+                                                                            .priority
+                                                                            .key
+                                                                    ] ??
                                                                         'bg-muted-foreground',
                                                                 )}
                                                             />
                                                             {task.priority.name}
                                                         </div>
                                                     )}
-                                                    {task.assignees.length > 0 && (
+                                                    {task.assignees.length >
+                                                        0 && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            {task.assignees.map((a) => a.name).join(', ')}
+                                                            {task.assignees
+                                                                .map(
+                                                                    (a) =>
+                                                                        a.name,
+                                                                )
+                                                                .join(', ')}
                                                         </span>
                                                     )}
                                                     {task.due_date && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            Due {formatDate(task.due_date)}
+                                                            Due{' '}
+                                                            {formatDate(
+                                                                task.due_date,
+                                                            )}
                                                         </span>
                                                     )}
                                                 </div>
@@ -315,7 +352,9 @@ export default function EpicShow({
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-                                                onClick={() => handleRemoveTask(task.id)}
+                                                onClick={() =>
+                                                    handleRemoveTask(task.id)
+                                                }
                                             >
                                                 <X className="size-4" />
                                             </Button>
@@ -326,9 +365,12 @@ export default function EpicShow({
                                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
                                     <Check className="size-8 text-muted-foreground" />
                                     <div>
-                                        <p className="text-sm font-medium">No tasks in this epic</p>
+                                        <p className="text-sm font-medium">
+                                            No tasks in this epic
+                                        </p>
                                         <p className="text-sm text-muted-foreground">
-                                            Add tasks to start tracking progress.
+                                            Add tasks to start tracking
+                                            progress.
                                         </p>
                                     </div>
                                 </div>

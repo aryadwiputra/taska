@@ -207,6 +207,18 @@ class ProjectController extends Controller
                 'completed_tasks_count' => $sprint->completed_tasks_count,
             ]);
 
+        $labels = $project->labels()
+            ->withCount('tasks')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'color'])
+            ->map(fn ($label) => [
+                'id' => $label->id,
+                'name' => $label->name,
+                'slug' => $label->slug,
+                'color' => $label->color,
+                'tasks_count' => $label->tasks_count,
+            ]);
+
         $attachments = TaskAttachment::query()
             ->with(['task:id,project_id,code,title', 'uploader:id,name,avatar'])
             ->whereHas('task', fn ($query) => $query->where('project_id', $project->id))
@@ -276,6 +288,7 @@ class ProjectController extends Controller
             'tasks' => $tasks,
             'epics' => $epics,
             'sprints' => $sprints,
+            'labels' => $labels,
             'attachments' => $attachments,
             'activities' => $activities,
         ]);
@@ -312,7 +325,7 @@ class ProjectController extends Controller
             ->orderByDesc('start_date')
             ->get(['id', 'name', 'goal', 'status', 'start_date', 'end_date', 'completed_at']);
 
-        $boards = $project->boards()->with('columns:id,board_id,name')->get(['id', 'name']);
+        $boards = $project->boards()->with('columns:id,board_id,name,color,position,is_done_column,status_key')->get(['id', 'name', 'type']);
 
         return Inertia::render('projects/settings', [
             'workspace' => [

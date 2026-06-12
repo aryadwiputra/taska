@@ -1,11 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    CalendarDays,
-    Check,
-    Plus,
-    X,
-} from 'lucide-react';
+import { ArrowLeft, CalendarDays, Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +13,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import {
+    show as projectShow,
+    settings as projectSettings,
+} from '@/routes/projects';
+import {
+    addTask as sprintAddTask,
+    removeTask as sprintRemoveTask,
+} from '@/routes/projects/sprints';
 
 interface UserRef {
     id: number;
@@ -86,19 +88,19 @@ interface Props {
 }
 
 const priorityColors: Record<string, string> = {
-    lowest: 'bg-gray-400',
-    low: 'bg-blue-400',
-    medium: 'bg-amber-400',
-    high: 'bg-orange-400',
-    highest: 'bg-red-400',
-    urgent: 'bg-red-500',
+    lowest: 'bg-gray-400 dark:bg-gray-500',
+    low: 'bg-blue-400 dark:bg-blue-500',
+    medium: 'bg-amber-400 dark:bg-amber-500',
+    high: 'bg-orange-400 dark:bg-orange-500',
+    highest: 'bg-red-400 dark:bg-red-500',
+    urgent: 'bg-red-500 dark:bg-red-600',
 };
 
 const sprintStatusColor: Record<string, string> = {
-    planned: 'border-blue-400 text-blue-400',
-    active: 'border-emerald-400 text-emerald-400',
-    completed: 'border-gray-400 text-gray-400',
-    cancelled: 'border-red-400 text-red-400',
+    planned: 'border-blue-400 text-blue-400 dark:text-blue-300',
+    active: 'border-emerald-400 text-emerald-400 dark:text-emerald-300',
+    completed: 'border-gray-400 text-gray-400 dark:text-gray-300',
+    cancelled: 'border-red-400 text-red-400 dark:text-red-300',
 };
 
 export default function SprintShow({
@@ -112,8 +114,10 @@ export default function SprintShow({
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [addTaskId, setAddTaskId] = useState<string>('none');
 
-    const { completed_tasks_count: completedTasks, tasks_count: totalTasks } = sprint;
-    const percent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+    const { completed_tasks_count: completedTasks, tasks_count: totalTasks } =
+        sprint;
+    const percent =
+        totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
     const handleRemoveTask = (taskId: number) => {
         if (!confirm('Remove this task from the sprint?')) {
@@ -121,7 +125,11 @@ export default function SprintShow({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${sprint.id}/remove-task`,
+            sprintRemoveTask({
+                workspace: workspace.slug,
+                project: project.slug,
+                sprint: sprint.id,
+            }),
             {
                 data: { task_id: taskId },
                 preserveScroll: true,
@@ -135,7 +143,11 @@ export default function SprintShow({
         }
 
         router.post(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/sprints/${sprint.id}/add-task`,
+            sprintAddTask({
+                workspace: workspace.slug,
+                project: project.slug,
+                sprint: sprint.id,
+            }),
             { task_id: Number(addTaskId) },
             {
                 preserveScroll: true,
@@ -151,14 +163,19 @@ export default function SprintShow({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
                 <div className="flex items-center gap-4">
                     <Link
-                        href={`/workspaces/${workspace.slug}/projects/${project.slug}`}
+                        href={projectShow({
+                            workspace: workspace.slug,
+                            project: project.slug,
+                        })}
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
                         <span>{project.name}</span>
                     </Link>
                     <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">Sprints</span>
+                    <span className="text-sm text-muted-foreground">
+                        Sprints
+                    </span>
                 </div>
 
                 <div className="mx-auto w-full max-w-3xl">
@@ -170,7 +187,9 @@ export default function SprintShow({
                             <div className="mt-1 flex items-center gap-2">
                                 <Badge
                                     variant="outline"
-                                    className={cn(sprintStatusColor[sprint.status] ?? '')}
+                                    className={cn(
+                                        sprintStatusColor[sprint.status] ?? '',
+                                    )}
                                 >
                                     {sprint.status}
                                 </Badge>
@@ -180,7 +199,10 @@ export default function SprintShow({
                             </div>
                         </div>
                         <Link
-                            href={`/workspaces/${workspace.slug}/projects/${project.slug}/settings`}
+                            href={projectSettings({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
                         >
                             <Button variant="outline" size="sm">
                                 Edit sprint
@@ -205,7 +227,8 @@ export default function SprintShow({
                         <div className="flex items-center gap-1.5">
                             <CalendarDays className="size-4" />
                             <span>
-                                {formatDate(sprint.start_date)} — {formatDate(sprint.end_date)}
+                                {formatDate(sprint.start_date)} —{' '}
+                                {formatDate(sprint.end_date)}
                             </span>
                         </div>
                     </div>
@@ -280,10 +303,16 @@ export default function SprintShow({
                                                     </span>
                                                 </div>
                                                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                    <Badge variant="outline" className="text-[10px]">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-[10px]"
+                                                    >
                                                         {task.board_column.name}
                                                     </Badge>
-                                                    <Badge variant="secondary" className="text-[10px]">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="text-[10px]"
+                                                    >
                                                         {task.task_type.name}
                                                     </Badge>
                                                     {task.priority && (
@@ -291,21 +320,34 @@ export default function SprintShow({
                                                             <div
                                                                 className={cn(
                                                                     'size-1.5 rounded-full',
-                                                                    priorityColors[task.priority.key] ??
+                                                                    priorityColors[
+                                                                        task
+                                                                            .priority
+                                                                            .key
+                                                                    ] ??
                                                                         'bg-muted-foreground',
                                                                 )}
                                                             />
                                                             {task.priority.name}
                                                         </div>
                                                     )}
-                                                    {task.assignees.length > 0 && (
+                                                    {task.assignees.length >
+                                                        0 && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            {task.assignees.map((a) => a.name).join(', ')}
+                                                            {task.assignees
+                                                                .map(
+                                                                    (a) =>
+                                                                        a.name,
+                                                                )
+                                                                .join(', ')}
                                                         </span>
                                                     )}
                                                     {task.due_date && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            Due {formatDate(task.due_date)}
+                                                            Due{' '}
+                                                            {formatDate(
+                                                                task.due_date,
+                                                            )}
                                                         </span>
                                                     )}
                                                 </div>
@@ -315,7 +357,9 @@ export default function SprintShow({
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-                                                onClick={() => handleRemoveTask(task.id)}
+                                                onClick={() =>
+                                                    handleRemoveTask(task.id)
+                                                }
                                             >
                                                 <X className="size-4" />
                                             </Button>
@@ -326,9 +370,12 @@ export default function SprintShow({
                                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
                                     <Check className="size-8 text-muted-foreground" />
                                     <div>
-                                        <p className="text-sm font-medium">No tasks in this sprint</p>
+                                        <p className="text-sm font-medium">
+                                            No tasks in this sprint
+                                        </p>
                                         <p className="text-sm text-muted-foreground">
-                                            Add tasks to start tracking progress.
+                                            Add tasks to start tracking
+                                            progress.
                                         </p>
                                     </div>
                                 </div>

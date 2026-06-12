@@ -35,6 +35,34 @@ test('project viewers cannot manage sprints', function () {
         ->assertForbidden();
 });
 
+test('project managers can add and remove tasks from sprints', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $task = createTaskForProject($project, $manager);
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Test sprint',
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($manager)->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.add-task', [$workspace, $project, $sprint]), [
+            'task_id' => $task->id,
+        ])
+        ->assertRedirect();
+
+    expect($sprint->tasks()->where('task_id', $task->id)->exists())->toBeTrue();
+
+    $this->actingAs($manager)->withSession(['current_workspace_id' => $workspace->id])
+        ->delete(route('projects.sprints.remove-task', [$workspace, $project, $sprint]), [
+            'task_id' => $task->id,
+        ])
+        ->assertRedirect();
+
+    expect($sprint->tasks()->where('task_id', $task->id)->exists())->toBeFalse();
+});
+
 test('project managers can update and delete sprints attached to tasks', function () {
     $manager = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');
