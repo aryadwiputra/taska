@@ -12,6 +12,7 @@ import {
     X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { GithubSettingsTab } from '@/components/github-settings-tab';
 import { ProjectMemberDialog } from '@/components/project-member-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ import {
     destroy as columnDestroy,
 } from '@/routes/projects/boards/columns';
 import {
+    store as epicStore,
     update as epicUpdate,
     destroy as epicDestroy,
     show as epicShow,
@@ -138,6 +140,15 @@ interface BoardOption {
     columns: BoardColumnOption[];
 }
 
+interface GitHubIntegration {
+    provider_user_id: string;
+    metadata: {
+        nickname: string;
+        name: string;
+        avatar: string | null;
+    } | null;
+}
+
 interface Props {
     workspace: Workspace;
     project: ProjectData;
@@ -147,6 +158,7 @@ interface Props {
     sprints: ProjectSprint[];
     settings: ProjectSettings;
     boards: BoardOption[];
+    integration: GitHubIntegration | null;
 }
 
 const roleLabels: Record<string, string> = {
@@ -167,6 +179,7 @@ export default function ProjectSettings({
     sprints,
     settings,
     boards,
+    integration,
 }: Props) {
     const [addMemberOpen, setAddMemberOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -402,6 +415,7 @@ export default function ProjectSettings({
                             <TabsTrigger value="board">Board</TabsTrigger>
                             <TabsTrigger value="epics">Epics</TabsTrigger>
                             <TabsTrigger value="sprints">Sprints</TabsTrigger>
+                            <TabsTrigger value="github">GitHub</TabsTrigger>
                             <TabsTrigger value="danger">
                                 Danger zone
                             </TabsTrigger>
@@ -1274,7 +1288,7 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
-                                        action={sprintStore({
+                                        action={epicStore({
                                             workspace: workspace.slug,
                                             project: project.slug,
                                         })}
@@ -1996,6 +2010,14 @@ export default function ProjectSettings({
                                     </div>
                                 </CardContent>
                             </Card>
+                        </TabsContent>
+
+                        <TabsContent value="github">
+                            <GithubSettingsTab
+                                workspaceSlug={workspace.slug}
+                                projectSlug={project.slug}
+                                integration={integration}
+                            />
                         </TabsContent>
 
                         <TabsContent value="danger">
