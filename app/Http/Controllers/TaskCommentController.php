@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentCreated;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Project;
@@ -31,6 +32,13 @@ class TaskCommentController extends Controller
         $this->processMentions($comment, $task, $project, $request->user(), $mentionParser, $mentionNotifications);
 
         $activity->commented($task, $request->user(), $comment);
+
+        CommentCreated::dispatch(
+            $project->id,
+            $task->id,
+            $comment->id,
+            $comment->body,
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Comment added.']);
 

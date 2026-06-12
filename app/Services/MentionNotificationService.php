@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TaskUpdated;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Models\TaskComment;
@@ -21,7 +22,7 @@ class MentionNotificationService
                 continue;
             }
 
-            Notification::create([
+            $notification = Notification::create([
                 'id' => (string) Str::uuid(),
                 'user_id' => $user->id,
                 'type' => 'task.mentioned',
@@ -36,6 +37,17 @@ class MentionNotificationService
                     'comment_id' => $comment->id,
                 ],
             ]);
+
+            TaskUpdated::dispatch(
+                $user->id,
+                'task.mentioned',
+                'You were mentioned',
+                sprintf('%s mentioned you in %s.', $commenter->name, $task->code),
+                $task->code,
+                $task->project->slug,
+                $notification->id,
+                $task->id,
+            );
         }
     }
 }

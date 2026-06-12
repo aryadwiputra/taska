@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TaskFieldUpdated;
+use App\Events\TaskMoved;
 use App\Http\Requests\MoveTaskColumnRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -16,7 +18,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class TaskController extends Controller
@@ -93,7 +94,11 @@ class TaskController extends Controller
                 'file_name' => $attachment->file_name,
                 'file_size' => $attachment->file_size,
                 'mime_type' => $attachment->mime_type,
-                'url' => Storage::disk($attachment->disk)->url($attachment->file_path),
+                'is_previewable' => $attachment->isPreviewable(),
+                'is_image' => $attachment->isImage(),
+                'is_pdf' => $attachment->isPdf(),
+                'url' => route('projects.tasks.attachments.preview', [$workspace, $project, $task, $attachment]),
+                'download_url' => route('projects.tasks.attachments.download', [$workspace, $project, $task, $attachment]),
                 'created_at' => $attachment->created_at,
                 'uploader' => [
                     'id' => $attachment->uploader->id,
@@ -156,6 +161,7 @@ class TaskController extends Controller
                 'start_date' => $task->start_date,
                 'completed_at' => $task->completed_at,
                 'parent_id' => $task->parent_id,
+                'project_id' => $task->project_id,
                 'created_at' => $task->created_at,
                 'updated_at' => $task->updated_at,
                 'priority' => $task->priority,
@@ -210,6 +216,8 @@ class TaskController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'parent_id' => $validated['parent_id'] ?? null,
+            'start_date' => $validated['start_date'] ?? null,
+            'due_date' => $validated['due_date'] ?? null,
             'status' => $firstColumn?->status_key ?? 'todo',
             'position' => 0,
         ]);
@@ -323,6 +331,17 @@ class TaskController extends Controller
             $notifications->notifyWatchers($task, $request->user(), $task->watchers);
         }
 
+        $fieldChanges = [];
+        foreach (['title', 'description', 'priority_id', 'board_column_id', 'start_date', 'due_date'] as $field) {
+            if (array_key_exists($field, $validated) && ($before[$field] ?? '') !== ($task->{$field} ?? '')) {
+                $fieldChanges[$field] = $task->{$field};
+            }
+        }
+
+        if ($fieldChanges !== []) {
+            TaskFieldUpdated::dispatch($project->id, $task->id, $fieldChanges);
+        }
+
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Task updated.']);
 
         return back();
@@ -381,7 +400,17 @@ class TaskController extends Controller
             }
         });
 
-        $activity->moved($task->refresh(), $request->user(), $fromColumn, $targetColumn);
+        $task->refresh();
+        $activity->moved($task, $request->user(), $fromColumn, $targetColumn);
+
+        broadcast(new TaskMoved(
+            task: $task,
+            fromColumnId: $oldColumnId,
+            toColumnId: $targetColumn->id,
+            position: $task->position,
+            status: $targetColumn->status_key,
+            projectId: $project->id,
+        ))->toOthers();
 
         return back(303);
     }

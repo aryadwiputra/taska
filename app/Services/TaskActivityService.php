@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ActivityLogged;
 use App\Models\ActivityLog;
 use App\Models\BoardColumn;
 use App\Models\Epic;
@@ -135,7 +136,7 @@ class TaskActivityService
 
     private function log(Task $task, User $user, string $action, ?string $fieldName = null, ?string $oldValue = null, ?string $newValue = null, ?string $description = null): void
     {
-        $task->activities()->create([
+        $taskActivity = $task->activities()->create([
             'user_id' => $user->id,
             'action' => $action,
             'field_name' => $fieldName,
@@ -159,6 +160,20 @@ class TaskActivityService
                 'new_value' => $newValue,
             ],
         ]);
+
+        ActivityLogged::dispatch(
+            $task->project_id,
+            $task->id,
+            $task->code,
+            $action,
+            $fieldName,
+            $oldValue,
+            $newValue,
+            $user->id,
+            $user->name,
+            $taskActivity->created_at->toISOString(),
+            $taskActivity->id,
+        );
     }
 
     /**
