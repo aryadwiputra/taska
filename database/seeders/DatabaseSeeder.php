@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\Workspace;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -29,13 +29,15 @@ class DatabaseSeeder extends Seeder
             'email' => 'teammate@example.com',
         ]);
 
+        $roleService = app(WorkspaceRoleService::class);
+
         $workspace = Workspace::create([
             'owner_id' => $user->id,
             'name' => 'My Workspace',
             'slug' => 'my-workspace',
         ]);
 
-        Rbac::ensureWorkspaceRoles($workspace);
+        $roleService->ensureRoles($workspace);
 
         $workspace->members()->create([
             'user_id' => $user->id,
@@ -49,8 +51,8 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        Rbac::syncWorkspaceRole($user, $workspace, 'owner');
-        Rbac::syncWorkspaceRole($teammate, $workspace, 'member');
+        $roleService->syncRole($user, $workspace, 'owner');
+        $roleService->syncRole($teammate, $workspace, 'member');
 
         $this->call(TaskTypeAndPrioritySeeder::class);
 

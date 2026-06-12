@@ -1,14 +1,14 @@
 <?php
 
 use App\Models\User;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 
 test('project lead can add a member', function () {
     $lead = User::factory()->create();
     $user = User::factory()->create();
     $workspace = createWorkspaceMember($lead, 'manager');
     $workspace->members()->create(['user_id' => $user->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($user, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($user, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $lead, 'lead');
 
     $this->actingAs($lead)->withSession(['current_workspace_id' => $workspace->id])
@@ -26,7 +26,7 @@ test('project manager can add a member', function () {
     $user = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');
     $workspace->members()->create(['user_id' => $user->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($user, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($user, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $manager, 'manager');
 
     $this->actingAs($manager)->withSession(['current_workspace_id' => $workspace->id])
@@ -55,7 +55,7 @@ test('project lead can update member role', function () {
     $member = User::factory()->create();
     $workspace = createWorkspaceMember($lead, 'manager');
     $workspace->members()->create(['user_id' => $member->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($member, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($member, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $lead, 'lead');
     $project->members()->create(['user_id' => $member->id, 'role' => 'member']);
     $projMember = $project->members()->where('user_id', $member->id)->first();
@@ -74,7 +74,7 @@ test('project lead can remove a member', function () {
     $member = User::factory()->create();
     $workspace = createWorkspaceMember($lead, 'manager');
     $workspace->members()->create(['user_id' => $member->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($member, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($member, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $lead, 'lead');
     $project->members()->create(['user_id' => $member->id, 'role' => 'member']);
     $projMember = $project->members()->where('user_id', $member->id)->first();
@@ -127,7 +127,7 @@ test('project member store rejects invalid role', function () {
     $user = User::factory()->create();
     $workspace = createWorkspaceMember($lead, 'manager');
     $workspace->members()->create(['user_id' => $user->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($user, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($user, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $lead, 'lead');
 
     $this->actingAs($lead)->withSession(['current_workspace_id' => $workspace->id])

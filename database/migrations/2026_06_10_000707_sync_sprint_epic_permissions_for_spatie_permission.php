@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Workspace;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Workspace::query()->each(function (Workspace $workspace): void {
-            Rbac::ensureWorkspaceRoles($workspace);
+        $roleService = app(WorkspaceRoleService::class);
+
+        Workspace::query()->each(function (Workspace $workspace) use ($roleService): void {
+            $roleService->ensureRoles($workspace);
         });
     }
 

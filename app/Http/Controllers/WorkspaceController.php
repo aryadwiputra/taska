@@ -6,7 +6,7 @@ use App\Http\Requests\StoreWorkspaceRequest;
 use App\Http\Requests\UpdateWorkspaceRequest;
 use App\Models\Workspace;
 use App\Services\SettingService;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -46,7 +46,7 @@ class WorkspaceController extends Controller
         return Inertia::render('workspaces/create');
     }
 
-    public function store(StoreWorkspaceRequest $request): RedirectResponse
+    public function store(StoreWorkspaceRequest $request, WorkspaceRoleService $roleService): RedirectResponse
     {
         $workspace = Workspace::create([
             'owner_id' => $request->user()->id,
@@ -61,7 +61,7 @@ class WorkspaceController extends Controller
             'status' => 'active',
         ]);
 
-        Rbac::syncWorkspaceRole($request->user(), $workspace, 'owner');
+        $roleService->syncRole($request->user(), $workspace, 'owner');
 
         session()->put('current_workspace_id', $workspace->id);
 

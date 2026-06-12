@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 
 test('workspace owner can list members', function () {
     $owner = User::factory()->create();
@@ -67,7 +67,7 @@ test('workspace owner can update member role', function () {
     $member = User::factory()->create();
     $workspace = createWorkspaceMember($owner, 'owner');
     $workspace->members()->create(['user_id' => $member->id, 'role' => 'member', 'status' => 'active']);
-    Rbac::syncWorkspaceRole($member, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($member, $workspace, 'member');
     $wsMember = $workspace->members()->where('user_id', $member->id)->first();
 
     $this->actingAs($owner)->withSession(['current_workspace_id' => $workspace->id])

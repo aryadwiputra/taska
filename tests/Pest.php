@@ -4,7 +4,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Workspace;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -66,7 +66,7 @@ function createWorkspaceMember(User $user, string $role = 'owner'): Workspace
         'status' => 'active',
     ]);
 
-    Rbac::syncWorkspaceRole($user, $workspace, $role);
+    app(WorkspaceRoleService::class)->syncRole($user, $workspace, $role);
 
     return $workspace;
 }

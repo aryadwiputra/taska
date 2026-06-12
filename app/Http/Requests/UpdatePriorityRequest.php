@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Workspace;
-use App\Support\Rbac;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePriorityRequest extends FormRequest
@@ -14,11 +13,7 @@ class UpdatePriorityRequest extends FormRequest
     {
         $this->workspace = $this->route('workspace');
 
-        return $this->user() && Rbac::userCanInWorkspace(
-            $this->user(),
-            $this->workspace,
-            'workspace.manage-priorities',
-        );
+        return $this->user() && $this->user()->can('workspace.manage-priorities');
     }
 
     public function rules(): array

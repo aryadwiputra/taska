@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -64,7 +64,7 @@ class Workspace extends Model
     protected static function booted(): void
     {
         static::created(function (Workspace $workspace) {
-            Rbac::ensureWorkspaceRoles($workspace);
+            app(WorkspaceRoleService::class)->ensureRoles($workspace);
 
             $taskTypes = [
                 ['name' => 'Epic', 'key' => 'epic', 'icon' => 'layers', 'color' => '#6C47FF'],

@@ -7,7 +7,7 @@ use App\Http\Requests\UpdateWorkspaceMemberRequest;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceMember;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -32,7 +32,7 @@ class WorkspaceMemberController extends Controller
             ]);
     }
 
-    public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace): RedirectResponse
+    public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace, WorkspaceRoleService $roleService): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -51,14 +51,14 @@ class WorkspaceMemberController extends Controller
             'status' => 'active',
         ]);
 
-        Rbac::syncWorkspaceRole(User::findOrFail($validated['user_id']), $workspace, $validated['role']);
+        $roleService->syncRole(User::findOrFail($validated['user_id']), $workspace, $validated['role']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Member added.']);
 
         return back();
     }
 
-    public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, WorkspaceMember $member): RedirectResponse
+    public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, WorkspaceMember $member, WorkspaceRoleService $roleService): RedirectResponse
     {
         if ($member->workspace_id !== $workspace->id) {
             abort(404);
@@ -67,14 +67,14 @@ class WorkspaceMemberController extends Controller
         $validated = $request->validated();
 
         $member->update(['role' => $validated['role']]);
-        Rbac::syncWorkspaceRole($member->user, $workspace, $validated['role']);
+        $roleService->syncRole($member->user, $workspace, $validated['role']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Member role updated.']);
 
         return back();
     }
 
-    public function destroy(Workspace $workspace, WorkspaceMember $member): RedirectResponse
+    public function destroy(Workspace $workspace, WorkspaceMember $member, WorkspaceRoleService $roleService): RedirectResponse
     {
         Gate::authorize('manageMembers', $workspace);
 
@@ -91,7 +91,7 @@ class WorkspaceMemberController extends Controller
         }
 
         $member->delete();
-        Rbac::removeWorkspaceRoles($member->user, $workspace);
+        $roleService->removeRoles($member->user, $workspace);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Member removed.']);
 

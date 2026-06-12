@@ -2,7 +2,7 @@
 
 use App\Models\Notification;
 use App\Models\User;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 
 test('project members can comment on tasks', function () {
     $member = User::factory()->create();
@@ -64,7 +64,7 @@ test('comments log activity and notify task reporter', function () {
         'role' => 'member',
         'status' => 'active',
     ]);
-    Rbac::syncWorkspaceRole($commenter, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($commenter, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $reporter, 'manager');
     $project->members()->create([
         'user_id' => $commenter->id,

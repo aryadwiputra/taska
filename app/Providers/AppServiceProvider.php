@@ -51,6 +51,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function (User $user, string $ability, mixed ...$arguments): ?bool {
             return Rbac::ownsAuthorizationWorkspace($user, $arguments) ? true : null;
         });
+
+        foreach (config('permissions.permissions') as $permission) {
+            Gate::define($permission, fn (User $user) => $user->hasPermissionTo($permission));
+        }
     }
 
     /**

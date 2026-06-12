@@ -3,7 +3,8 @@
 use App\Models\ActivityLog;
 use App\Models\Notification;
 use App\Models\User;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
+use Illuminate\Support\Facades\Event;
 
 test('task creation logs activity and assignment notifications', function () {
     $reporter = User::factory()->create();
@@ -14,7 +15,7 @@ test('task creation logs activity and assignment notifications', function () {
         'role' => 'member',
         'status' => 'active',
     ]);
-    Rbac::syncWorkspaceRole($assignee, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($assignee, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $reporter, 'manager');
     $project->members()->create([
         'user_id' => $assignee->id,
@@ -40,6 +41,8 @@ test('task creation logs activity and assignment notifications', function () {
 });
 
 test('task updates and moves log activity', function () {
+    Event::fake();
+
     $developer = User::factory()->create();
     $workspace = createWorkspaceMember($developer, 'manager');
     $project = createProjectForWorkspace($workspace, $developer, 'developer');

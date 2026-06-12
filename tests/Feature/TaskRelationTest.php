@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Support\Rbac;
+use App\Services\WorkspaceRoleService;
 
 test('authorized users can toggle watch on a task', function () {
     $developer = User::factory()->create();
@@ -123,7 +123,7 @@ test('watcher toggle logs activity', function () {
         'role' => 'member',
         'status' => 'active',
     ]);
-    Rbac::syncWorkspaceRole($watcher, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($watcher, $workspace, 'member');
     $project = createProjectForWorkspace($workspace, $developer, 'developer');
     $project->members()->create([
         'user_id' => $watcher->id,

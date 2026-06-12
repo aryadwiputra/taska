@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Workspace;
-use App\Support\Rbac;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTaskTypeRequest extends FormRequest
@@ -14,11 +13,7 @@ class StoreTaskTypeRequest extends FormRequest
     {
         $this->workspace = $this->route('workspace');
 
-        return $this->user() && Rbac::userCanInWorkspace(
-            $this->user(),
-            $this->workspace,
-            'workspace.manage-task-types',
-        );
+        return $this->user() && $this->user()->can('workspace.manage-task-types');
     }
 
     public function rules(): array
