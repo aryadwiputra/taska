@@ -5,6 +5,8 @@ use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpicController;
+use App\Http\Controllers\GitHubAuthController;
+use App\Http\Controllers\GitHubWebhookController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NotificationController;
@@ -12,8 +14,10 @@ use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ProjectSettingController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SprintController;
 use App\Http\Controllers\TaskAttachmentController;
+use App\Http\Controllers\TaskAttachmentPreviewController;
 use App\Http\Controllers\TaskBulkOperationController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
@@ -114,6 +118,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/activity', [ActivityLogController::class, 'index'])->name('projects.activity.index');
 
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/reports', [ReportsController::class, 'index'])->name('projects.reports.index');
+
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/board', [BoardController::class, 'show'])->name('projects.board');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/boards', [BoardController::class, 'store'])->name('projects.boards.store');
         Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}', [BoardController::class, 'update'])->name('projects.boards.update');
@@ -122,6 +128,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/{boardColumn}', [BoardColumnController::class, 'update'])->name('projects.boards.columns.update');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/{boardColumn}', [BoardColumnController::class, 'destroy'])->name('projects.boards.columns.destroy');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/boards/{board}/columns/reorder', [BoardColumnController::class, 'reorder'])->name('projects.boards.columns.reorder');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/github/auth', [GitHubAuthController::class, 'redirect'])->name('projects.github.auth');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/github/callback', [GitHubAuthController::class, 'callback'])->name('projects.github.callback');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/github', [GitHubAuthController::class, 'destroy'])->name('projects.github.destroy');
+
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/bulk', [TaskBulkOperationController::class, 'store'])->name('projects.tasks.bulk');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
@@ -130,15 +140,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/move', [TaskController::class, 'moveColumn'])->name('projects.tasks.move');
 
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments', [TaskCommentController::class, 'store'])->name('projects.tasks.comments.store');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/typing', [CommentTypingController::class, 'ping'])->name('projects.tasks.comments.typing');
         Route::patch('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'update'])->name('projects.tasks.comments.update');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'destroy'])->name('projects.tasks.comments.destroy');
 
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments', [TaskAttachmentController::class, 'store'])->name('projects.tasks.attachments.store');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}/preview', [TaskAttachmentPreviewController::class, 'preview'])->name('projects.tasks.attachments.preview');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}/download', [TaskAttachmentPreviewController::class, 'download'])->name('projects.tasks.attachments.download');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}', [TaskAttachmentController::class, 'destroy'])->name('projects.tasks.attachments.destroy');
 
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/relations', [TaskRelationController::class, 'store'])->name('projects.tasks.relations.store');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/relations/{relation}', [TaskRelationController::class, 'destroy'])->name('projects.tasks.relations.destroy');
     });
 });
+
+// GitHub webhook — no auth (signed by GitHub)
+Route::scopeBindings()->post('/workspaces/{workspace:slug}/projects/{project:slug}/github/webhook', [GitHubWebhookController::class, 'handle'])->name('projects.github.webhook');
 
 require __DIR__.'/settings.php';

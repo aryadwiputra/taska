@@ -12,6 +12,9 @@ export type User = {
 
 export type Auth = {
     user: User;
+    notifications: {
+        unreadCount: number;
+    };
 };
 
 /* @chisel-passkeys */

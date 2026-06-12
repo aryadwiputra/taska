@@ -27,6 +27,8 @@ class StoreTaskRequest extends FormRequest
             'sprint_ids' => ['nullable', 'array'],
             'sprint_ids.*' => ['integer', Rule::exists('sprints', 'id')->where('project_id', $this->project->id)],
             'parent_id' => ['nullable', 'integer', Rule::exists('tasks', 'id')->where('project_id', $this->project->id)],
+            'start_date' => ['nullable', 'date'],
+            'due_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
 }

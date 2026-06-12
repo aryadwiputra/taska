@@ -43,4 +43,12 @@ class TaskFactory extends Factory
             'position' => 0,
         ];
     }
+
+    public function withDates(): static
+    {
+        return $this->state(fn () => [
+            'start_date' => fake()->dateTimeBetween('-2 months', '-1 day')->format('Y-m-d'),
+            'due_date' => fake()->dateTimeBetween('now', '+2 months')->format('Y-m-d'),
+        ]);
+    }
 }

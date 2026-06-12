@@ -13,6 +13,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        channels: __DIR__.'/../routes/channels.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -24,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             SetPermissionsTeamId::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'workspaces/*/projects/*/github/webhook',
         ]);
 
         $middleware->prependToPriorityList(

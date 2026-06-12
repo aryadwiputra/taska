@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +43,11 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $user,
+                'notifications' => [
+                    'unreadCount' => $user
+                        ? Notification::where('user_id', $user->id)->unread()->count()
+                        : 0,
+                ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'workspaces' => $user?->workspaces()->select('workspaces.id', 'workspaces.name', 'workspaces.slug', 'workspaces.logo')->get(),
