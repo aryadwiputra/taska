@@ -54,7 +54,7 @@ const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     'task.commented': MessageSquare,
     'task.mentioned': AtSign,
     'member.added': UserPlus,
-    'due_date_reminder': CalendarClock,
+    due_date_reminder: CalendarClock,
 };
 
 const typeLabels: Record<string, string> = {
@@ -63,10 +63,13 @@ const typeLabels: Record<string, string> = {
     'task.commented': 'Comment',
     'task.mentioned': 'Mention',
     'member.added': 'Member added',
-    'due_date_reminder': 'Due date',
+    due_date_reminder: 'Due date',
 };
 
-const taskRoute = (workspaceSlug: string, notification: NotificationItem): string | null => {
+const taskRoute = (
+    workspaceSlug: string,
+    notification: NotificationItem,
+): string | null => {
     const data = notification.data as Record<string, unknown> | null;
 
     if (!data?.project_slug || !data?.task_id) {
@@ -114,9 +117,8 @@ export default function NotificationsIndex({
     unreadCount: initialUnreadCount,
 }: Props) {
     const { props } = usePage();
-    const workspaceSlug = (
-        props.currentWorkspace as { slug: string } | null
-    )?.slug;
+    const workspaceSlug = (props.currentWorkspace as { slug: string } | null)
+        ?.slug;
     const userId = (props.auth as { user: { id: number } })?.user?.id;
 
     const [notifications, setNotifications] = useState(initialNotifications);
@@ -240,9 +242,7 @@ export default function NotificationsIndex({
                                             <div
                                                 key={notification.id}
                                                 onClick={() =>
-                                                    handleRowClick(
-                                                        notification,
-                                                    )
+                                                    handleRowClick(notification)
                                                 }
                                                 onKeyDown={(e) => {
                                                     if (

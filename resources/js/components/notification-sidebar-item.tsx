@@ -3,10 +3,7 @@ import { useEcho } from '@laravel/echo-react';
 import { Bell } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import {
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from '@/components/ui/sidebar';
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { index as notificationsIndex } from '@/routes/my-notifications';
 import type { Auth } from '@/types/auth';
 
@@ -25,9 +22,8 @@ export function NotificationSidebarItem() {
     const auth = props.auth as Auth;
     const initialUnread = auth?.notifications?.unreadCount ?? 0;
     const userId = auth?.user?.id;
-    const workspaceSlug = (
-        props.currentWorkspace as { slug: string } | null
-    )?.slug;
+    const workspaceSlug = (props.currentWorkspace as { slug: string } | null)
+        ?.slug;
 
     const [unreadCount, setUnreadCount] = useState(initialUnread);
 
@@ -57,15 +53,8 @@ export function NotificationSidebarItem() {
 
     return (
         <SidebarMenuItem>
-            <SidebarMenuButton
-                asChild
-                tooltip={{ children: 'Notifications' }}
-            >
-                <Link
-                    href={notificationsIndex()}
-                    prefetch
-                    className="relative"
-                >
+            <SidebarMenuButton asChild tooltip={{ children: 'Notifications' }}>
+                <Link href={notificationsIndex()} prefetch className="relative">
                     <Bell />
                     <span>Notifications</span>
                     {unreadCount > 0 && (

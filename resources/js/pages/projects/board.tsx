@@ -332,12 +332,7 @@ function BoardClient({
         Array<{ id: number; name: string }>
     >([]);
 
-    const presence = useEchoPresence(
-        `board.${project.id}`,
-        [],
-        () => {},
-        [],
-    );
+    const presence = useEchoPresence(`board.${project.id}`, [], () => {}, []);
 
     useEffect(() => {
         const ch = presence.channel();
@@ -486,50 +481,53 @@ function BoardClient({
         task: TaskItem;
     }
 
-    const handleTaskMoved = useCallback((e: TaskMovedEvent) => {
-        if (activeTask?.id === e.task_id) {
-            return;
-        }
-
-        setColumns((prev) => {
-            const srcIdx = prev.findIndex((c) =>
-                c.tasks.some((t) => t.id === e.task_id),
-            );
-
-            if (srcIdx < 0) {
-                return prev;
+    const handleTaskMoved = useCallback(
+        (e: TaskMovedEvent) => {
+            if (activeTask?.id === e.task_id) {
+                return;
             }
 
-            const tgtIdx = prev.findIndex((c) => c.id === e.to_column_id);
+            setColumns((prev) => {
+                const srcIdx = prev.findIndex((c) =>
+                    c.tasks.some((t) => t.id === e.task_id),
+                );
 
-            if (tgtIdx < 0) {
-                return prev;
-            }
-
-            return prev.map((col, idx) => {
-                if (idx === srcIdx) {
-                    return {
-                        ...col,
-                        tasks: col.tasks.filter((t) => t.id !== e.task_id),
-                    };
+                if (srcIdx < 0) {
+                    return prev;
                 }
 
-                if (idx === tgtIdx) {
-                    const updated = [...col.tasks];
+                const tgtIdx = prev.findIndex((c) => c.id === e.to_column_id);
 
-                    if (e.position < updated.length) {
-                        updated.splice(e.position, 0, e.task);
-                    } else {
-                        updated.push(e.task);
+                if (tgtIdx < 0) {
+                    return prev;
+                }
+
+                return prev.map((col, idx) => {
+                    if (idx === srcIdx) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter((t) => t.id !== e.task_id),
+                        };
                     }
 
-                    return { ...col, tasks: updated };
-                }
+                    if (idx === tgtIdx) {
+                        const updated = [...col.tasks];
 
-                return col;
+                        if (e.position < updated.length) {
+                            updated.splice(e.position, 0, e.task);
+                        } else {
+                            updated.push(e.task);
+                        }
+
+                        return { ...col, tasks: updated };
+                    }
+
+                    return col;
+                });
             });
-        });
-    }, [activeTask]);
+        },
+        [activeTask],
+    );
 
     useEcho(`private-project.${project.id}`, '.task.moved', handleTaskMoved);
 
@@ -685,7 +683,13 @@ function BoardClient({
                     <div className="flex items-center gap-3">
                         <PresenceAvatars
                             users={presenceUsers}
-                            currentUserId={(usePage().props.auth as { user: { id: number } })?.user?.id}
+                            currentUserId={
+                                (
+                                    usePage().props.auth as {
+                                        user: { id: number };
+                                    }
+                                )?.user?.id
+                            }
                         />
                         <Button
                             variant="outline"

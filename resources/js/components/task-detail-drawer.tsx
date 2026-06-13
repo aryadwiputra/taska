@@ -597,7 +597,10 @@ export function TaskDetailDrawer({
                 project: projectSlug,
                 task: taskId,
             }),
-            { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } },
+            {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            },
         ).catch(() => {});
     }, [workspaceSlug, projectSlug, taskId]);
 
@@ -1851,7 +1854,7 @@ export function TaskDetailDrawer({
                                         placeholder="Write a comment... Use @ to mention someone"
                                     />
                                     {typingUsers.length > 0 && (
-                                        <p className="mt-1 text-xs italic text-muted-foreground">
+                                        <p className="mt-1 text-xs text-muted-foreground italic">
                                             {typingUsers
                                                 .map((u) => u.name)
                                                 .join(', ')}{' '}
