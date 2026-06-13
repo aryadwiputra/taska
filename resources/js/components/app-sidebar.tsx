@@ -1,25 +1,11 @@
-import { router, usePage } from '@inertiajs/react';
-import {
-    CheckSquare,
-    ChevronDown,
-    LayoutGrid,
-    Plus,
-    Search,
-    Settings,
-} from 'lucide-react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { CheckSquare, LayoutGrid, Plus, Search, Settings } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { ConnectionStatus } from '@/components/connection-status';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { NotificationSidebarItem } from '@/components/notification-sidebar-item';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
     Sidebar,
     SidebarContent,
@@ -40,12 +26,8 @@ import {
     create as projectCreate,
 } from '@/routes/projects';
 import { search as taskSearch } from '@/routes/tasks';
-import {
-    create as workspaceCreate,
-    switchMethod as switchWorkspaceRoute,
-} from '@/routes/workspaces';
 import type { NavItem } from '@/types';
-import type { CurrentWorkspaceProps, WorkspaceProps } from '@/types/dashboard';
+import type { CurrentWorkspaceProps } from '@/types/dashboard';
 
 const mainNavItems: NavItem[] = [
     {
@@ -73,18 +55,9 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
-function switchWorkspace(workspaceSlug: string) {
-    router.post(
-        switchWorkspaceRoute.url(workspaceSlug),
-        {},
-        { preserveScroll: true },
-    );
-}
-
 export function AppSidebar() {
     const { props } = usePage();
 
-    const workspaces = (props.workspaces as WorkspaceProps[]) ?? [];
     const currentWorkspace =
         props.currentWorkspace as CurrentWorkspaceProps | null;
 
@@ -93,52 +66,11 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton size="lg">
-                                    <AppLogo />
-                                    {currentWorkspace && (
-                                        <span className="truncate font-semibold">
-                                            {currentWorkspace.name}
-                                        </span>
-                                    )}
-                                    {!currentWorkspace && (
-                                        <span className="font-semibold text-muted-foreground">
-                                            Qeerja
-                                        </span>
-                                    )}
-                                    <ChevronDown className="ml-auto size-4 opacity-50" />
-                                </SidebarMenuButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="start"
-                                className="w-[--radix-dropdown-menu-trigger-width]"
-                            >
-                                {workspaces.map((workspace) => (
-                                    <DropdownMenuItem
-                                        key={workspace.id}
-                                        className="cursor-pointer"
-                                        onClick={() =>
-                                            switchWorkspace(workspace.slug)
-                                        }
-                                    >
-                                        <span className="truncate">
-                                            {workspace.name}
-                                        </span>
-                                    </DropdownMenuItem>
-                                ))}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    className="cursor-pointer"
-                                    onClick={() =>
-                                        router.visit(workspaceCreate())
-                                    }
-                                >
-                                    <Plus className="size-4" />
-                                    <span>Create workspace</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <SidebarMenuButton size="lg" asChild>
+                            <Link href={dashboard()} prefetch>
+                                <AppLogo />
+                            </Link>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
