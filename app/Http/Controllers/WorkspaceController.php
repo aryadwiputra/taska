@@ -70,11 +70,36 @@ class WorkspaceController extends Controller
         return to_route('workspaces.settings', $workspace);
     }
 
-    public function show(Workspace $workspace): RedirectResponse
+    public function show(Workspace $workspace): Response
     {
         Gate::authorize('view', $workspace);
 
-        return to_route('workspaces.settings', $workspace);
+        $projects = $workspace->projects()
+            ->withCount(['tasks' => fn ($q) => $q->whereNull('completed_at')])
+            ->withCount('members')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'key' => $p->key,
+                'slug' => $p->slug,
+                'description' => $p->description,
+                'color' => $p->color,
+                'visibility' => $p->visibility,
+                'status' => $p->status,
+                'tasks_count' => $p->tasks_count,
+                'members_count' => $p->members_count,
+            ]);
+
+        return Inertia::render('workspaces/show', [
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+            ],
+            'projects' => $projects,
+        ]);
     }
 
     public function edit(Workspace $workspace, SettingService $settings): Response

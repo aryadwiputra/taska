@@ -8,7 +8,7 @@ import {
     create as workspaceCreate,
     index as workspaceIndex,
     restore as workspaceRestore,
-    settings as workspaceSettings,
+    show as workspaceShow,
 } from '@/routes/workspaces';
 
 interface Props {
@@ -86,7 +86,7 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
                         {activeWorkspaces.map((workspace) => (
                             <Link
                                 key={workspace.id}
-                                href={workspaceSettings({
+                                href={workspaceShow({
                                     workspace: workspace.slug,
                                 })}
                                 className="block"

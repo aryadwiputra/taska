@@ -32,3 +32,33 @@ test('workspace viewers cannot update workspace settings', function () {
         ])
         ->assertForbidden();
 });
+
+test('authenticated users can visit workspace show page', function () {
+    $user = User::factory()->create();
+    $workspace = createWorkspaceMember($user, 'owner');
+
+    $this->actingAs($user)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->get(route('workspaces.show', $workspace))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('workspaces/show')
+            ->has('workspace')
+            ->has('projects')
+        );
+});
+
+test('workspace show page displays projects', function () {
+    $user = User::factory()->create();
+    $workspace = createWorkspaceMember($user, 'owner');
+    $project = createProjectForWorkspace($workspace, $user, 'lead');
+
+    $this->actingAs($user)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->get(route('workspaces.show', $workspace))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('projects.0.id', $project->id)
+            ->where('projects.0.name', $project->name)
+        );
+});

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
     create as workspaceCreate,
+    show as workspaceShow,
     switchMethod as switchWorkspaceRoute,
 } from '@/routes/workspaces';
 import type { CurrentWorkspaceProps, WorkspaceProps } from '@/types/dashboard';
@@ -19,7 +20,12 @@ function switchWorkspace(workspaceSlug: string) {
     router.post(
         switchWorkspaceRoute.url(workspaceSlug),
         {},
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                router.visit(workspaceShow({ workspace: workspaceSlug }));
+            },
+        },
     );
 }
 
