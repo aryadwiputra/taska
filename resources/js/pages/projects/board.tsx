@@ -44,6 +44,7 @@ import {
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { cn } from '@/lib/utils';
 import { board as projectBoard, show as projectShow } from '@/routes/projects';
+import { reorder as reorderColumns } from '@/routes/projects/boards/columns';
 import { move as moveTask } from '@/routes/projects/tasks';
 
 interface Assignee {
@@ -278,7 +279,7 @@ function DroppableColumn({
         <div
             ref={setNodeRef}
             className={cn(
-                'flex w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-lg bg-muted/50 transition-colors sm:w-72',
+                'group flex w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-lg bg-muted/50 transition-colors sm:w-72',
                 isOver && !isEmpty && 'ring-2 ring-primary/50',
                 isOver &&
                     isEmpty &&
@@ -305,6 +306,46 @@ function DroppableColumn({
     );
 }
 
+function SortableColumnHeader({
+    column,
+    children,
+}: {
+    column: Column;
+    children: React.ReactNode;
+}) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: `column:${column.id}`,
+        data: { type: 'column', column },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn(
+                'flex items-center justify-between px-3 py-2.5',
+                isDragging && 'rounded-lg bg-muted opacity-50',
+            )}
+            {...attributes}
+            {...listeners}
+        >
+            {children}
+        </div>
+    );
+}
+
 export default function Board(props: Props) {
     return <BoardClient {...props} />;
 }
@@ -323,6 +364,7 @@ function BoardClient({
     const [columns, setColumns] = useState(initialColumns);
     const columnsSnapshotRef = useRef(columns);
     const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
+    const [activeColumn, setActiveColumn] = useState<Column | null>(null);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [columnManagerOpen, setColumnManagerOpen] = useState(false);
@@ -393,6 +435,18 @@ function BoardClient({
 
     const handleDragStart = (event: DragStartEvent) => {
         columnsSnapshotRef.current = columns;
+
+        const dragType = event.active.data.current?.type;
+
+        if (dragType === 'column') {
+            const col = columns.find(
+                (c) => c.id === event.active.data.current?.column?.id,
+            );
+            setActiveColumn(col ?? null);
+
+            return;
+        }
+
         const task = columns
             .flatMap((c) => c.tasks)
             .find((t) => t.id === event.active.id);
@@ -403,6 +457,39 @@ function BoardClient({
         const { active, over } = event;
 
         if (!over || active.id === over.id) {
+            return;
+        }
+
+        const dragType = active.data.current?.type;
+
+        if (dragType === 'column') {
+            const activeColId = active.data.current?.column?.id as number;
+            const overColId =
+                typeof over.id === 'string' && over.id.startsWith('column:')
+                    ? Number(over.id.slice(7))
+                    : typeof over.id === 'string' && over.id.startsWith('col:')
+                      ? Number(over.id.slice(4))
+                      : null;
+
+            if (!overColId || activeColId === overColId) {
+                return;
+            }
+
+            setColumns((prev) => {
+                const activeIdx = prev.findIndex((c) => c.id === activeColId);
+                const overIdx = prev.findIndex((c) => c.id === overColId);
+
+                if (activeIdx < 0 || overIdx < 0) {
+                    return prev;
+                }
+
+                const updated = [...prev];
+                const [moved] = updated.splice(activeIdx, 1);
+                updated.splice(overIdx, 0, moved);
+
+                return updated;
+            });
+
             return;
         }
 
@@ -531,12 +618,86 @@ function BoardClient({
 
     useEcho(`private-project.${project.id}`, '.task.moved', handleTaskMoved);
 
+    interface ColumnsReorderedEvent {
+        columns: Array<{ id: number; position: number }>;
+    }
+
+    const handleColumnsReordered = useCallback(
+        (e: ColumnsReorderedEvent) => {
+            if (activeColumn) {
+                return;
+            }
+
+            setColumns((prev) => {
+                const updated = [...prev];
+
+                for (const { id, position } of e.columns) {
+                    const idx = updated.findIndex((c) => c.id === id);
+
+                    if (idx >= 0) {
+                        const [col] = updated.splice(idx, 1);
+                        updated.splice(position, 0, col);
+                    }
+                }
+
+                return updated;
+            });
+        },
+        [activeColumn],
+    );
+
+    useEcho(
+        `private-project.${project.id}`,
+        '.columns.reordered',
+        handleColumnsReordered,
+    );
+
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveTask(null);
+        setActiveColumn(null);
 
         if (!over || !active) {
             setColumns(columnsSnapshotRef.current);
+
+            return;
+        }
+
+        const dragType = active.data.current?.type;
+
+        if (dragType === 'column') {
+            const activeColId = active.data.current?.column?.id as number;
+            const overColId =
+                typeof over.id === 'string' && over.id.startsWith('column:')
+                    ? Number(over.id.slice(7))
+                    : typeof over.id === 'string' && over.id.startsWith('col:')
+                      ? Number(over.id.slice(4))
+                      : null;
+
+            if (!overColId || activeColId === overColId) {
+                setColumns(columnsSnapshotRef.current);
+
+                return;
+            }
+
+            setColumns((prev) =>
+                prev.map((col, idx) => ({ ...col, position: idx })),
+            );
+
+            router.post(
+                reorderColumns({
+                    workspace: workspace.slug,
+                    project: project.slug,
+                    board: board.id,
+                }),
+                {
+                    columns: columns.map((col, idx) => ({
+                        id: col.id,
+                        position: idx,
+                    })),
+                },
+                { preserveScroll: true },
+            );
 
             return;
         }
@@ -723,68 +884,103 @@ function BoardClient({
                     onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
                 >
-                    <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
-                        {columns.map((column) => (
-                            <DroppableColumn
-                                key={column.id}
-                                column={column}
-                                activeTaskId={activeTask?.id ?? null}
-                            >
+                    <SortableContext
+                        items={columns.map((c) => `column:${c.id}`)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
+                            {columns.map((column) => (
+                                <DroppableColumn
+                                    key={column.id}
+                                    column={column}
+                                    activeTaskId={activeTask?.id ?? null}
+                                >
+                                    <SortableColumnHeader column={column}>
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="size-2.5 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        column.color ??
+                                                        '#64748B',
+                                                }}
+                                            />
+                                            <h3 className="text-sm font-semibold">
+                                                {column.name}
+                                            </h3>
+                                            <Badge
+                                                variant="secondary"
+                                                className="px-1.5 py-0 text-[10px]"
+                                            >
+                                                {column.tasks.length}
+                                            </Badge>
+                                        </div>
+                                        <GripVertical className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                                    </SortableColumnHeader>
+
+                                    <SortableContext
+                                        items={column.tasks.map((t) => t.id)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        <div
+                                            className={cn(
+                                                'flex min-h-[100px] flex-col gap-2 px-2 pb-2',
+                                                column.tasks.length === 0 &&
+                                                    'hidden',
+                                            )}
+                                        >
+                                            {column.tasks.map((task) => (
+                                                <SortableTask
+                                                    key={task.id}
+                                                    task={task}
+                                                    isDragging={
+                                                        activeTask?.id ===
+                                                        task.id
+                                                    }
+                                                    onClick={() => {
+                                                        setDrawerTaskId(
+                                                            task.id,
+                                                        );
+                                                        setDrawerOpen(true);
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DroppableColumn>
+                            ))}
+                        </div>
+                    </SortableContext>
+
+                    <DragOverlay dropAnimation={null}>
+                        {activeTask && (
+                            <div className="w-72 rotate-2 shadow-xl">
+                                <TaskCard task={activeTask} isDragging />
+                            </div>
+                        )}
+                        {activeColumn && (
+                            <div className="w-72 rotate-2 rounded-lg bg-muted/50 shadow-xl">
                                 <div className="flex items-center justify-between px-3 py-2.5">
                                     <div className="flex items-center gap-2">
                                         <div
                                             className="size-2.5 rounded-full"
                                             style={{
                                                 backgroundColor:
-                                                    column.color ?? '#64748B',
+                                                    activeColumn.color ??
+                                                    '#64748B',
                                             }}
                                         />
                                         <h3 className="text-sm font-semibold">
-                                            {column.name}
+                                            {activeColumn.name}
                                         </h3>
                                         <Badge
                                             variant="secondary"
                                             className="px-1.5 py-0 text-[10px]"
                                         >
-                                            {column.tasks.length}
+                                            {activeColumn.tasks.length}
                                         </Badge>
                                     </div>
                                 </div>
-
-                                <SortableContext
-                                    items={column.tasks.map((t) => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    <div
-                                        className={cn(
-                                            'flex min-h-[100px] flex-col gap-2 px-2 pb-2',
-                                            column.tasks.length === 0 &&
-                                                'hidden',
-                                        )}
-                                    >
-                                        {column.tasks.map((task) => (
-                                            <SortableTask
-                                                key={task.id}
-                                                task={task}
-                                                isDragging={
-                                                    activeTask?.id === task.id
-                                                }
-                                                onClick={() => {
-                                                    setDrawerTaskId(task.id);
-                                                    setDrawerOpen(true);
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DroppableColumn>
-                        ))}
-                    </div>
-
-                    <DragOverlay dropAnimation={null}>
-                        {activeTask && (
-                            <div className="w-72 rotate-2 shadow-xl">
-                                <TaskCard task={activeTask} isDragging />
                             </div>
                         )}
                     </DragOverlay>

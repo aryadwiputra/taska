@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ColumnsReordered;
 use App\Http\Requests\ReorderBoardColumnsRequest;
 use App\Http\Requests\StoreBoardColumnRequest;
 use App\Http\Requests\UpdateBoardColumnRequest;
@@ -74,6 +75,8 @@ class BoardColumnController extends Controller
         foreach ($validated['columns'] as $item) {
             BoardColumn::where('id', $item['id'])->update(['position' => $item['position']]);
         }
+
+        ColumnsReordered::dispatch($project->id, $validated['columns']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Columns reordered.']);
 
