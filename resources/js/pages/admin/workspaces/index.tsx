@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Archive, Search, Users } from 'lucide-react';
-import { useState  } from 'react';
-import type {FormEvent} from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

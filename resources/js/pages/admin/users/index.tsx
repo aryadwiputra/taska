@@ -94,8 +94,8 @@ function UserFormDialog({
                 onOpenChange(v);
 
                 if (!v) {
-reset();
-}
+                    reset();
+                }
             }}
         >
             <DialogContent>
@@ -191,8 +191,8 @@ export default function AdminUsersIndex({ users, filters }: Props) {
 
     function handleDelete(user: UserData) {
         if (!confirm(`Delete user "${user.name}"?`)) {
-return;
-}
+            return;
+        }
 
         router.delete(`/admin/users/${user.id}`, { preserveScroll: true });
     }
