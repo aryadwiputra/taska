@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\CommentTypingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpicController;
 use App\Http\Controllers\GitHubAuthController;
@@ -36,6 +37,7 @@ Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard');
+    Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'show'])->name('onboarding');
     Route::get('/my-tasks', [MyTasksController::class, 'index'])->name('my-tasks.index');
     Route::get('/tasks/search', [TaskSearchController::class, 'index'])->name('tasks.search');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('my-notifications.index');
