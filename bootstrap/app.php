@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'workspaces/*/projects/*/github/webhook',
+            'broadcasting/*',
         ]);
 
         $middleware->prependToPriorityList(

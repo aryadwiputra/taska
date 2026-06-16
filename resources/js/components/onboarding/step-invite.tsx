@@ -54,24 +54,20 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
         setSending(true);
 
         for (const invite of invites) {
-            await fetch(
-                invitationStore.url({ workspace: workspaceSlug }),
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-XSRF-TOKEN': decodeURIComponent(
-                            document.cookie
-                                .match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
-                        ),
-                    },
-                    body: JSON.stringify({
-                        email: invite.email,
-                        role: invite.role,
-                    }),
+            await fetch(invitationStore.url({ workspace: workspaceSlug }), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-XSRF-TOKEN': decodeURIComponent(
+                        document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                    ),
                 },
-            );
+                body: JSON.stringify({
+                    email: invite.email,
+                    role: invite.role,
+                }),
+            });
         }
 
         setSending(false);

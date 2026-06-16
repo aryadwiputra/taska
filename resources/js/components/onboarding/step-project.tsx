@@ -42,8 +42,8 @@ export function StepProject({
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-XSRF-TOKEN': decodeURIComponent(
-                            document.cookie
-                                .match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ??
+                                '',
                         ),
                     },
                     body: formData,
@@ -84,14 +84,12 @@ export function StepProject({
                             required
                             onChange={(e) => {
                                 if (!slugManuallyEdited) {
-                                    const slugInput =
-                                        document.getElementById(
-                                            'project-slug',
-                                        ) as HTMLInputElement;
-                                    const keyInput =
-                                        document.getElementById(
-                                            'project-key',
-                                        ) as HTMLInputElement;
+                                    const slugInput = document.getElementById(
+                                        'project-slug',
+                                    ) as HTMLInputElement;
+                                    const keyInput = document.getElementById(
+                                        'project-key',
+                                    ) as HTMLInputElement;
 
                                     if (slugInput) {
                                         slugInput.value = e.target.value
@@ -203,9 +201,7 @@ export function StepProject({
                             disabled={processing}
                             className="flex-1"
                         >
-                            {processing
-                                ? 'Creating...'
-                                : 'Create project'}
+                            {processing ? 'Creating...' : 'Create project'}
                         </Button>
                     </div>
                 </form>

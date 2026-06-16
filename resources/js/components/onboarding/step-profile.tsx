@@ -86,8 +86,7 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-XSRF-TOKEN': decodeURIComponent(
-                        document.cookie
-                            .match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                        document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
                     ),
                 },
                 body: formData,
@@ -148,9 +147,7 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="timezone">Timezone</Label>
                         <Select
-                            defaultValue={
-                                auth.user.timezone ?? 'Asia/Jakarta'
-                            }
+                            defaultValue={auth.user.timezone ?? 'Asia/Jakarta'}
                             name="timezone"
                         >
                             <SelectTrigger>
