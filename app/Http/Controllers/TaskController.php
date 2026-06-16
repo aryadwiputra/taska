@@ -15,14 +15,16 @@ use App\Services\NotificationService;
 use App\Services\TaskActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class TaskController extends Controller
 {
-    public function show(Workspace $workspace, Project $project, Task $task): JsonResponse
+    public function show(Request $request, Workspace $workspace, Project $project, Task $task): JsonResponse|Response
     {
         Gate::authorize('view', $task);
 
@@ -149,7 +151,7 @@ class TaskController extends Controller
             ],
         ]);
 
-        return response()->json([
+        $taskData = [
             'task' => [
                 'id' => $task->id,
                 'task_number' => $task->task_number,
@@ -192,6 +194,26 @@ class TaskController extends Controller
                 'board_columns' => $boardColumns,
                 'available_parent_tasks' => $availableParentTasks,
                 'project_tasks' => $project->tasks()->orderBy('code')->get(['id', 'code', 'title']),
+            ],
+        ];
+
+        if ($request->expectsJson()) {
+            return response()->json($taskData);
+        }
+
+        return Inertia::render('projects/tasks/show', [
+            ...$taskData,
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+            ],
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'key' => $project->key,
+                'slug' => $project->slug,
+                'color' => $project->color,
             ],
         ]);
     }

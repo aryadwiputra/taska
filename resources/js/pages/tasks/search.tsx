@@ -24,15 +24,10 @@ interface Props {
 }
 
 export default function TaskSearch({ tasks, filters, options }: Props) {
-    const [drawerTask, setDrawerTask] = useState<TaskSearchResultItem | null>(
-        null,
-    );
+    const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
+    const [drawerWorkspaceSlug, setDrawerWorkspaceSlug] = useState<string>('');
+    const [drawerProjectSlug, setDrawerProjectSlug] = useState<string>('');
     const [drawerOpen, setDrawerOpen] = useState(false);
-
-    const openTask = (task: TaskSearchResultItem) => {
-        setDrawerTask(task);
-        setDrawerOpen(true);
-    };
 
     return (
         <>
@@ -73,7 +68,12 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
                             <TaskSearchResult
                                 key={task.id}
                                 task={task}
-                                onOpen={openTask}
+                                onOpen={(t) => {
+                                    setDrawerTaskId(t.id);
+                                    setDrawerWorkspaceSlug(t.workspace.slug);
+                                    setDrawerProjectSlug(t.project.slug);
+                                    setDrawerOpen(true);
+                                }}
                             />
                         ))}
                     </div>
@@ -122,9 +122,9 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
             </div>
 
             <TaskDetailDrawer
-                workspaceSlug={drawerTask?.workspace.slug ?? null}
-                projectSlug={drawerTask?.project.slug ?? null}
-                taskId={drawerTask?.id ?? null}
+                workspaceSlug={drawerWorkspaceSlug}
+                projectSlug={drawerProjectSlug}
+                taskId={drawerTaskId}
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}
                 onDelete={() => router.reload()}

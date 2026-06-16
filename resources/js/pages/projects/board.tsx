@@ -1039,7 +1039,7 @@ function BoardClient({
                                                                               task={
                                                                                   task
                                                                               }
-                                                                              isDragging={
+                                                                               isDragging={
                                                                                   activeTask?.id ===
                                                                                   task.id
                                                                               }

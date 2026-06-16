@@ -16,7 +16,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, CalendarDays, GripVertical, Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -155,10 +155,9 @@ function SortableTaskRow({
                 <GripVertical className="size-4" />
             </button>
 
-            <button
-                type="button"
-                className="min-w-0 flex-1 text-left"
+            <div
                 onClick={onClick}
+                className="min-w-0 flex-1 cursor-pointer"
             >
                 <div className="flex items-center gap-2">
                     <span className="font-mono text-xs text-muted-foreground">
@@ -198,7 +197,7 @@ function SortableTaskRow({
                         </span>
                     )}
                 </div>
-            </button>
+            </div>
 
             <Select
                 value=""
@@ -235,9 +234,9 @@ export default function BacklogIndex({
     backlogTasks: initialTasks,
 }: Props) {
     const [tasks, setTasks] = useState<TaskItem[]>(initialTasks);
+    const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
     const abortRef = useRef<AbortController | null>(null);
 
     const sensors = useSensors(
@@ -489,9 +488,7 @@ export default function BacklogIndex({
                                                         handleMoveToSprint
                                                     }
                                                     onClick={() => {
-                                                        setDrawerTaskId(
-                                                            task.id,
-                                                        );
+                                                        setDrawerTaskId(task.id);
                                                         setDrawerOpen(true);
                                                     }}
                                                 />
@@ -537,11 +534,7 @@ export default function BacklogIndex({
                 taskId={drawerTaskId}
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}
-                onDelete={() => {
-                    setDrawerOpen(false);
-                    setDrawerTaskId(null);
-                    fetchData();
-                }}
+                onDelete={() => router.reload()}
             />
         </>
     );

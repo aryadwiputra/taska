@@ -148,14 +148,13 @@ export default function LabelShow({
                             {labelTasks.length > 0 ? (
                                 <div className="flex flex-col rounded-md border">
                                     {labelTasks.map((task) => (
-                                        <button
+                                        <div
                                             key={task.id}
-                                            type="button"
-                                            className="flex items-center gap-3 border-b px-3 py-3 text-left transition-colors last:border-0 hover:bg-muted/40"
                                             onClick={() => {
                                                 setDrawerTaskId(task.id);
                                                 setDrawerOpen(true);
                                             }}
+                                            className="flex items-center gap-3 border-b px-3 py-3 transition-colors last:border-0 hover:bg-muted/40 cursor-pointer"
                                         >
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
@@ -222,7 +221,7 @@ export default function LabelShow({
                                                     )}
                                                 </div>
                                             </div>
-                                        </button>
+                                        </div>
                                     ))}
                                 </div>
                             ) : (
@@ -242,16 +241,16 @@ export default function LabelShow({
                         </CardContent>
                     </Card>
                 </div>
-
-                <TaskDetailDrawer
-                    workspaceSlug={workspace.slug}
-                    projectSlug={project.slug}
-                    taskId={drawerTaskId}
-                    open={drawerOpen}
-                    onOpenChange={setDrawerOpen}
-                    onDelete={() => router.reload()}
-                />
             </div>
+
+            <TaskDetailDrawer
+                workspaceSlug={workspace.slug}
+                projectSlug={project.slug}
+                taskId={drawerTaskId}
+                open={drawerOpen}
+                onOpenChange={setDrawerOpen}
+                onDelete={() => router.reload()}
+            />
         </>
     );
 }

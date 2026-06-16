@@ -59,8 +59,9 @@ const statusOptions = [
 
 export default function MyTasks({ tasks, projects, filters }: Props) {
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
+    const [drawerWorkspaceSlug, setDrawerWorkspaceSlug] = useState<string>('');
+    const [drawerProjectSlug, setDrawerProjectSlug] = useState<string>('');
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [selectedTask, setSelectedTask] = useState<MyTaskItem | null>(null);
 
     const updateFilter = (key: string, value: string) => {
         const params = new URLSearchParams(window.location.search);
@@ -76,12 +77,6 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
             preserveScroll: true,
             preserveState: true,
         });
-    };
-
-    const handleTaskClick = (task: MyTaskItem) => {
-        setSelectedTask(task);
-        setDrawerTaskId(task.id);
-        setDrawerOpen(true);
     };
 
     return (
@@ -174,11 +169,15 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                     <div className="flex flex-col">
                         <div className="grid gap-3 md:hidden">
                             {tasks.data.map((task) => (
-                                <button
+                                <div
                                     key={task.id}
-                                    type="button"
-                                    className="rounded-lg border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50"
-                                    onClick={() => handleTaskClick(task)}
+                                    onClick={() => {
+                                        setDrawerTaskId(task.id);
+                                        setDrawerWorkspaceSlug(task.workspace.slug);
+                                        setDrawerProjectSlug(task.project.slug);
+                                        setDrawerOpen(true);
+                                    }}
+                                    className="rounded-lg border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50 cursor-pointer"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -232,7 +231,7 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                                             </span>
                                         )}
                                     </div>
-                                </button>
+                                </div>
                             ))}
                         </div>
 
@@ -265,9 +264,12 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                                         <tr
                                             key={task.id}
                                             className="cursor-pointer border-b transition-colors hover:bg-muted/50"
-                                            onClick={() =>
-                                                handleTaskClick(task)
-                                            }
+                                            onClick={() => {
+                                                setDrawerTaskId(task.id);
+                                                setDrawerWorkspaceSlug(task.workspace.slug);
+                                                setDrawerProjectSlug(task.project.slug);
+                                                setDrawerOpen(true);
+                                            }}
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="flex flex-col gap-0.5">
@@ -426,8 +428,8 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
             </div>
 
             <TaskDetailDrawer
-                workspaceSlug={selectedTask?.workspace.slug ?? null}
-                projectSlug={selectedTask?.project.slug ?? null}
+                workspaceSlug={drawerWorkspaceSlug}
+                projectSlug={drawerProjectSlug}
                 taskId={drawerTaskId}
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}

@@ -6,6 +6,7 @@ import {
     ChevronRight,
     Eye,
     EyeOff,
+    ExternalLink,
     ListTree,
     Loader2,
     MessageSquare,
@@ -967,16 +968,39 @@ export function TaskDetailDrawer({
                                             aria-label="Task title"
                                         />
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="shrink-0 text-muted-foreground hover:text-destructive"
-                                        onClick={handleDeleteTask}
-                                        aria-label="Delete task"
-                                    >
-                                        <Trash2 className="size-5" />
-                                    </Button>
+                                    <div className="flex shrink-0 gap-1">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-muted-foreground hover:text-foreground"
+                                            onClick={() => {
+                                                if (workspaceSlug && projectSlug && task) {
+                                                    window.open(
+                                                        showTask.url({
+                                                            workspace: workspaceSlug,
+                                                            project: projectSlug,
+                                                            task: task.id,
+                                                        }),
+                                                        '_blank',
+                                                    );
+                                                }
+                                            }}
+                                            aria-label="Open full page"
+                                        >
+                                            <ExternalLink className="size-5" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-muted-foreground hover:text-destructive"
+                                            onClick={handleDeleteTask}
+                                            aria-label="Delete task"
+                                        >
+                                            <Trash2 className="size-5" />
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2">

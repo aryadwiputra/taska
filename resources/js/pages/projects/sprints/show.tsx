@@ -112,9 +112,9 @@ export default function SprintShow({
     sprintTasks,
     availableTasks,
 }: Props) {
+    const [addTaskId, setAddTaskId] = useState<string>('none');
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [addTaskId, setAddTaskId] = useState<string>('none');
 
     const { completed_tasks_count: completedTasks, tasks_count: totalTasks } =
         sprint;
@@ -295,13 +295,12 @@ export default function SprintShow({
                                             key={task.id}
                                             className="flex items-center gap-3 border-b px-3 py-3 transition-colors last:border-0 hover:bg-muted/40"
                                         >
-                                            <button
-                                                type="button"
-                                                className="min-w-0 flex-1 text-left"
+                                            <div
                                                 onClick={() => {
                                                     setDrawerTaskId(task.id);
                                                     setDrawerOpen(true);
                                                 }}
+                                                className="min-w-0 flex-1 cursor-pointer"
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-mono text-xs text-muted-foreground">
@@ -372,7 +371,7 @@ export default function SprintShow({
                                                         </span>
                                                     )}
                                                 </div>
-                                            </button>
+                                            </div>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -404,16 +403,16 @@ export default function SprintShow({
                         </CardContent>
                     </Card>
                 </div>
-
-                <TaskDetailDrawer
-                    workspaceSlug={workspace.slug}
-                    projectSlug={project.slug}
-                    taskId={drawerTaskId}
-                    open={drawerOpen}
-                    onOpenChange={setDrawerOpen}
-                    onDelete={() => router.reload()}
-                />
             </div>
+
+            <TaskDetailDrawer
+                workspaceSlug={workspace.slug}
+                projectSlug={project.slug}
+                taskId={drawerTaskId}
+                open={drawerOpen}
+                onOpenChange={setDrawerOpen}
+                onDelete={() => router.reload()}
+            />
         </>
     );
 }

@@ -255,9 +255,9 @@ export default function ProjectShow({
     const [activeTab, setActiveTab] = useState('list');
     const [sorting, setSorting] = useState<SortingState>([]);
     const [page, setPage] = useState(0);
+    const [localTasks, setLocalTasks] = useState(tasks);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [localTasks, setLocalTasks] = useState(tasks);
 
     useEffect(() => {
         setLocalTasks(tasks);
@@ -724,9 +724,7 @@ export default function ProjectShow({
                                                     key={row.id}
                                                     className="cursor-pointer border-t transition-colors hover:bg-muted/40"
                                                     onClick={() => {
-                                                        setDrawerTaskId(
-                                                            row.original.id,
-                                                        );
+                                                        setDrawerTaskId(row.original.id);
                                                         setDrawerOpen(true);
                                                     }}
                                                 >
@@ -1582,15 +1580,6 @@ export default function ProjectShow({
                     }}
                 />
 
-                <TaskDetailDrawer
-                    workspaceSlug={workspace.slug}
-                    projectSlug={project.slug}
-                    taskId={drawerTaskId}
-                    open={drawerOpen}
-                    onOpenChange={setDrawerOpen}
-                    onDelete={() => router.reload()}
-                />
-
                 <TaskBulkDialog
                     open={bulkDialogOpen}
                     onOpenChange={setBulkDialogOpen}
@@ -1603,6 +1592,15 @@ export default function ProjectShow({
                     priorities={priorities}
                     labels={labels}
                     onSuccess={() => setSelectedTaskIds(new Set())}
+                />
+
+                <TaskDetailDrawer
+                    workspaceSlug={workspace.slug}
+                    projectSlug={project.slug}
+                    taskId={drawerTaskId}
+                    open={drawerOpen}
+                    onOpenChange={setDrawerOpen}
+                    onDelete={() => router.reload()}
                 />
             </div>
         </>
