@@ -97,3 +97,139 @@ test('project managers can update and delete sprints attached to tasks', functio
     expect(Sprint::whereKey($sprint->id)->exists())->toBeFalse()
         ->and($task->sprints()->count())->toBe(0);
 });
+
+test('project managers can start a planned sprint', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Sprint 1',
+        'status' => 'planned',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.start', [$workspace, $project, $sprint]))
+        ->assertRedirect();
+
+    $sprint->refresh();
+    expect($sprint->status)->toBe('active')
+        ->and($sprint->start_date)->not->toBeNull();
+});
+
+test('cannot start a non-planned sprint', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Active sprint',
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.start', [$workspace, $project, $sprint]))
+        ->assertUnprocessable();
+});
+
+test('cannot start a sprint when another is active', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Active sprint',
+        'status' => 'active',
+    ]);
+    $planned = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Planned sprint',
+        'status' => 'planned',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.start', [$workspace, $project, $planned]))
+        ->assertUnprocessable();
+});
+
+test('project managers can close an active sprint', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Sprint 1',
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.close', [$workspace, $project, $sprint]))
+        ->assertRedirect();
+
+    $sprint->refresh();
+    expect($sprint->status)->toBe('completed')
+        ->and($sprint->completed_at)->not->toBeNull()
+        ->and($sprint->end_date)->not->toBeNull();
+});
+
+test('cannot close a non-active sprint', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Planned sprint',
+        'status' => 'planned',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.close', [$workspace, $project, $sprint]))
+        ->assertUnprocessable();
+});
+
+test('project members can view sprint report', function () {
+    $manager = User::factory()->create();
+    $workspace = createWorkspaceMember($manager, 'manager');
+    $project = createProjectForWorkspace($workspace, $manager, 'manager');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Sprint 1',
+        'status' => 'completed',
+        'start_date' => '2026-06-01',
+        'end_date' => '2026-06-14',
+    ]);
+
+    $this->actingAs($manager)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->get(route('projects.sprints.report', [$workspace, $project, $sprint]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('projects/sprints/report'));
+});
+
+test('project viewers cannot start or close sprints', function () {
+    $viewer = User::factory()->create();
+    $workspace = createWorkspaceMember($viewer, 'manager');
+    $project = createProjectForWorkspace($workspace, $viewer, 'viewer');
+    $sprint = Sprint::create([
+        'project_id' => $project->id,
+        'name' => 'Sprint 1',
+        'status' => 'planned',
+    ]);
+
+    $this->actingAs($viewer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.start', [$workspace, $project, $sprint]))
+        ->assertForbidden();
+
+    $sprint->update(['status' => 'active']);
+
+    $this->actingAs($viewer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.sprints.close', [$workspace, $project, $sprint]))
+        ->assertForbidden();
+});

@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, Check, Plus, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Check, Play, Plus, SquareChartGantt, X } from 'lucide-react';
 import { useState } from 'react';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,10 @@ import {
 } from '@/routes/projects';
 import {
     addTask as sprintAddTask,
+    close as sprintClose,
     removeTask as sprintRemoveTask,
+    report as sprintReport,
+    start as sprintStart,
 } from '@/routes/projects/sprints';
 
 interface UserRef {
@@ -213,16 +216,75 @@ export default function SprintShow({
                                 )}
                             </div>
                         </div>
-                        <Link
-                            href={projectSettings({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                            })}
-                        >
-                            <Button variant="outline" size="sm">
-                                Edit sprint
-                            </Button>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                            {sprint.status === 'planned' && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() =>
+                                        router.post(
+                                            sprintStart({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                                sprint: sprint.id,
+                                            }),
+                                            {},
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                >
+                                    <Play className="size-3" />
+                                    Start sprint
+                                </Button>
+                            )}
+                            {sprint.status === 'active' && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => {
+                                        if (!confirm('Complete this sprint?')) {
+                                            return;
+                                        }
+                                        router.post(
+                                            sprintClose({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                                sprint: sprint.id,
+                                            }),
+                                            {},
+                                            { preserveScroll: true },
+                                        );
+                                    }}
+                                >
+                                    <Check className="size-3" />
+                                    Complete sprint
+                                </Button>
+                            )}
+                            {sprint.status === 'completed' && (
+                                <Link
+                                    href={sprintReport({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                        sprint: sprint.id,
+                                    })}
+                                >
+                                    <Button variant="outline" size="sm">
+                                        <SquareChartGantt className="size-3" />
+                                        View report
+                                    </Button>
+                                </Link>
+                            )}
+                            <Link
+                                href={projectSettings({
+                                    workspace: workspace.slug,
+                                    project: project.slug,
+                                })}
+                            >
+                                <Button variant="outline" size="sm">
+                                    Edit sprint
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
 
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">

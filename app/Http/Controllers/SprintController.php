@@ -156,6 +156,139 @@ class SprintController extends Controller
         return back();
     }
 
+    public function start(Workspace $workspace, Project $project, Sprint $sprint): RedirectResponse
+    {
+        Gate::authorize('update', $project);
+        $this->ensureSprintBelongsToProject($sprint, $project);
+
+        abort_if($sprint->status !== 'planned', 422, 'Only planned sprints can be started.');
+
+        $activeExists = $project->sprints()->where('status', 'active')->exists();
+        abort_if($activeExists, 422, 'Another sprint is already active. Complete it first.');
+
+        $sprint->update([
+            'status' => 'active',
+            'start_date' => $sprint->start_date ?? now()->toDateString(),
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sprint started.']);
+
+        return back();
+    }
+
+    public function close(Workspace $workspace, Project $project, Sprint $sprint): RedirectResponse
+    {
+        Gate::authorize('update', $project);
+        $this->ensureSprintBelongsToProject($sprint, $project);
+
+        abort_if($sprint->status !== 'active', 422, 'Only active sprints can be completed.');
+
+        $sprint->update([
+            'status' => 'completed',
+            'completed_at' => $sprint->completed_at ?? now(),
+            'end_date' => $sprint->end_date ?? now()->toDateString(),
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sprint completed.']);
+
+        return back();
+    }
+
+    public function report(Workspace $workspace, Project $project, Sprint $sprint): Response
+    {
+        Gate::authorize('view', $project);
+        $this->ensureSprintBelongsToProject($sprint, $project);
+
+        $sprint->loadCount('tasks');
+        $sprint->load(['tasks' => function ($query) {
+            $query->with(['priority:id,name,key,level,color', 'taskType:id,name,key,color', 'assignees:id,name,avatar', 'boardColumn:id,name,status_key,color']);
+        }]);
+
+        $completedCount = $sprint->tasks->filter(fn ($task) => $task->completed_at !== null)->count();
+        $completedPoints = $sprint->tasks->filter(fn ($t) => $t->completed_at !== null)->sum('story_points');
+        $totalPoints = $sprint->tasks->sum('story_points');
+
+        $burndown = $this->computeBurndown($sprint);
+
+        $byStatus = $sprint->tasks->groupBy('status')->map(fn ($tasks, $key) => [
+            'key' => $key,
+            'count' => $tasks->count(),
+        ])->values();
+
+        $byAssignee = $sprint->tasks->flatMap(fn ($t) => $t->assignees->map(fn ($a) => $a->id))
+            ->countBy()
+            ->map(fn ($count, $userId) => [
+                'user' => $sprint->tasks->flatMap(fn ($t) => $t->assignees)->firstWhere('id', $userId)?->only('id', 'name', 'avatar'),
+                'total' => $sprint->tasks->filter(fn ($t) => $t->assignees->contains('id', $userId))->count(),
+                'completed' => $sprint->tasks->filter(fn ($t) => $t->assignees->contains('id', $userId) && $t->completed_at !== null)->count(),
+            ])->values();
+
+        return Inertia::render('projects/sprints/report', [
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+            ],
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'key' => $project->key,
+                'slug' => $project->slug,
+            ],
+            'sprint' => array_merge(
+                $sprint->only('id', 'name', 'goal', 'status', 'start_date', 'end_date', 'committed_points', 'completed_at'),
+                [
+                    'tasks_count' => $sprint->tasks_count,
+                    'completed_tasks_count' => $completedCount,
+                    'total_points' => $totalPoints,
+                    'completed_points' => $completedPoints,
+                ],
+            ),
+            'burndown' => $burndown,
+            'byStatus' => $byStatus,
+            'byAssignee' => $byAssignee,
+        ]);
+    }
+
+    private function computeBurndown(Sprint $sprint): array
+    {
+        $sprintTasks = $sprint->tasks;
+        $totalTasks = $sprintTasks->count();
+
+        if ($totalTasks === 0) {
+            return ['data' => []];
+        }
+
+        $start = $sprint->start_date?->copy() ?? now()->subDays(7);
+        $end = $sprint->end_date?->copy() ?? now()->addDays(7);
+        $duration = max($start->diffInDays($end), 1);
+
+        $points = [];
+        $cursor = $start->copy();
+        $maxIterations = 365;
+        $iteration = 0;
+
+        while ($cursor <= $end && $iteration < $maxIterations) {
+            $iteration++;
+            $remaining = $sprintTasks->filter(
+                fn ($t) => is_null($t->completed_at) || $t->completed_at->gt($cursor->endOfDay())
+            )->count();
+
+            $daysElapsed = max($start->diffInDays($cursor), 0);
+            $ideal = max($totalTasks - ($totalTasks / $duration) * $daysElapsed, 0);
+
+            $points[] = [
+                'date' => $cursor->format('Y-m-d'),
+                'remaining' => $remaining,
+                'ideal' => round($ideal, 1),
+            ];
+
+            $cursor->addDay();
+        }
+
+        return ['data' => $points];
+    }
+
     public function destroy(Workspace $workspace, Project $project, Sprint $sprint): RedirectResponse
     {
         Gate::authorize('update', $project);

@@ -125,6 +125,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}', [SprintController::class, 'destroy'])->name('projects.sprints.destroy');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}/add-task', [SprintController::class, 'addTask'])->name('projects.sprints.add-task');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}/remove-task', [SprintController::class, 'removeTask'])->name('projects.sprints.remove-task');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}/start', [SprintController::class, 'start'])->name('projects.sprints.start');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}/close', [SprintController::class, 'close'])->name('projects.sprints.close');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/sprints/{sprint}/report', [SprintController::class, 'report'])->name('projects.sprints.report');
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/backlog', [BacklogController::class, 'index'])->name('projects.backlog.index');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/backlog/json', [BacklogController::class, 'indexJson'])->name('projects.backlog.index-json');
