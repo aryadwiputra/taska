@@ -21,6 +21,7 @@ use App\Http\Controllers\ProjectSettingController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SavedFilterController;
+use App\Http\Controllers\SlaPolicyController;
 use App\Http\Controllers\SprintController;
 use App\Http\Controllers\TaskAttachmentController;
 use App\Http\Controllers\TaskAttachmentPreviewController;
@@ -117,6 +118,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/components/{component}', [ComponentController::class, 'destroy'])->name('projects.components.destroy');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/components/{component}/add-task', [ComponentController::class, 'addTask'])->name('projects.components.add-task');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/components/{component}/remove-task', [ComponentController::class, 'removeTask'])->name('projects.components.remove-task');
+
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/sla-policies', [SlaPolicyController::class, 'index'])->name('projects.sla-policies.index');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/sla-policies', [SlaPolicyController::class, 'store'])->name('projects.sla-policies.store');
+        Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/sla-policies/{slaPolicy}', [SlaPolicyController::class, 'update'])->name('projects.sla-policies.update');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/sla-policies/{slaPolicy}', [SlaPolicyController::class, 'destroy'])->name('projects.sla-policies.destroy');
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/epics', [EpicController::class, 'index'])->name('projects.epics.index');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/epics', [EpicController::class, 'store'])->name('projects.epics.store');

@@ -79,4 +79,9 @@ class Project extends Model
     {
         return $this->hasMany(Component::class);
     }
+
+    public function slaPolicies(): HasMany
+    {
+        return $this->hasMany(SlaPolicy::class);
+    }
 }

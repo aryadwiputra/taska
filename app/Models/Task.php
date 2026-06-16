@@ -32,6 +32,7 @@ class Task extends Model
         'start_date',
         'due_date',
         'completed_at',
+        'first_responded_at',
         'archived_at',
     ];
 
@@ -42,6 +43,7 @@ class Task extends Model
             'start_date' => 'date',
             'due_date' => 'date',
             'completed_at' => 'datetime',
+            'first_responded_at' => 'datetime',
             'archived_at' => 'datetime',
         ];
     }

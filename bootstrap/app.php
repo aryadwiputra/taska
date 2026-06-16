@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetPermissionsTeamId;
+use App\Jobs\CheckSlaBreachesJob;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function ($schedule): void {
+        $schedule->job(new CheckSlaBreachesJob)->hourly();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'super-admin' => EnsureUserIsSuperAdmin::class,
