@@ -6,6 +6,7 @@ use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\CommentTypingController;
 use App\Http\Controllers\ComponentController;
+use App\Http\Controllers\CrossProjectController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpicController;
 use App\Http\Controllers\GitHubAuthController;
@@ -83,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/workspaces/{workspace:slug}/invitations/{invitation}', [WorkspaceInvitationController::class, 'destroy'])->name('workspaces.invitations.destroy');
 
         Route::put('/workspaces/{workspace:slug}/settings', [WorkspaceSettingController::class, 'update'])->name('workspaces.settings.update');
+
+        Route::get('/workspaces/{workspace:slug}/cross-project/timeline', [CrossProjectController::class, 'timeline'])->name('workspaces.cross-project.timeline');
+        Route::get('/workspaces/{workspace:slug}/cross-project/board', [CrossProjectController::class, 'board'])->name('workspaces.cross-project.board');
 
         Route::post('/workspaces/{workspace:slug}/task-types', [TaskTypeController::class, 'store'])->name('workspaces.task-types.store');
         Route::put('/workspaces/{workspace:slug}/task-types/{taskType}', [TaskTypeController::class, 'update'])->name('workspaces.task-types.update');

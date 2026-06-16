@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, FolderKanban, Plus, Settings, Users } from 'lucide-react';
+import { ArrowLeft, FolderKanban, GanttChart, LayoutGrid, Plus, Settings, Users } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,10 @@ import {
     index as workspacesIndex,
     settings as workspaceSettings,
 } from '@/routes/workspaces';
+import {
+    timeline as crossProjectTimeline,
+    board as crossProjectBoard,
+} from '@/routes/workspaces/cross-project';
 
 interface ProjectItem {
     id: number;
@@ -67,6 +71,30 @@ export default function WorkspaceShow({ workspace, projects }: Props) {
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <Link
+                            href={crossProjectTimeline({
+                                workspace: workspace.slug,
+                            })}
+                            className={cn(
+                                buttonVariants({ variant: 'outline' }),
+                                'flex items-center gap-2',
+                            )}
+                        >
+                            <GanttChart className="size-4" />
+                            <span className="hidden sm:inline">Timeline</span>
+                        </Link>
+                        <Link
+                            href={crossProjectBoard({
+                                workspace: workspace.slug,
+                            })}
+                            className={cn(
+                                buttonVariants({ variant: 'outline' }),
+                                'flex items-center gap-2',
+                            )}
+                        >
+                            <LayoutGrid className="size-4" />
+                            <span className="hidden sm:inline">Board</span>
+                        </Link>
                         <Link
                             href={workspaceSettings({
                                 workspace: workspace.slug,
