@@ -2,6 +2,7 @@
 
 use App\Events\CommentTyping;
 use App\Models\User;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Support\Facades\Event;
 
 test('guests are redirected to login', function () {
@@ -60,7 +61,7 @@ test('project members can ping typing indicator', function () {
         'role' => 'member',
         'status' => 'active',
     ]);
-    app(\App\Services\WorkspaceRoleService::class)->syncRole($member, $workspace, 'member');
+    app(WorkspaceRoleService::class)->syncRole($member, $workspace, 'member');
     $project->members()->create([
         'user_id' => $member->id,
         'role' => 'developer',
