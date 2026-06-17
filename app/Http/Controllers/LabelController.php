@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateLabelRequest;
 use App\Models\Label;
 use App\Models\Project;
 use App\Models\Workspace;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -15,36 +16,14 @@ use Inertia\Response;
 
 class LabelController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): Response
+    public function index(Workspace $workspace, Project $project): JsonResponse
     {
         Gate::authorize('view', $project);
 
-        $labels = $project->labels()
-            ->withCount('tasks')
-            ->orderBy('name')
-            ->get(['id', 'name', 'slug', 'color'])
-            ->map(fn ($label) => [
-                'id' => $label->id,
-                'name' => $label->name,
-                'slug' => $label->slug,
-                'color' => $label->color,
-                'tasks_count' => $label->tasks_count,
-            ]);
-
-        return Inertia::render('projects/labels/index', [
-            'workspace' => [
-                'id' => $workspace->id,
-                'name' => $workspace->name,
-                'slug' => $workspace->slug,
-            ],
-            'project' => [
-                'id' => $project->id,
-                'name' => $project->name,
-                'key' => $project->key,
-                'slug' => $project->slug,
-                'color' => $project->color,
-            ],
-            'labels' => $labels,
+        return response()->json([
+            'labels' => $project->labels()
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug', 'color']),
         ]);
     }
 

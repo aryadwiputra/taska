@@ -11,12 +11,10 @@ use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\CrossProjectController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpicController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubWebhookController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\LabelController;
-use App\Http\Controllers\ListController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
@@ -37,7 +35,6 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskRelationController;
 use App\Http\Controllers\TaskSearchController;
 use App\Http\Controllers\TaskTypeController;
-use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkloadController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
@@ -174,12 +171,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/backlog/{sprint}/add-task', [BacklogController::class, 'addToSprint'])->name('projects.backlog.add-to-sprint');
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/activity', [ActivityLogController::class, 'index'])->name('projects.activity.index');
-
-        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/list', [ListController::class, 'index'])->name('projects.list.index');
-
-        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/timeline', [TimelineController::class, 'index'])->name('projects.timeline.index');
-
-        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/files', [FileController::class, 'index'])->name('projects.files.index');
 
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/reports', [ReportsController::class, 'index'])->name('projects.reports.index');
 

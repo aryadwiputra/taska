@@ -6,6 +6,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Integration;
 use App\Models\Project;
+use App\Models\TaskActivity;
 use App\Models\TaskAttachment;
 use App\Models\Workspace;
 use App\Services\SettingService;
@@ -105,20 +106,203 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $counts = [
-            'tasks' => $project->tasks()->count(),
-            'epics' => $project->epics()->count(),
-            'sprints' => $project->sprints()->count(),
-            'labels' => $project->labels()->count(),
-            'members' => $project->members()->count(),
-            'components' => $project->components()->count(),
-            'releases' => $project->releases()->count(),
-            'automation_rules' => $project->automationRules()->count(),
-            'attachments' => TaskAttachment::whereHas('task', fn ($q) => $q->where('project_id', $project->id))->count(),
-        ];
+        $members = $project->members()
+            ->with('user:id,name,email,avatar')
+            ->get()
+            ->map(fn ($m) => [
+                'id' => $m->id,
+                'user_id' => $m->user_id,
+                'name' => $m->user->name,
+                'email' => $m->user->email,
+                'avatar' => $m->user->avatar,
+                'role' => $m->role,
+            ]);
 
-        $defaultBoard = $project->boards()->where('is_default', true)->first();
-        $columnsCount = $defaultBoard ? $defaultBoard->columns()->count() : 0;
+        $tasks = $project->tasks()
+            ->with(['assignees:id,name,avatar', 'priority:id,name,key,level,color', 'taskType:id,name,key,color', 'boardColumn:id,name,status_key,color', 'labels:id,name,slug,color', 'epics:id,name,color,status', 'sprints:id,name,status,start_date,end_date'])
+            ->latest('tasks.created_at')
+            ->get()
+            ->map(fn ($task) => [
+                'id' => $task->id,
+                'code' => $task->code,
+                'title' => $task->title,
+                'status' => $task->status,
+                'start_date' => $task->start_date,
+                'due_date' => $task->due_date,
+                'created_at' => $task->created_at,
+                'updated_at' => $task->updated_at,
+                'priority' => $task->priority ? [
+                    'id' => $task->priority->id,
+                    'name' => $task->priority->name,
+                    'key' => $task->priority->key,
+                    'color' => $task->priority->color,
+                ] : null,
+                'task_type' => [
+                    'id' => $task->taskType->id,
+                    'name' => $task->taskType->name,
+                    'key' => $task->taskType->key,
+                    'color' => $task->taskType->color,
+                ],
+                'board_column' => [
+                    'id' => $task->boardColumn->id,
+                    'name' => $task->boardColumn->name,
+                    'status_key' => $task->boardColumn->status_key,
+                    'color' => $task->boardColumn->color,
+                ],
+                'assignees' => $task->assignees->map(fn ($user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'avatar' => $user->avatar,
+                ]),
+                'labels' => $task->labels->map(fn ($label) => [
+                    'id' => $label->id,
+                    'name' => $label->name,
+                    'slug' => $label->slug,
+                    'color' => $label->color,
+                ]),
+                'epics' => $task->epics->map(fn ($epic) => [
+                    'id' => $epic->id,
+                    'name' => $epic->name,
+                    'color' => $epic->color,
+                    'status' => $epic->status,
+                ]),
+                'sprints' => $task->sprints->map(fn ($sprint) => [
+                    'id' => $sprint->id,
+                    'name' => $sprint->name,
+                    'status' => $sprint->status,
+                    'start_date' => $sprint->start_date,
+                    'end_date' => $sprint->end_date,
+                ]),
+            ]);
+
+        $epics = $project->epics()
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($query) => $query->whereNotNull('tasks.completed_at'),
+            ])
+            ->orderBy('name')
+            ->get(['id', 'name', 'summary', 'color', 'start_date', 'due_date', 'status'])
+            ->map(fn ($epic) => [
+                'id' => $epic->id,
+                'name' => $epic->name,
+                'summary' => $epic->summary,
+                'color' => $epic->color,
+                'start_date' => $epic->start_date,
+                'due_date' => $epic->due_date,
+                'status' => $epic->status,
+                'tasks_count' => $epic->tasks_count,
+                'completed_tasks_count' => $epic->completed_tasks_count,
+            ]);
+
+        $sprints = $project->sprints()
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($query) => $query->whereNotNull('tasks.completed_at'),
+            ])
+            ->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'planned' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END")
+            ->orderByDesc('start_date')
+            ->get(['id', 'name', 'goal', 'status', 'start_date', 'end_date', 'completed_at'])
+            ->map(fn ($sprint) => [
+                'id' => $sprint->id,
+                'name' => $sprint->name,
+                'goal' => $sprint->goal,
+                'status' => $sprint->status,
+                'start_date' => $sprint->start_date,
+                'end_date' => $sprint->end_date,
+                'completed_at' => $sprint->completed_at,
+                'tasks_count' => $sprint->tasks_count,
+                'completed_tasks_count' => $sprint->completed_tasks_count,
+            ]);
+
+        $labels = $project->labels()
+            ->withCount('tasks')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'color'])
+            ->map(fn ($label) => [
+                'id' => $label->id,
+                'name' => $label->name,
+                'slug' => $label->slug,
+                'color' => $label->color,
+                'tasks_count' => $label->tasks_count,
+            ]);
+
+        $attachments = TaskAttachment::query()
+            ->with(['task:id,project_id,code,title', 'uploader:id,name,avatar'])
+            ->whereHas('task', fn ($query) => $query->where('project_id', $project->id))
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(fn ($attachment) => [
+                'id' => $attachment->id,
+                'file_name' => $attachment->file_name,
+                'file_size' => $attachment->file_size,
+                'mime_type' => $attachment->mime_type,
+                'created_at' => $attachment->created_at,
+                'task' => [
+                    'id' => $attachment->task->id,
+                    'code' => $attachment->task->code,
+                    'title' => $attachment->task->title,
+                ],
+                'uploader' => [
+                    'id' => $attachment->uploader->id,
+                    'name' => $attachment->uploader->name,
+                    'avatar' => $attachment->uploader->avatar,
+                ],
+            ]);
+
+        $activities = TaskActivity::query()
+            ->with(['task:id,project_id,code,title', 'user:id,name,avatar'])
+            ->whereHas('task', fn ($query) => $query->where('project_id', $project->id))
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(fn ($activity) => [
+                'id' => $activity->id,
+                'action' => $activity->action,
+                'field_name' => $activity->field_name,
+                'old_value' => $activity->old_value,
+                'new_value' => $activity->new_value,
+                'created_at' => $activity->created_at,
+                'task' => [
+                    'id' => $activity->task->id,
+                    'code' => $activity->task->code,
+                    'title' => $activity->task->title,
+                ],
+                'user' => $activity->user ? [
+                    'id' => $activity->user->id,
+                    'name' => $activity->user->name,
+                    'avatar' => $activity->user->avatar,
+                ] : null,
+            ]);
+
+        $boardColumns = $project->boards()
+            ->with(['columns' => fn ($query) => $query->orderBy('position')])
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get(['id', 'name', 'is_default'])
+            ->flatMap(fn ($board) => $board->columns->map(fn ($column) => [
+                'id' => $column->id,
+                'name' => $column->name,
+                'status_key' => $column->status_key,
+                'color' => $column->color,
+                'board' => [
+                    'id' => $board->id,
+                    'name' => $board->name,
+                    'is_default' => $board->is_default,
+                ],
+            ]))
+            ->values();
+
+        $priorities = $workspace->priorities()
+            ->orderBy('level')
+            ->get(['id', 'name', 'key', 'level', 'color'])
+            ->map(fn ($priority) => [
+                'id' => $priority->id,
+                'name' => $priority->name,
+                'key' => $priority->key,
+                'level' => $priority->level,
+                'color' => $priority->color,
+            ]);
 
         return Inertia::render('projects/show', [
             'workspace' => [
@@ -136,8 +320,15 @@ class ProjectController extends Controller
                 'visibility' => $project->visibility,
                 'status' => $project->status,
             ],
-            'counts' => $counts,
-            'columnsCount' => $columnsCount,
+            'members' => $members,
+            'tasks' => $tasks,
+            'epics' => $epics,
+            'sprints' => $sprints,
+            'labels' => $labels,
+            'boardColumns' => $boardColumns,
+            'priorities' => $priorities,
+            'attachments' => $attachments,
+            'activities' => $activities,
         ]);
     }
 
