@@ -44,7 +44,7 @@ test('due date must be after or equal to start date', function () {
         ->assertSessionHasErrors('due_date');
 });
 
-test('project show page returns tasks with dates', function () {
+test('project show page returns counts', function () {
     $task = createTaskForProject($this->project, $this->user);
     $task->update([
         'start_date' => '2026-06-01',
@@ -56,6 +56,22 @@ test('project show page returns tasks with dates', function () {
         ->get(route('projects.show', [$this->workspace, $this->project]))
         ->assertInertia(fn ($page) => $page
             ->component('projects/show')
+            ->has('counts.tasks')
+        );
+});
+
+test('list page returns tasks with dates', function () {
+    $task = createTaskForProject($this->project, $this->user);
+    $task->update([
+        'start_date' => '2026-06-01',
+        'due_date' => '2026-06-15',
+    ]);
+
+    actingAs($this->user)
+        ->withSession(['current_workspace_id' => $this->workspace->id])
+        ->get(route('projects.list.index', [$this->workspace, $this->project]))
+        ->assertInertia(fn ($page) => $page
+            ->component('projects/list/index')
             ->has('tasks', fn ($tasks) => $tasks
                 ->first(fn ($first) => $first
                     ->where('id', $task->id)
@@ -67,15 +83,15 @@ test('project show page returns tasks with dates', function () {
         );
 });
 
-test('tasks with dates display in timeline tab data', function () {
+test('timeline page returns tasks with dates', function () {
     $task = createTaskForProject($this->project, $this->user);
     $task->update(['start_date' => '2026-06-01', 'due_date' => '2026-06-15']);
 
     actingAs($this->user)
         ->withSession(['current_workspace_id' => $this->workspace->id])
-        ->get(route('projects.show', [$this->workspace, $this->project]))
+        ->get(route('projects.timeline.index', [$this->workspace, $this->project]))
         ->assertInertia(fn ($page) => $page
-            ->component('projects/show')
+            ->component('projects/timeline/index')
             ->where('project.slug', $this->project->slug)
         );
 });

@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateSprintRequest;
 use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Workspace;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,17 +15,45 @@ use Inertia\Response;
 
 class SprintController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): JsonResponse
+    public function index(Workspace $workspace, Project $project): Response
     {
         Gate::authorize('view', $project);
 
-        return response()->json([
-            'sprints' => $project->sprints()
-                ->where('is_backlog', false)
-                ->withCount('tasks')
-                ->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'planned' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END")
-                ->orderByDesc('start_date')
-                ->get(['id', 'name', 'goal', 'status', 'start_date', 'end_date', 'completed_at']),
+        $sprints = $project->sprints()
+            ->where('is_backlog', false)
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($query) => $query->whereNotNull('tasks.completed_at'),
+            ])
+            ->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'planned' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END")
+            ->orderByDesc('start_date')
+            ->get(['id', 'name', 'goal', 'status', 'start_date', 'end_date', 'completed_at'])
+            ->map(fn ($sprint) => [
+                'id' => $sprint->id,
+                'name' => $sprint->name,
+                'goal' => $sprint->goal,
+                'status' => $sprint->status,
+                'start_date' => $sprint->start_date,
+                'end_date' => $sprint->end_date,
+                'completed_at' => $sprint->completed_at,
+                'tasks_count' => $sprint->tasks_count,
+                'completed_tasks_count' => $sprint->completed_tasks_count,
+            ]);
+
+        return Inertia::render('projects/sprints/index', [
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+            ],
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'key' => $project->key,
+                'slug' => $project->slug,
+                'color' => $project->color,
+            ],
+            'sprints' => $sprints,
         ]);
     }
 

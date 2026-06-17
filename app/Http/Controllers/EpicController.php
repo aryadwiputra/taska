@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateEpicRequest;
 use App\Models\Epic;
 use App\Models\Project;
 use App\Models\Workspace;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,15 +15,43 @@ use Inertia\Response;
 
 class EpicController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): JsonResponse
+    public function index(Workspace $workspace, Project $project): Response
     {
         Gate::authorize('view', $project);
 
-        return response()->json([
-            'epics' => $project->epics()
-                ->withCount('tasks')
-                ->orderBy('name')
-                ->get(['id', 'name', 'summary', 'color', 'start_date', 'due_date', 'status']),
+        $epics = $project->epics()
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($query) => $query->whereNotNull('tasks.completed_at'),
+            ])
+            ->orderBy('name')
+            ->get(['id', 'name', 'summary', 'color', 'start_date', 'due_date', 'status'])
+            ->map(fn ($epic) => [
+                'id' => $epic->id,
+                'name' => $epic->name,
+                'summary' => $epic->summary,
+                'color' => $epic->color,
+                'start_date' => $epic->start_date,
+                'due_date' => $epic->due_date,
+                'status' => $epic->status,
+                'tasks_count' => $epic->tasks_count,
+                'completed_tasks_count' => $epic->completed_tasks_count,
+            ]);
+
+        return Inertia::render('projects/epics/index', [
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+            ],
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'key' => $project->key,
+                'slug' => $project->slug,
+                'color' => $project->color,
+            ],
+            'epics' => $epics,
         ]);
     }
 
