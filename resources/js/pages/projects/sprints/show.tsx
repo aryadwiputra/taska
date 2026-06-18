@@ -9,6 +9,8 @@ import {
     X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { FeatureGuide } from '@/components/feature-guide';
+import type { GuideContent } from '@/components/feature-guide';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,6 +34,62 @@ import {
     report as sprintReport,
     start as sprintStart,
 } from '@/routes/projects/sprints';
+
+const sprintGuide: GuideContent = {
+    title: 'Sprint Planning',
+    description:
+        'Manage time-boxed iterations to organize and track work in focused cycles.',
+    sections: [
+        {
+            title: 'What is a Sprint?',
+            content:
+                'A Sprint is a fixed time period (usually 1-4 weeks) where the team commits to completing a set of tasks. Sprints help you plan work, track progress, and deliver incrementally.',
+        },
+        {
+            title: 'Sprint Lifecycle',
+            content:
+                '1. Planned → Create a sprint and add tasks from the backlog.\n2. Active → Start the sprint. Team works on the tasks.\n3. Completed → Close the sprint when the time period ends.\n\nOnly one sprint can be active at a time.',
+        },
+    ],
+    items: [
+        {
+            heading: 'Sprint Actions',
+            data: [
+                {
+                    term: 'Start Sprint',
+                    description:
+                        'Moves the sprint to "active" status. Only available when no other sprint is active. Sets the start date to today.',
+                },
+                {
+                    term: 'Close Sprint',
+                    description:
+                        'Moves the sprint to "completed" status. Sets the completion date. Incomplete tasks remain in the sprint but are no longer actively tracked.',
+                },
+                {
+                    term: 'Add Task',
+                    description:
+                        'Adds an existing task to this sprint. Tasks can be added from the Backlog page or from the task detail view.',
+                },
+                {
+                    term: 'Remove Task',
+                    description:
+                        'Removes a task from the sprint. The task is not deleted — it goes back to the backlog.',
+                },
+                {
+                    term: 'View Report',
+                    description:
+                        'Opens the sprint report showing burndown chart, velocity, and completion stats.',
+                },
+            ],
+        },
+    ],
+    tips: [
+        'Plan your sprint by adding tasks from the Backlog before starting it.',
+        'Use story points to estimate effort and track velocity across sprints.',
+        'Check the sprint report after closing to see how the team performed.',
+        'Incomplete tasks can be moved to the next sprint or left in the backlog.',
+    ],
+};
 
 interface UserRef {
     id: number;
@@ -225,6 +283,7 @@ export default function SprintShow({
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            <FeatureGuide content={sprintGuide} />
                             {sprint.status === 'planned' && (
                                 <Button
                                     variant="default"
