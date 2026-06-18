@@ -4,6 +4,8 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { FeatureGuide, InlineTooltip } from '@/components/feature-guide';
+import type { GuideContent } from '@/components/feature-guide';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +30,47 @@ import {
     store as storeSla,
     update as updateSla,
 } from '@/routes/projects/sla-policies';
+
+const slaGuide: GuideContent = {
+    title: 'SLA Policies',
+    description:
+        'Define response and resolution time targets for different task types.',
+    sections: [
+        {
+            title: 'What is an SLA?',
+            content:
+                "A Service Level Agreement (SLA) sets time targets for how quickly tasks should be responded to and resolved. When a task is created, the SLA timer starts. If the target isn't met, the task is flagged as breached.",
+        },
+        {
+            title: 'How it works',
+            content:
+                '1. Create a policy for each task type (Bug, Feature, etc.).\n2. Set the response time — how long before the first response is expected.\n3. Set the resolution time — how long before the task should be completed.\n4. The system checks for breaches every hour and logs them as task activity.',
+        },
+    ],
+    items: [
+        {
+            heading: 'Time Fields',
+            data: [
+                {
+                    term: 'Response Time (hours)',
+                    description:
+                        'Maximum hours before the first response is expected. Measured from task creation. Set to 0 to disable.',
+                },
+                {
+                    term: 'Resolution Time (hours)',
+                    description:
+                        'Maximum hours before the task should be resolved (marked as done). Measured from task creation. Set to 0 to disable.',
+                },
+            ],
+        },
+    ],
+    tips: [
+        'Each task type can only have one SLA policy. Create separate policies for Bugs, Features, etc.',
+        "SLA breaches are detected hourly by a background job. They won't appear instantly.",
+        "Breach events are logged in the task's activity feed for auditing.",
+        'Disable a policy temporarily without deleting it using the enabled toggle.',
+    ],
+};
 
 interface TaskType {
     id: number;
@@ -160,14 +203,17 @@ export default function SlaSettings({
                                 task type.
                             </p>
                         </div>
-                        <Button
-                            size="sm"
-                            onClick={openCreate}
-                            disabled={availableTypes.length === 0}
-                        >
-                            <Plus className="size-3" />
-                            Add policy
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <FeatureGuide content={slaGuide} />
+                            <Button
+                                size="sm"
+                                onClick={openCreate}
+                                disabled={availableTypes.length === 0}
+                            >
+                                <Plus className="size-3" />
+                                Add policy
+                            </Button>
+                        </div>
                     </div>
 
                     {policies.length > 0 ? (
@@ -308,8 +354,12 @@ export default function SlaSettings({
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="response-hours">
+                                <Label
+                                    htmlFor="response-hours"
+                                    className="flex items-center gap-1.5"
+                                >
                                     Response (hours)
+                                    <InlineTooltip content="Maximum hours before the first response is expected. Measured from task creation." />
                                 </Label>
                                 <Input
                                     id="response-hours"
@@ -322,8 +372,12 @@ export default function SlaSettings({
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="resolution-hours">
+                                <Label
+                                    htmlFor="resolution-hours"
+                                    className="flex items-center gap-1.5"
+                                >
                                     Resolution (hours)
+                                    <InlineTooltip content="Maximum hours before the task should be completed. Measured from task creation." />
                                 </Label>
                                 <Input
                                     id="resolution-hours"
