@@ -398,8 +398,15 @@ function BoardClient({
 
         const overId = over.id;
 
-        if (typeof overId === 'string' && overId.startsWith('col:')) {
-            setOverColumnId(Number(overId.slice(4)));
+        if (
+            typeof overId === 'string' &&
+            (overId.startsWith('col:') || overId.startsWith('column:'))
+        ) {
+            const numId = overId.startsWith('col:')
+                ? Number(overId.slice(4))
+                : Number(overId.slice(7));
+
+            setOverColumnId(numId);
             setOverTaskId(null);
             setClosestEdge(null);
         } else {
