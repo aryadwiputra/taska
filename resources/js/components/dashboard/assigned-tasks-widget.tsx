@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,18 +19,20 @@ const priorityColor: Record<number, string> = {
 };
 
 export function AssignedTasksWidget({ tasks, total }: Props) {
+    const { t } = useTranslation();
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-medium">
-                    Assigned to you
+                    {t('widget.assigned_to_you')}
                 </CardTitle>
                 {total > 0 && <Badge variant="secondary">{total}</Badge>}
             </CardHeader>
             <CardContent>
                 {tasks.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                        No tasks assigned to you yet.
+                        {t('widget.no_assigned_tasks')}
                     </p>
                 ) : (
                     <div className="flex flex-col gap-3">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -8,17 +9,19 @@ interface Props {
 }
 
 export function ActiveProjectsWidget({ projects }: Props) {
+    const { t } = useTranslation();
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                    Active projects
+                    {t('widget.active_projects')}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 {projects.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                        No active projects yet.
+                        {t('widget.no_active_projects')}
                     </p>
                 ) : (
                     <div className="flex flex-col gap-3">
