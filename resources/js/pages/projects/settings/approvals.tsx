@@ -10,6 +10,7 @@ import {
     ToggleRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { FeatureGuide } from '@/components/feature-guide';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -79,6 +80,57 @@ interface Props {
         roles: Option[];
     };
 }
+
+const approvalGuide = {
+    title: 'Approval Flows',
+    description:
+        'Set up approval gates that require team sign-off before tasks can move to certain columns.',
+    sections: [
+        {
+            title: 'What are Approval Flows?',
+            content:
+                'Approval flows create mandatory review steps in your workflow. When a task reaches a column with an active approval flow, it cannot proceed until the required number of approvals are received.',
+        },
+        {
+            title: 'How Approvals Work',
+            content:
+                'When someone tries to move a task to a column with an approval flow, the system creates pending approval requests for the designated approvers. The task can only move once the minimum number of approvals is met.',
+        },
+    ],
+    items: [
+        {
+            heading: 'Approval Features',
+            data: [
+                {
+                    term: 'Column Trigger',
+                    description:
+                        'Each flow is tied to a specific board column. When a task is moved to that column, the approval process begins automatically.',
+                },
+                {
+                    term: 'Approvers',
+                    description:
+                        'Specify who can approve — individual users by email, or roles like "QA Lead" or "Project Manager". Role-based approvers resolve to all users with that role.',
+                },
+                {
+                    term: 'Minimum Approvals',
+                    description:
+                        'Set how many approvals are required before the task can proceed. For example, require 2 out of 3 designated approvers to sign off.',
+                },
+                {
+                    term: 'Enable/Disable',
+                    description:
+                        'Toggle flows on or off without deleting them. Disabled flows are ignored when tasks move to the column.',
+                },
+            ],
+        },
+    ],
+    tips: [
+        'Use approval flows for quality-critical columns like "Ready for QA" or "Needs Review".',
+        'Combine with WIP limits to control both quality and throughput.',
+        'Role-based approvers are more flexible than user-based — new team members automatically become eligible.',
+        'Keep approval flows lightweight — too many gates can slow down your workflow.',
+    ],
+};
 
 export default function ApprovalsSettings({
     workspace,
@@ -199,16 +251,18 @@ export default function ApprovalsSettings({
                         </p>
                     </div>
 
-                    <Dialog
-                        open={showCreateDialog}
-                        onOpenChange={setShowCreateDialog}
-                    >
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="mr-2 size-4" />
-                                New Flow
-                            </Button>
-                        </DialogTrigger>
+                    <div className="flex items-center gap-2">
+                        <FeatureGuide content={approvalGuide} />
+                        <Dialog
+                            open={showCreateDialog}
+                            onOpenChange={setShowCreateDialog}
+                        >
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Plus className="mr-2 size-4" />
+                                    New Flow
+                                </Button>
+                            </DialogTrigger>
                         <DialogContent className="max-w-2xl">
                             <DialogHeader>
                                 <DialogTitle>Create Approval Flow</DialogTitle>
@@ -398,6 +452,7 @@ export default function ApprovalsSettings({
                             </form>
                         </DialogContent>
                     </Dialog>
+                    </div>
                 </div>
 
                 <div className="space-y-3">
