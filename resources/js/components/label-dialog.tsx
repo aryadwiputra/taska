@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -38,19 +39,6 @@ interface Props {
     label?: LabelData | null;
 }
 
-const COLOR_OPTIONS = [
-    { value: '#EF4444', label: 'Red' },
-    { value: '#F97316', label: 'Orange' },
-    { value: '#EAB308', label: 'Yellow' },
-    { value: '#22C55E', label: 'Green' },
-    { value: '#06B6D4', label: 'Cyan' },
-    { value: '#3B82F6', label: 'Blue' },
-    { value: '#6366F1', label: 'Indigo' },
-    { value: '#A855F7', label: 'Purple' },
-    { value: '#EC4899', label: 'Pink' },
-    { value: '#78716C', label: 'Stone' },
-];
-
 export function LabelDialog({
     workspaceSlug,
     projectSlug,
@@ -58,7 +46,22 @@ export function LabelDialog({
     onOpenChange,
     label,
 }: Props) {
+    const { t } = useTranslation();
     const isEditing = !!label;
+
+    const COLOR_OPTIONS = [
+        { value: '#EF4444', label: t('color.red') },
+        { value: '#F97316', label: t('color.orange') },
+        { value: '#EAB308', label: t('color.yellow') },
+        { value: '#22C55E', label: t('color.green') },
+        { value: '#06B6D4', label: t('color.cyan') },
+        { value: '#3B82F6', label: t('color.blue') },
+        { value: '#6366F1', label: t('color.indigo') },
+        { value: '#A855F7', label: t('color.purple') },
+        { value: '#EC4899', label: t('color.pink') },
+        { value: '#78716C', label: t('color.stone') },
+    ];
+
     const [name, setName] = useState(label?.name ?? '');
     const [color, setColor] = useState(label?.color ?? COLOR_OPTIONS[0].value);
     const [processing, setProcessing] = useState(false);
@@ -112,28 +115,32 @@ export function LabelDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {isEditing ? 'Edit label' : 'Create label'}
+                        {isEditing
+                            ? t('label.edit_label')
+                            : t('label.create_label')}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
-                            ? 'Update the label details.'
-                            : 'Add a new label to this project.'}
+                            ? t('label.edit_description')
+                            : t('label.create_description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="label-name">Name</Label>
+                        <Label htmlFor="label-name">
+                            {t('label.name')}
+                        </Label>
                         <Input
                             id="label-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Label name"
+                            placeholder={t('label.label_name')}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label>Color</Label>
+                        <Label>{t('label.color')}</Label>
                         <Select value={color} onValueChange={setColor}>
                             <SelectTrigger>
                                 <SelectValue>
@@ -181,17 +188,17 @@ export function LabelDialog({
                         onClick={() => onOpenChange(false)}
                         disabled={processing}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={handleSubmit}
                         disabled={!name.trim() || processing}
                     >
                         {processing
-                            ? 'Saving...'
+                            ? t('common.saving')
                             : isEditing
-                              ? 'Save changes'
-                              : 'Create label'}
+                              ? t('common.save')
+                              : t('label.create_label')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

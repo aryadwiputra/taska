@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { Search, X } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -80,6 +81,7 @@ const stateOptions = [
 ];
 
 export function TaskSearchFilters({ filters, options }: Props) {
+    const { t } = useTranslation();
     const [query, setQuery] = useState(filters.q ?? '');
     const selectedWorkspaceId = filters.workspace_id?.toString() ?? null;
     const selectedProjectId = filters.project_id?.toString() ?? null;
@@ -150,11 +152,11 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     <Input
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Search code, title, or description..."
+                        placeholder={t('task.search_code_title_desc')}
                         className="pl-9"
                     />
                 </div>
-                <Button type="submit">Search</Button>
+                <Button type="submit">{t('common.search')}</Button>
                 <Button type="button" variant="outline" onClick={clearFilters}>
                     <X className="size-4" />
                     Clear
@@ -171,8 +173,13 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         {stateOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                                {option.label}
+                            <SelectItem
+                                key={option.value}
+                                value={option.value}
+                            >
+                                {option.value === 'all'
+                                    ? t('task_search.all_states')
+                                    : t(`task_search.${option.value}`)}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -189,7 +196,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            All workspaces
+                            {t('task_search.all_workspaces')}
                         </SelectItem>
                         {options.workspaces.map((workspace) => (
                             <SelectItem
@@ -204,14 +211,16 @@ export function TaskSearchFilters({ filters, options }: Props) {
 
                 <Select
                     value={selectedProjectId ?? ALL_FILTERS_VALUE}
-                    onValueChange={(value) => updateFilter('project_id', value)}
+                    onValueChange={(value) =>
+                        updateFilter('project_id', value)
+                    }
                 >
                     <SelectTrigger>
                         <SelectValue placeholder="Project" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            All projects
+                            {t('task_search.all_projects')}
                         </SelectItem>
                         {visibleProjects.map((project) => (
                             <SelectItem
@@ -233,15 +242,22 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         {statusOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                                {option.label}
+                            <SelectItem
+                                key={option.value}
+                                value={option.value}
+                            >
+                                {option.value === ALL_FILTERS_VALUE
+                                    ? t('task_search.all_statuses')
+                                    : t(`task_search.${option.value}`)}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
                 <Select
-                    value={filters.priority_id?.toString() ?? ALL_FILTERS_VALUE}
+                    value={
+                        filters.priority_id?.toString() ?? ALL_FILTERS_VALUE
+                    }
                     onValueChange={(value) =>
                         updateFilter('priority_id', value)
                     }
@@ -251,7 +267,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            All priorities
+                            {t('task_search.all_priorities')}
                         </SelectItem>
                         {visiblePriorities.map((priority) => (
                             <SelectItem
@@ -265,15 +281,19 @@ export function TaskSearchFilters({ filters, options }: Props) {
                 </Select>
 
                 <Select
-                    value={filters.label_id?.toString() ?? ALL_FILTERS_VALUE}
-                    onValueChange={(value) => updateFilter('label_id', value)}
+                    value={
+                        filters.label_id?.toString() ?? ALL_FILTERS_VALUE
+                    }
+                    onValueChange={(value) =>
+                        updateFilter('label_id', value)
+                    }
                 >
                     <SelectTrigger>
                         <SelectValue placeholder="Label" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            All labels
+                            {t('task_search.all_labels')}
                         </SelectItem>
                         {visibleLabels.map((label) => (
                             <SelectItem
@@ -287,7 +307,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                 </Select>
 
                 <Select
-                    value={filters.assignee_id?.toString() ?? ALL_FILTERS_VALUE}
+                    value={
+                        filters.assignee_id?.toString() ?? ALL_FILTERS_VALUE
+                    }
                     onValueChange={(value) =>
                         updateFilter('assignee_id', value)
                     }
@@ -297,7 +319,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            Any assignee
+                            {t('task_search.any_assignee')}
                         </SelectItem>
                         {options.users.map((user) => (
                             <SelectItem
@@ -311,7 +333,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                 </Select>
 
                 <Select
-                    value={filters.reporter_id?.toString() ?? ALL_FILTERS_VALUE}
+                    value={
+                        filters.reporter_id?.toString() ?? ALL_FILTERS_VALUE
+                    }
                     onValueChange={(value) =>
                         updateFilter('reporter_id', value)
                     }
@@ -321,7 +345,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
-                            Any reporter
+                            {t('task_search.any_reporter')}
                         </SelectItem>
                         {options.users.map((user) => (
                             <SelectItem

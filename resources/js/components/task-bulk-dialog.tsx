@@ -1,6 +1,7 @@
 import type { RequestPayload } from '@inertiajs/core';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BulkOperation } from '@/components/task-bulk-toolbar';
 import { Button } from '@/components/ui/button';
 import {
@@ -89,6 +90,7 @@ export function TaskBulkDialog({
     labels,
     onSuccess,
 }: Props) {
+    const { t } = useTranslation();
     const [boardColumnId, setBoardColumnId] = useState('');
     const [assigneeMode, setAssigneeMode] = useState('add');
     const [assigneeId, setAssigneeId] = useState('');
@@ -182,13 +184,13 @@ export function TaskBulkDialog({
 
                 {operation === 'move_column' && (
                     <div className="flex flex-col gap-2">
-                        <Label>Target column</Label>
+                        <Label>{t('task_bulk.target_column')}</Label>
                         <Select
                             value={boardColumnId}
                             onValueChange={setBoardColumnId}
                         >
                             <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select column" />
+                                <SelectValue placeholder={t('task_bulk.select_column')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {boardColumns.map((column) => (
@@ -207,7 +209,7 @@ export function TaskBulkDialog({
                 {operation === 'assignees' && (
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label>Mode</Label>
+                            <Label>{t('task_bulk.mode')}</Label>
                             <Select
                                 value={assigneeMode}
                                 onValueChange={setAssigneeMode}
@@ -216,24 +218,24 @@ export function TaskBulkDialog({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="add">Add</SelectItem>
+                                    <SelectItem value="add">{t('task_bulk.add')}</SelectItem>
                                     <SelectItem value="remove">
-                                        Remove
+                                        {t('task_bulk.remove')}
                                     </SelectItem>
                                     <SelectItem value="replace">
-                                        Replace
+                                        {t('task_bulk.replace')}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label>Assignee</Label>
+                            <Label>{t('task_bulk.assignee')}</Label>
                             <Select
                                 value={assigneeId}
                                 onValueChange={setAssigneeId}
                             >
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select member" />
+                                    <SelectValue placeholder={t('task_bulk.select_member')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {members.map((member) => (
@@ -252,7 +254,7 @@ export function TaskBulkDialog({
 
                 {operation === 'priority' && (
                     <div className="flex flex-col gap-2">
-                        <Label>Priority</Label>
+                        <Label>{t('task.priority')}</Label>
                         <Select
                             value={priorityId}
                             onValueChange={setPriorityId}
@@ -262,7 +264,7 @@ export function TaskBulkDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={CLEAR_PRIORITY}>
-                                    No priority
+                                    {t('task_bulk.no_priority')}
                                 </SelectItem>
                                 {priorities.map((priority) => (
                                     <SelectItem
@@ -280,7 +282,7 @@ export function TaskBulkDialog({
                 {operation === 'labels' && (
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label>Mode</Label>
+                            <Label>{t('task_bulk.mode')}</Label>
                             <Select
                                 value={labelMode}
                                 onValueChange={setLabelMode}
@@ -289,21 +291,21 @@ export function TaskBulkDialog({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="add">Add</SelectItem>
+                                    <SelectItem value="add">{t('task_bulk.add')}</SelectItem>
                                     <SelectItem value="remove">
-                                        Remove
+                                        {t('task_bulk.remove')}
                                     </SelectItem>
                                     <SelectItem value="replace">
-                                        Replace
+                                        {t('task_bulk.replace')}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label>Label</Label>
+                            <Label>{t('task.labels')}</Label>
                             <Select value={labelId} onValueChange={setLabelId}>
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select label" />
+                                    <SelectValue placeholder={t('task_bulk.select_label')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {labels.map((label) => (
@@ -333,7 +335,7 @@ export function TaskBulkDialog({
                         variant="outline"
                         onClick={() => handleOpenChange(false)}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         variant={
@@ -342,7 +344,7 @@ export function TaskBulkDialog({
                         disabled={!canSubmit || processing}
                         onClick={submit}
                     >
-                        {processing ? 'Applying...' : 'Apply'}
+                        {processing ? t('common.applying') : 'Apply'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

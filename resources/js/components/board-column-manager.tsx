@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -44,19 +45,6 @@ interface Props {
     onOpenChange: (open: boolean) => void;
 }
 
-const COLOR_OPTIONS = [
-    { value: '#EF4444', label: 'Red' },
-    { value: '#F97316', label: 'Orange' },
-    { value: '#EAB308', label: 'Yellow' },
-    { value: '#22C55E', label: 'Green' },
-    { value: '#06B6D4', label: 'Cyan' },
-    { value: '#3B82F6', label: 'Blue' },
-    { value: '#6366F1', label: 'Indigo' },
-    { value: '#A855F7', label: 'Purple' },
-    { value: '#EC4899', label: 'Pink' },
-    { value: '#78716C', label: 'Stone' },
-];
-
 function generateStatusKey(name: string): string {
     return (
         name
@@ -76,6 +64,21 @@ export function BoardColumnManager({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation();
+
+    const COLOR_OPTIONS = [
+        { value: '#EF4444', label: t('color.red') },
+        { value: '#F97316', label: t('color.orange') },
+        { value: '#EAB308', label: t('color.yellow') },
+        { value: '#22C55E', label: t('color.green') },
+        { value: '#06B6D4', label: t('color.cyan') },
+        { value: '#3B82F6', label: t('color.blue') },
+        { value: '#6366F1', label: t('color.indigo') },
+        { value: '#A855F7', label: t('color.purple') },
+        { value: '#EC4899', label: t('color.pink') },
+        { value: '#78716C', label: t('color.stone') },
+    ];
+
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editName, setEditName] = useState('');
     const [editColor, setEditColor] = useState('');
@@ -203,9 +206,9 @@ export function BoardColumnManager({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Manage columns</DialogTitle>
+                    <DialogTitle>{t('board.manage_columns')}</DialogTitle>
                     <DialogDescription>
-                        Add, edit, or remove columns for this board.
+                        {t('board.manage_columns_description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -213,10 +216,10 @@ export function BoardColumnManager({
                     <div className="flex items-center justify-between rounded-md border px-3 py-2">
                         <div className="flex flex-col gap-0.5">
                             <Label className="text-sm font-medium">
-                                Swimlanes
+                                {t('board.swimlanes')}
                             </Label>
                             <p className="text-xs text-muted-foreground">
-                                Group tasks within each column
+                                {t('board.swimlanes_description')}
                             </p>
                         </div>
                         <Select
@@ -227,14 +230,14 @@ export function BoardColumnManager({
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="none">{t('board.none')}</SelectItem>
                                 <SelectItem value="assignee">
-                                    Assignee
+                                    {t('board.assignee')}
                                 </SelectItem>
                                 <SelectItem value="priority">
-                                    Priority
+                                    {t('board.priority')}
                                 </SelectItem>
-                                <SelectItem value="epic">Epic</SelectItem>
+                                <SelectItem value="epic">{t('board.epic')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -317,11 +320,11 @@ export function BoardColumnManager({
                                                         }
                                                         className="size-3.5"
                                                     />
-                                                    Done column
+                                                    {t('board.done_column')}
                                                 </label>
                                                 <div className="flex items-center gap-2">
                                                     <Label className="text-xs text-muted-foreground">
-                                                        WIP:
+                                                        {t('board.wip')}
                                                     </Label>
                                                     <Input
                                                         type="number"
@@ -346,7 +349,7 @@ export function BoardColumnManager({
                                                     }
                                                     disabled={processing}
                                                 >
-                                                    Cancel
+                                                    {t('common.cancel')}
                                                 </Button>
                                                 <Button
                                                     variant="default"
@@ -357,7 +360,7 @@ export function BoardColumnManager({
                                                         processing
                                                     }
                                                 >
-                                                    Save
+                                                    {t('common.save')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -376,9 +379,9 @@ export function BoardColumnManager({
                                                     {column.name}
                                                 </span>
                                                 {column.is_done_column && (
-                                                    <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
-                                                        Done
-                                                    </span>
+                                                 <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
+                                                         {t('common.done')}
+                                                     </span>
                                                 )}
                                                 <span className="font-mono text-xs text-muted-foreground">
                                                     pos {column.position}
@@ -442,7 +445,7 @@ export function BoardColumnManager({
                     )}
 
                     <div className="border-t pt-4">
-                        <h4 className="mb-3 text-sm font-medium">Add column</h4>
+                        <h4 className="mb-3 text-sm font-medium">{t('board.add_column')}</h4>
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
                                 <div className="flex-1">
@@ -450,7 +453,7 @@ export function BoardColumnManager({
                                         htmlFor="new-col-name"
                                         className="sr-only"
                                     >
-                                        Name
+                                        {t('board.column_name')}
                                     </Label>
                                     <Input
                                         id="new-col-name"
@@ -458,7 +461,7 @@ export function BoardColumnManager({
                                         onChange={(e) =>
                                             setNewName(e.target.value)
                                         }
-                                        placeholder="Column name"
+                                        placeholder={t('board.column_name')}
                                         className="h-8 text-sm"
                                     />
                                 </div>
@@ -505,10 +508,10 @@ export function BoardColumnManager({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="false">
-                                            Regular
+                                            {t('board.regular')}
                                         </SelectItem>
                                         <SelectItem value="true">
-                                            Done
+                                            {t('common.done')}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -530,7 +533,7 @@ export function BoardColumnManager({
                                     onClick={handleAdd}
                                     disabled={!newName.trim() || processing}
                                 >
-                                    Add column
+                                    {t('board.add_column')}
                                 </Button>
                             </div>
                         </div>

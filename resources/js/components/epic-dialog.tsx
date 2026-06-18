@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -41,19 +42,6 @@ interface Props {
     epic?: EpicData | null;
 }
 
-const COLOR_OPTIONS = [
-    { value: '#EF4444', label: 'Red' },
-    { value: '#F97316', label: 'Orange' },
-    { value: '#EAB308', label: 'Yellow' },
-    { value: '#22C55E', label: 'Green' },
-    { value: '#06B6D4', label: 'Cyan' },
-    { value: '#3B82F6', label: 'Blue' },
-    { value: '#6366F1', label: 'Indigo' },
-    { value: '#A855F7', label: 'Purple' },
-    { value: '#EC4899', label: 'Pink' },
-    { value: '#78716C', label: 'Stone' },
-];
-
 export function EpicDialog({
     workspaceSlug,
     projectSlug,
@@ -61,7 +49,22 @@ export function EpicDialog({
     onOpenChange,
     epic,
 }: Props) {
+    const { t } = useTranslation();
     const isEditing = !!epic;
+
+    const COLOR_OPTIONS = [
+        { value: '#EF4444', label: t('color.red') },
+        { value: '#F97316', label: t('color.orange') },
+        { value: '#EAB308', label: t('color.yellow') },
+        { value: '#22C55E', label: t('color.green') },
+        { value: '#06B6D4', label: t('color.cyan') },
+        { value: '#3B82F6', label: t('color.blue') },
+        { value: '#6366F1', label: t('color.indigo') },
+        { value: '#A855F7', label: t('color.purple') },
+        { value: '#EC4899', label: t('color.pink') },
+        { value: '#78716C', label: t('color.stone') },
+    ];
+
     const [name, setName] = useState(epic?.name ?? '');
     const [summary, setSummary] = useState(epic?.summary ?? '');
     const [color, setColor] = useState(epic?.color ?? COLOR_OPTIONS[0].value);
@@ -123,39 +126,43 @@ export function EpicDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {isEditing ? 'Edit epic' : 'Create epic'}
+                        {isEditing
+                            ? t('epic.edit_epic')
+                            : t('epic.create_epic')}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
-                            ? 'Update the epic details.'
-                            : 'Add a new epic to this project.'}
+                            ? t('epic.edit_description')
+                            : t('epic.create_description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="epic-name">Name</Label>
+                        <Label htmlFor="epic-name">{t('epic.name')}</Label>
                         <Input
                             id="epic-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Epic name"
+                            placeholder={t('epic.epic_name')}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="epic-summary">Summary</Label>
+                        <Label htmlFor="epic-summary">
+                            {t('epic.summary')}
+                        </Label>
                         <Input
                             id="epic-summary"
                             value={summary}
                             onChange={(e) => setSummary(e.target.value)}
-                            placeholder="Brief description"
+                            placeholder={t('epic.brief_description')}
                         />
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label>Color</Label>
+                            <Label>{t('epic.color')}</Label>
                             <Select value={color} onValueChange={setColor}>
                                 <SelectTrigger>
                                     <SelectValue>
@@ -197,20 +204,20 @@ export function EpicDialog({
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <Label>Status</Label>
+                            <Label>{t('epic.status')}</Label>
                             <Select value={status} onValueChange={setStatus}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="active">
-                                        Active
+                                        {t('task_search.active')}
                                     </SelectItem>
                                     <SelectItem value="completed">
-                                        Completed
+                                        {t('task_search.completed')}
                                     </SelectItem>
                                     <SelectItem value="archived">
-                                        Archived
+                                        {t('task_search.archived')}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
@@ -219,17 +226,23 @@ export function EpicDialog({
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="epic-start">Start date</Label>
+                            <Label htmlFor="epic-start">
+                                {t('epic.start_date')}
+                            </Label>
                             <Input
                                 id="epic-start"
                                 type="date"
                                 value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
+                                onChange={(e) =>
+                                    setStartDate(e.target.value)
+                                }
                             />
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="epic-due">Due date</Label>
+                            <Label htmlFor="epic-due">
+                                {t('epic.due_date')}
+                            </Label>
                             <Input
                                 id="epic-due"
                                 type="date"
@@ -246,17 +259,17 @@ export function EpicDialog({
                         onClick={() => onOpenChange(false)}
                         disabled={processing}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={handleSubmit}
                         disabled={!name.trim() || processing}
                     >
                         {processing
-                            ? 'Saving...'
+                            ? t('common.saving')
                             : isEditing
-                              ? 'Save changes'
-                              : 'Create epic'}
+                              ? t('common.save')
+                              : t('epic.create_epic')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -47,6 +48,7 @@ export function SprintDialog({
     onOpenChange,
     sprint,
 }: Props) {
+    const { t } = useTranslation();
     const isEditing = !!sprint;
     const [name, setName] = useState(sprint?.name ?? '');
     const [goal, setGoal] = useState(sprint?.goal ?? '');
@@ -107,50 +109,60 @@ export function SprintDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {isEditing ? 'Edit sprint' : 'Create sprint'}
+                        {isEditing
+                            ? t('sprint.edit_sprint')
+                            : t('sprint.create_sprint')}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
-                            ? 'Update the sprint details.'
-                            : 'Add a new sprint to this project.'}
+                            ? t('sprint.edit_description')
+                            : t('sprint.create_description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="sprint-name">Name</Label>
+                        <Label htmlFor="sprint-name">
+                            {t('sprint.name')}
+                        </Label>
                         <Input
                             id="sprint-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Sprint name"
+                            placeholder={t('sprint.sprint_name')}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="sprint-goal">Goal</Label>
+                        <Label htmlFor="sprint-goal">
+                            {t('sprint.goal')}
+                        </Label>
                         <Input
                             id="sprint-goal"
                             value={goal}
                             onChange={(e) => setGoal(e.target.value)}
-                            placeholder="Sprint goal"
+                            placeholder={t('sprint.sprint_goal')}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label>Status</Label>
+                        <Label>{t('sprint.status')}</Label>
                         <Select value={status} onValueChange={setStatus}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="planned">Planned</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="planned">
+                                    {t('sprint.planned')}
+                                </SelectItem>
+                                <SelectItem value="active">
+                                    {t('sprint.active')}
+                                </SelectItem>
                                 <SelectItem value="completed">
-                                    Completed
+                                    {t('sprint.completed')}
                                 </SelectItem>
                                 <SelectItem value="cancelled">
-                                    Cancelled
+                                    {t('sprint.cancelled')}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -158,17 +170,23 @@ export function SprintDialog({
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="sprint-start">Start date</Label>
+                            <Label htmlFor="sprint-start">
+                                {t('sprint.start_date')}
+                            </Label>
                             <Input
                                 id="sprint-start"
                                 type="date"
                                 value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
+                                onChange={(e) =>
+                                    setStartDate(e.target.value)
+                                }
                             />
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="sprint-end">End date</Label>
+                            <Label htmlFor="sprint-end">
+                                {t('sprint.end_date')}
+                            </Label>
                             <Input
                                 id="sprint-end"
                                 type="date"
@@ -185,17 +203,17 @@ export function SprintDialog({
                         onClick={() => onOpenChange(false)}
                         disabled={processing}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={handleSubmit}
                         disabled={!name.trim() || processing}
                     >
                         {processing
-                            ? 'Saving...'
+                            ? t('common.saving')
                             : isEditing
-                              ? 'Save changes'
-                              : 'Create sprint'}
+                              ? t('common.save')
+                              : t('sprint.create_sprint')}
                     </Button>
                 </DialogFooter>
             </DialogContent>
