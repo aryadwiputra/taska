@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Integration;
+use App\Models\NotificationRule;
 use App\Models\Project;
 use App\Models\TaskActivity;
 use App\Models\TaskAttachment;
@@ -391,6 +392,20 @@ class ProjectController extends Controller
             'integration' => Integration::where('project_id', $project->id)
                 ->where('provider', 'github')
                 ->first(['provider_user_id', 'metadata']),
+            'notificationRules' => NotificationRule::where('user_id', request()->user()->id)
+                ->where(fn ($q) => $q->whereNull('project_id')->orWhere('project_id', $project->id))
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn ($rule) => [
+                    'id' => $rule->id,
+                    'name' => $rule->name,
+                    'event_type' => $rule->event_type,
+                    'conditions' => $rule->conditions,
+                    'channels' => $rule->channels,
+                    'enabled' => $rule->enabled,
+                    'project_id' => $rule->project_id,
+                    'created_at' => $rule->created_at,
+                ]),
         ]);
     }
 

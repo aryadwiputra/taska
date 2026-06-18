@@ -14,6 +14,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GithubSettingsTab } from '@/components/github-settings-tab';
+import { NotificationRulesTab } from '@/components/notification-rules-tab';
 import { ProjectMemberDialog } from '@/components/project-member-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -160,6 +161,20 @@ interface Props {
     settings: ProjectSettings;
     boards: BoardOption[];
     integration: GitHubIntegration | null;
+    notificationRules: Array<{
+        id: number;
+        name: string;
+        event_type: string;
+        conditions: Array<{
+            field: string;
+            operator: string;
+            value: string | number;
+        }> | null;
+        channels: string[];
+        enabled: boolean;
+        project_id: number | null;
+        created_at: string;
+    }>;
 }
 
 const roleLabels: Record<string, string> = {
@@ -181,6 +196,7 @@ export default function ProjectSettings({
     settings,
     boards,
     integration,
+    notificationRules,
 }: Props) {
     const { t } = useTranslation();
     const [addMemberOpen, setAddMemberOpen] = useState(false);
@@ -424,6 +440,9 @@ export default function ProjectSettings({
                             <TabsTrigger value="epics">Epics</TabsTrigger>
                             <TabsTrigger value="sprints">Sprints</TabsTrigger>
                             <TabsTrigger value="github">GitHub</TabsTrigger>
+                            <TabsTrigger value="notifications">
+                                {t('settings.notifications')}
+                            </TabsTrigger>
                             <TabsTrigger value="danger">
                                 Danger zone
                             </TabsTrigger>
@@ -2025,6 +2044,14 @@ export default function ProjectSettings({
                                 workspaceSlug={workspace.slug}
                                 projectSlug={project.slug}
                                 integration={integration}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="notifications">
+                            <NotificationRulesTab
+                                workspace={workspace}
+                                project={project}
+                                rules={notificationRules}
                             />
                         </TabsContent>
 
