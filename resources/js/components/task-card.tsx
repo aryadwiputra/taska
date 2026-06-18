@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react';
+import { Calendar, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +41,12 @@ interface TaskData {
         name: string;
         status: string;
     }>;
+    is_blocked?: boolean;
+    blocked_by?: Array<{
+        id: number;
+        code: string;
+        title: string;
+    }>;
 }
 
 const priorityColors: Record<string, string> = {
@@ -79,6 +85,21 @@ export function TaskCard({
                     {task.code}
                 </span>
                 <div className="flex items-center gap-2">
+                    {task.is_blocked && (
+                        <div
+                            className="flex items-center gap-1 rounded-full bg-red-500/10 px-1.5 py-0.5"
+                            title={
+                                task.blocked_by
+                                    ? `${t('task.blocked_by')}: ${task.blocked_by.map((b) => b.code).join(', ')}`
+                                    : t('task.blocked')
+                            }
+                        >
+                            <ShieldAlert className="size-3 text-red-500" />
+                            <span className="text-[10px] font-medium text-red-500">
+                                {t('task.blocked_short')}
+                            </span>
+                        </div>
+                    )}
                     {task.story_points != null && (
                         <span className="inline-flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
                             {task.story_points}

@@ -10,6 +10,19 @@ interface TaskSummary {
     start_date: string | null;
     due_date: string | null;
     priority: { key: string; color: string | null } | null;
+    related_tasks?: Array<{
+        id: number;
+        code: string;
+        title: string;
+        status: string;
+        relation_type: string;
+    }>;
+}
+
+interface TaskRelation {
+    from_id: number;
+    to_id: number;
+    type: string;
 }
 
 const DAY_WIDTH = 30;
@@ -50,6 +63,29 @@ interface GanttChartProps {
 export function GanttChart({ tasks, onTaskClick }: GanttChartProps) {
     const { t } = useTranslation();
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const relations = useMemo<TaskRelation[]>(() => {
+        const rels: TaskRelation[] = [];
+        const seen = new Set<string>();
+
+        for (const task of tasks) {
+            for (const rel of task.related_tasks ?? []) {
+                const key = `${task.id}-${rel.id}`;
+                const reverseKey = `${rel.id}-${task.id}`;
+
+                if (!seen.has(key) && !seen.has(reverseKey)) {
+                    seen.add(key);
+                    rels.push({
+                        from_id: task.id,
+                        to_id: rel.id,
+                        type: rel.relation_type,
+                    });
+                }
+            }
+        }
+
+        return rels;
+    }, [tasks]);
 
     const { rangeStart, rangeEnd, totalDays, todayOffset } = useMemo(() => {
         const now = new Date();
@@ -247,6 +283,122 @@ export function GanttChart({ tasks, onTaskClick }: GanttChartProps) {
                                     height: `${(rows.length + 1) * ROW_HEIGHT}px`,
                                 }}
                             />
+                        )}
+                        {relations.length > 0 && (
+                            <svg
+                                className="pointer-events-none absolute top-0 left-0"
+                                style={{
+                                    width: totalWidth,
+                                    height: (rows.length + 1) * ROW_HEIGHT,
+                                }}
+                            >
+                                <defs>
+                                    <marker
+                                        id="arrow-blocks"
+                                        viewBox="0 0 10 10"
+                                        refX="9"
+                                        refY="5"
+                                        markerWidth="6"
+                                        markerHeight="6"
+                                        orient="auto-start-auto"
+                                    >
+                                        <path
+                                            d="M 0 0 L 10 5 L 0 10 z"
+                                            fill="#ef4444"
+                                        />
+                                    </marker>
+                                    <marker
+                                        id="arrow-relates"
+                                        viewBox="0 0 10 10"
+                                        refX="9"
+                                        refY="5"
+                                        markerWidth="6"
+                                        markerHeight="6"
+                                        orient="auto-start-auto"
+                                    >
+                                        <path
+                                            d="M 0 0 L 10 5 L 0 10 z"
+                                            fill="#9ca3af"
+                                        />
+                                    </marker>
+                                </defs>
+                                {relations.map((rel, idx) => {
+                                    const fromIdx = rows.findIndex(
+                                        (r) => r.id === rel.from_id,
+                                    );
+                                    const toIdx = rows.findIndex(
+                                        (r) => r.id === rel.to_id,
+                                    );
+
+                                    if (fromIdx < 0 || toIdx < 0) {
+                                        return null;
+                                    }
+
+                                    const fromTask = rows[fromIdx];
+                                    const toTask = rows[toIdx];
+                                    const fromDate = toDate(
+                                        fromTask.start_date,
+                                    );
+                                    const fromEnd = toDate(fromTask.due_date);
+                                    const toDate_ = toDate(toTask.start_date);
+                                    const toEnd = toDate(toTask.due_date);
+
+                                    const fromX =
+                                        (fromDate
+                                            ? diffDays(fromDate, rangeStart)
+                                            : toEnd
+                                              ? diffDays(toEnd, rangeStart)
+                                              : 0) *
+                                            DAY_WIDTH +
+                                        (fromDate && fromEnd
+                                            ? Math.max(
+                                                  (diffDays(fromEnd, fromDate) +
+                                                      1) *
+                                                      DAY_WIDTH,
+                                                  4,
+                                              ) / 2
+                                            : 2);
+                                    const fromY =
+                                        fromIdx * ROW_HEIGHT + ROW_HEIGHT / 2;
+                                    const toX = toDate_
+                                        ? diffDays(toDate_, rangeStart) *
+                                              DAY_WIDTH -
+                                          8
+                                        : toEnd
+                                          ? diffDays(toEnd, rangeStart) *
+                                                DAY_WIDTH -
+                                            8
+                                          : 0;
+                                    const toY =
+                                        toIdx * ROW_HEIGHT + ROW_HEIGHT / 2;
+                                    const midX = (fromX + toX) / 2;
+
+                                    const isBlocking =
+                                        rel.type === 'blocks' ||
+                                        rel.type === 'blocked_by';
+                                    const color = isBlocking
+                                        ? '#ef4444'
+                                        : '#9ca3af';
+                                    const dashArray = isBlocking
+                                        ? 'none'
+                                        : '4 4';
+                                    const markerEnd = isBlocking
+                                        ? 'url(#arrow-blocks)'
+                                        : 'url(#arrow-relates)';
+
+                                    return (
+                                        <path
+                                            key={idx}
+                                            d={`M ${fromX} ${fromY} C ${midX} ${fromY}, ${midX} ${toY}, ${toX} ${toY}`}
+                                            fill="none"
+                                            stroke={color}
+                                            strokeWidth="1.5"
+                                            strokeDasharray={dashArray}
+                                            markerEnd={markerEnd}
+                                        />
+                                    );
+                                })}
+                            </svg>
                         )}
                     </div>
                 </div>

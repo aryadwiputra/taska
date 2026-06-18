@@ -141,6 +141,14 @@ interface TaskRow {
         start_date: string | null;
         end_date: string | null;
     }>;
+    related_tasks?: Array<{
+        id: number;
+        code: string;
+        title: string;
+        status: string;
+        relation_type: string;
+    }>;
+    is_blocked?: boolean;
 }
 
 interface EpicRow {
