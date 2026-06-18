@@ -3,7 +3,6 @@ import {
     DragOverlay,
     PointerSensor,
     closestCorners,
-    useDroppable,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -14,15 +13,16 @@ import type {
 } from '@dnd-kit/core';
 import {
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEcho, useEchoPresence } from '@laravel/echo-react';
-import { ArrowDown, GripVertical, Settings2, Users } from 'lucide-react';
+import { GripVertical, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BoardColumn as BoardColumnComponent } from '@/components/board/board-column';
+import { BoardSortableTask } from '@/components/board/board-task-card';
+import { BoardColumnHeader } from '@/components/board/column-header';
 import { BoardColumnManager } from '@/components/board-column-manager';
 import { FeatureGuide } from '@/components/feature-guide';
 import type { GuideContent } from '@/components/feature-guide';
@@ -40,53 +40,26 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import {
+    buildColumnReorderPayload,
+    calcSameColumnPosition,
+    findColumnByTaskId as findColByTaskId,
+    reorderAcrossColumns,
+    reorderColumns as reorderCols,
+    reorderSameColumnTasks,
+} from '@/lib/board/reorder';
 import { cn } from '@/lib/utils';
 import { board as projectBoard, show as projectShow } from '@/routes/projects';
 import { reorder as reorderColumns } from '@/routes/projects/boards/columns';
 import { move as moveTask } from '@/routes/projects/tasks';
-
-interface Assignee {
-    id: number;
-    name: string;
-    avatar: string | null;
-}
-
-interface TaskItem {
-    id: number;
-    task_number: number;
-    code: string;
-    title: string;
-    status: string;
-    position: number;
-    due_date: string | null;
-    story_points: number | null;
-    priority: {
-        id: number;
-        name: string;
-        key: string;
-        color: string | null;
-    } | null;
-    task_type: {
-        id: number;
-        name: string;
-        key: string;
-        color: string | null;
-    };
-    assignees: Assignee[];
-    epics: Array<{
-        id: number;
-        name: string;
-        color: string | null;
-        status: string;
-    }>;
-    sprints: Array<{
-        id: number;
-        name: string;
-        status: string;
-        start_date: string | null;
-        end_date: string | null;
-    }>;
-}
+import type {
+    BoardColumn,
+    BoardData,
+    BoardOption,
+    BoardProjectData,
+    BoardTaskItem,
+    BoardWorkspace,
+} from '@/types/board';
 
 function useBoardGuide(t: (key: string) => string): GuideContent {
     return {
@@ -135,50 +108,12 @@ function useBoardGuide(t: (key: string) => string): GuideContent {
     };
 }
 
-interface Column {
-    id: number;
-    name: string;
-    status_key: string;
-    color: string | null;
-    position: number;
-    is_done_column: boolean;
-    wip_limit: number | null;
-    task_count: number;
-    tasks: TaskItem[];
-}
-
-interface Workspace {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface ProjectData {
-    id: number;
-    name: string;
-    key: string;
-    slug: string;
-}
-
-interface BoardData {
-    id: number;
-    name: string;
-    type: string;
-    swimlane_field: string;
-}
-
-interface BoardOption {
-    id: number;
-    name: string;
-    type: string;
-}
-
 interface Props {
-    workspace: Workspace;
-    project: ProjectData;
+    workspace: BoardWorkspace;
+    project: BoardProjectData;
     board: BoardData;
     allBoards: BoardOption[];
-    columns: Column[];
+    columns: BoardColumn[];
     taskTypes: Array<{
         id: number;
         name: string;
@@ -273,7 +208,7 @@ function PresenceAvatars({
     );
 }
 
-function getSwimlaneKey(task: TaskItem, field: string): string {
+function getSwimlaneKey(task: BoardTaskItem, field: string): string {
     switch (field) {
         case 'assignee':
             return task.assignees.length > 0
@@ -288,161 +223,6 @@ function getSwimlaneKey(task: TaskItem, field: string): string {
         default:
             return '';
     }
-}
-
-function SortableTask({
-    task,
-    isDragging,
-    onClick,
-    isOver,
-    edge,
-}: {
-    task: TaskItem;
-    isDragging?: boolean;
-    onClick?: () => void;
-    isOver?: boolean;
-    edge?: 'top' | 'bottom' | null;
-}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging: isSortableDragging,
-    } = useSortable({ id: task.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isSortableDragging ? 0.3 : 1,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} {...attributes}>
-            <div className="group/task relative">
-                {isOver && edge === 'top' && (
-                    <div className="absolute -top-1 right-2 left-2 z-10 h-0.5 rounded-full bg-primary" />
-                )}
-                {isOver && edge === 'bottom' && (
-                    <div className="absolute right-2 -bottom-1 left-2 z-10 h-0.5 rounded-full bg-primary" />
-                )}
-                <div
-                    {...listeners}
-                    className="absolute top-1/2 left-0 -translate-y-1/2 cursor-grab opacity-0 transition-opacity group-hover/task:opacity-100"
-                >
-                    <GripVertical className="size-3.5 text-muted-foreground" />
-                </div>
-                <div className="pl-0 transition-all group-hover/task:pl-4">
-                    <TaskCard
-                        task={task}
-                        isDragging={isDragging}
-                        onClick={onClick}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function DroppableColumn({
-    column,
-    activeTaskId,
-    isOverForReorder,
-    children,
-}: {
-    column: Column;
-    activeTaskId: number | null;
-    isOverForReorder?: boolean;
-    children: React.ReactNode;
-}) {
-    const { t } = useTranslation();
-    const { setNodeRef, isOver } = useDroppable({ id: `col:${column.id}` });
-    const isEmpty = column.tasks.length === 0;
-    const hasActiveTask = activeTaskId !== null;
-    const isTaskDrag = hasActiveTask && !isOverForReorder;
-    const isColumnReorder = hasActiveTask && isOverForReorder;
-
-    return (
-        <div
-            ref={setNodeRef}
-            className={cn(
-                'group flex min-h-0 w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-xl border border-border bg-card/70 transition-[background-color,border-color,box-shadow] sm:w-72',
-                isOver && isTaskDrag && !isEmpty
-                    ? 'border-dashed border-primary/50 bg-primary/[0.04]'
-                    : isOver &&
-                          isTaskDrag &&
-                          isEmpty &&
-                          'border-dashed border-primary/50 bg-primary/5 shadow-soft',
-                isOver &&
-                    isColumnReorder &&
-                    'border-dashed border-primary/50 bg-primary/[0.06] shadow-soft',
-            )}
-        >
-            {children}
-            {isOver && isTaskDrag && (
-                <div className="flex flex-1 items-center justify-center py-4">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <ArrowDown className="size-6 animate-bounce text-primary" />
-                        <p className="text-xs font-medium text-primary">
-                            {t('board.drop_here')}
-                        </p>
-                    </div>
-                </div>
-            )}
-            {!isOver && isEmpty && !hasActiveTask && (
-                <div className="flex flex-1 items-center justify-center py-8">
-                    <p className="text-xs text-muted-foreground">
-                        {t('board.no_tasks')}
-                    </p>
-                </div>
-            )}
-        </div>
-    );
-}
-
-function SortableColumnHeader({
-    column,
-    isTarget,
-    children,
-}: {
-    column: Column;
-    isTarget?: boolean;
-    children: React.ReactNode;
-}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
-        id: `column:${column.id}`,
-        data: { type: 'column', column },
-    });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={cn(
-                'flex items-center justify-between px-3 py-2.5',
-                isDragging && 'rounded-lg bg-muted opacity-60 shadow-soft',
-                isTarget &&
-                    'rounded-lg border-2 border-dashed border-primary/60 bg-primary/[0.06]',
-            )}
-            {...attributes}
-            {...listeners}
-        >
-            {children}
-        </div>
-    );
 }
 
 export default function Board(props: Props) {
@@ -465,8 +245,8 @@ function BoardClient({
     const boardGuide = useBoardGuide(t);
     const [columns, setColumns] = useState(initialColumns);
     const columnsSnapshotRef = useRef(columns);
-    const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
-    const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+    const [activeTask, setActiveTask] = useState<BoardTaskItem | null>(null);
+    const [activeColumn, setActiveColumn] = useState<BoardColumn | null>(null);
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [columnManagerOpen, setColumnManagerOpen] = useState(false);
@@ -477,6 +257,18 @@ function BoardClient({
         null,
     );
     const pointerYRef = useRef(0);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const showError = (msg: string) => {
+        setErrorMessage(msg);
+
+        if (errorTimerRef.current) {
+            clearTimeout(errorTimerRef.current);
+        }
+
+        errorTimerRef.current = setTimeout(() => setErrorMessage(null), 5000);
+    };
 
     const [presenceUsers, setPresenceUsers] = useState<
         Array<{ id: number; name: string }>
@@ -552,9 +344,8 @@ function BoardClient({
         }),
     );
 
-    const findColumnByTaskId = (taskId: number): Column | undefined => {
-        return columns.find((col) => col.tasks.some((t) => t.id === taskId));
-    };
+    const findColumnByTaskId = (taskId: number) =>
+        findColByTaskId(columns, taskId);
 
     const handleDragStart = (event: DragStartEvent) => {
         columnsSnapshotRef.current = columns;
@@ -634,7 +425,7 @@ function BoardClient({
         to_column_id: number;
         position: number;
         status: string;
-        task: TaskItem;
+        task: BoardTaskItem;
     }
 
     const handleTaskMoved = useCallback(
@@ -755,23 +546,13 @@ function BoardClient({
                 return;
             }
 
-            const snap = [...columnsSnapshotRef.current];
-            const activeIdx = snap.findIndex((c) => c.id === activeColId);
-            const overIdx = snap.findIndex((c) => c.id === overColId);
+            const snap = reorderCols(
+                columnsSnapshotRef.current,
+                activeColId,
+                overColId,
+            );
 
-            if (activeIdx < 0 || overIdx < 0) {
-                setColumns(columnsSnapshotRef.current);
-
-                return;
-            }
-
-            const [moved] = snap.splice(activeIdx, 1);
-            snap.splice(overIdx, 0, moved);
-
-            const updatedColumns = snap.map((col, idx) => ({
-                id: col.id,
-                position: idx,
-            }));
+            const updatedColumns = buildColumnReorderPayload(snap);
 
             setColumns(snap.map((col, idx) => ({ ...col, position: idx })));
 
@@ -792,6 +573,7 @@ function BoardClient({
                 },
             ).catch(() => {
                 setColumns(columnsSnapshotRef.current);
+                showError('Failed to reorder columns. Please try again.');
             });
 
             return;
@@ -809,7 +591,7 @@ function BoardClient({
             return;
         }
 
-        let toColumn: Column | undefined;
+        let toColumn: BoardColumn | undefined;
 
         if (typeof overId === 'string' && overId.startsWith('col:')) {
             toColumn = columns.find((c) => c.id === Number(overId.slice(4)));
@@ -826,61 +608,24 @@ function BoardClient({
         let position: number;
 
         if (origCol.id === toColumn.id) {
-            if (typeof overId === 'string' && overId.startsWith('col:')) {
-                position = toColumn.tasks.length - 1;
-            } else {
-                const overIdx = toColumn.tasks.findIndex(
-                    (t) => t.id === (overId as number),
-                );
-                const activeIdx = toColumn.tasks.findIndex(
-                    (t) => t.id === taskId,
-                );
-                const insertBelow = closestEdge === 'bottom';
-
-                if (insertBelow) {
-                    position = activeIdx < overIdx ? overIdx : overIdx + 1;
-                } else {
-                    position = activeIdx < overIdx ? overIdx - 1 : overIdx;
-                }
-
-                position = Math.max(0, position);
-            }
+            position = calcSameColumnPosition(
+                toColumn,
+                taskId,
+                overId,
+                closestEdge,
+            );
 
             setColumns((prev) =>
-                prev.map((col) => {
-                    if (col.id !== toColumn!.id) {
-                        return col;
-                    }
-
-                    const tasks = col.tasks.filter((t) => t.id !== taskId);
-                    const found = col.tasks.find((t) => t.id === taskId);
-
-                    if (!found) {
-                        return col;
-                    }
-
-                    let insertPos: number;
-
-                    if (
-                        typeof overId === 'string' &&
-                        overId.startsWith('col:')
-                    ) {
-                        insertPos = tasks.length;
-                    } else {
-                        insertPos = tasks.findIndex(
-                            (t) => t.id === (overId as number),
-                        );
-                        insertPos = Math.max(0, insertPos);
-
-                        if (closestEdge === 'bottom') {
-                            insertPos++;
-                        }
-                    }
-
-                    tasks.splice(insertPos, 0, found);
-
-                    return { ...col, tasks };
-                }),
+                prev.map((col) =>
+                    col.id === toColumn.id
+                        ? reorderSameColumnTasks(
+                              col,
+                              taskId,
+                              overId,
+                              closestEdge,
+                          )
+                        : col,
+                ),
             );
         } else {
             if (typeof overId === 'string' && overId.startsWith('col:')) {
@@ -893,34 +638,15 @@ function BoardClient({
                 position = Math.max(0, position);
             }
 
-            const task = origCol.tasks.find((t) => t.id === taskId);
-
-            if (task) {
-                const movedTask = {
-                    ...task,
-                    status: toColumn.status_key,
-                };
-
-                setColumns((prev) =>
-                    prev.map((col) => {
-                        if (col.id === origCol.id) {
-                            return {
-                                ...col,
-                                tasks: col.tasks.filter((t) => t.id !== taskId),
-                            };
-                        }
-
-                        if (col.id === toColumn!.id) {
-                            const updated = [...col.tasks];
-                            updated.splice(position, 0, movedTask);
-
-                            return { ...col, tasks: updated };
-                        }
-
-                        return col;
-                    }),
-                );
-            }
+            setColumns((prev) =>
+                reorderAcrossColumns(
+                    prev,
+                    taskId,
+                    origCol.id,
+                    toColumn.id,
+                    position,
+                ),
+            );
         }
 
         fetch(
@@ -943,6 +669,7 @@ function BoardClient({
             },
         ).catch(() => {
             setColumns(columnsSnapshotRef.current);
+            showError('Failed to move task. Please try again.');
         });
     };
 
@@ -957,6 +684,18 @@ function BoardClient({
                     pointerYRef.current = e.clientY;
                 }}
             >
+                {errorMessage && (
+                    <div className="mx-4 mb-2 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                        <span>{errorMessage}</span>
+                        <button
+                            type="button"
+                            className="ml-auto text-destructive/70 hover:text-destructive"
+                            onClick={() => setErrorMessage(null)}
+                        >
+                            x
+                        </button>
+                    </div>
+                )}
                 <PageHeader
                     className="mb-4 shrink-0"
                     title={t('board.board')}
@@ -1130,7 +869,7 @@ function BoardClient({
                     >
                         <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
                             {columns.map((column) => (
-                                <DroppableColumn
+                                <BoardColumnComponent
                                     key={column.id}
                                     column={column}
                                     activeTaskId={activeTask?.id ?? null}
@@ -1138,7 +877,7 @@ function BoardClient({
                                         overColumnId === column.id
                                     }
                                 >
-                                    <SortableColumnHeader
+                                    <BoardColumnHeader
                                         column={column}
                                         isTarget={
                                             overColumnId === column.id &&
@@ -1173,7 +912,7 @@ function BoardClient({
                                             </Badge>
                                         </div>
                                         <GripVertical className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                                    </SortableColumnHeader>
+                                    </BoardColumnHeader>
 
                                     <SortableContext
                                         items={column.tasks.map((t) => t.id)}
@@ -1190,7 +929,7 @@ function BoardClient({
                                                 ? (() => {
                                                       const grouped = new Map<
                                                           string,
-                                                          TaskItem[]
+                                                          BoardTaskItem[]
                                                       >();
 
                                                       for (const task of column.tasks) {
@@ -1222,7 +961,7 @@ function BoardClient({
                                                                       (
                                                                           task,
                                                                       ) => (
-                                                                          <SortableTask
+                                                                          <BoardSortableTask
                                                                               key={
                                                                                   task.id
                                                                               }
@@ -1259,7 +998,7 @@ function BoardClient({
                                                       );
                                                   })()
                                                 : column.tasks.map((task) => (
-                                                      <SortableTask
+                                                      <BoardSortableTask
                                                           key={task.id}
                                                           task={task}
                                                           isDragging={
@@ -1288,7 +1027,7 @@ function BoardClient({
                                                   ))}
                                         </div>
                                     </SortableContext>
-                                </DroppableColumn>
+                                </BoardColumnComponent>
                             ))}
                         </div>
                     </SortableContext>

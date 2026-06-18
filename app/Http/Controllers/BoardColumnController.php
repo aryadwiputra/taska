@@ -11,6 +11,7 @@ use App\Models\BoardColumn;
 use App\Models\Project;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -74,9 +75,11 @@ class BoardColumnController extends Controller
     {
         $validated = $request->validated();
 
-        foreach ($validated['columns'] as $item) {
-            BoardColumn::where('id', $item['id'])->update(['position' => $item['position']]);
-        }
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['columns'] as $item) {
+                BoardColumn::where('id', $item['id'])->update(['position' => $item['position']]);
+            }
+        });
 
         ColumnsReordered::dispatch($project->id, $validated['columns']);
 
