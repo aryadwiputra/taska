@@ -2,6 +2,7 @@
 
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { GanttChart } from '@/components/gantt-chart';
 import { Badge } from '@/components/ui/badge';
 import { show as workspaceShow } from '@/routes/workspaces';
@@ -63,6 +64,7 @@ export default function CrossProjectTimeline({
     projects,
     tasks,
 }: Props) {
+    const { t } = useTranslation();
     const handleTaskClick = (id: number) => {
         const task = tasks.find((t) => t.id === id);
 
@@ -89,18 +91,17 @@ export default function CrossProjectTimeline({
                     </Link>
                     <span className="text-sm text-muted-foreground">/</span>
                     <span className="text-sm text-muted-foreground">
-                        Cross-Project Timeline
+                        {t('cross_project.timeline')}
                     </span>
                 </div>
 
                 <div className="mx-auto w-full max-w-6xl">
                     <div className="mb-6">
                         <h1 className="text-2xl font-semibold tracking-tight">
-                            Cross-Project Timeline
+                            {t('cross_project.timeline')}
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Gantt view spanning {projects.length} projects ·{' '}
-                            {tasks.length} scheduled tasks
+                            {t('cross_project.timeline_summary', { projectCount: projects.length, taskCount: tasks.length })}
                         </p>
                     </div>
 
@@ -138,11 +139,10 @@ export default function CrossProjectTimeline({
                     ) : (
                         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
                             <p className="text-sm font-medium">
-                                No scheduled tasks
+                                {t('cross_project.no_scheduled_tasks')}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                Tasks with start and due dates will appear on
-                                the timeline.
+                                {t('cross_project.timeline_description')}
                             </p>
                         </div>
                     )}

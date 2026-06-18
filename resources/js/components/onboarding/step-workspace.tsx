@@ -1,5 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -17,14 +18,15 @@ interface StepWorkspaceProps {
 }
 
 export function StepWorkspace({ onCreated }: StepWorkspaceProps) {
+    const { t } = useTranslation();
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Create your workspace</CardTitle>
+                <CardTitle>{t('onboarding.workspace_title')}</CardTitle>
                 <CardDescription>
-                    A workspace is where your team collaborates on projects.
+                    {t('onboarding.workspace_description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -48,11 +50,11 @@ export function StepWorkspace({ onCreated }: StepWorkspaceProps) {
                     {({ errors, processing }) => (
                         <>
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="name">Workspace name</Label>
+                                <Label htmlFor="name">{t('onboarding.workspace_name')}</Label>
                                 <Input
                                     id="name"
                                     name="name"
-                                    placeholder="My Team"
+                                    placeholder={t('onboarding.workspace_name_placeholder')}
                                     required
                                     onChange={(e) => {
                                         if (!slugManuallyEdited) {
@@ -80,11 +82,11 @@ export function StepWorkspace({ onCreated }: StepWorkspaceProps) {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="slug">Slug</Label>
+                                <Label htmlFor="slug">{t('onboarding.workspace_slug')}</Label>
                                 <Input
                                     id="slug"
                                     name="slug"
-                                    placeholder="my-team"
+                                    placeholder={t('onboarding.workspace_slug_placeholder')}
                                     required
                                     onFocus={() => setSlugManuallyEdited(true)}
                                     data-invalid={!!errors.slug}
@@ -99,15 +101,15 @@ export function StepWorkspace({ onCreated }: StepWorkspaceProps) {
 
                             <div className="flex flex-col gap-2">
                                 <Label htmlFor="description">
-                                    Description{' '}
+                                    {t('onboarding.workspace_description_label')}{' '}
                                     <span className="text-muted-foreground">
-                                        (optional)
+                                        ({t('common.optional')})
                                     </span>
                                 </Label>
                                 <Input
                                     id="description"
                                     name="description"
-                                    placeholder="A short description of your workspace"
+                                    placeholder={t('onboarding.workspace_desc_placeholder')}
                                 />
                             </div>
 
@@ -117,8 +119,8 @@ export function StepWorkspace({ onCreated }: StepWorkspaceProps) {
                                 className="w-full"
                             >
                                 {processing
-                                    ? 'Creating...'
-                                    : 'Create workspace'}
+                                    ? t('workspace.creating')
+                                    : t('onboarding.create_workspace')}
                             </Button>
                         </>
                     )}

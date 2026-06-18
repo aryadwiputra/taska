@@ -1,5 +1,6 @@
 import { router, useHttp } from '@inertiajs/react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -33,6 +34,7 @@ export function ProjectMemberDialog({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('member');
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -99,20 +101,20 @@ export function ProjectMemberDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add member</DialogTitle>
+                    <DialogTitle>{t('members.add_member')}</DialogTitle>
                     <DialogDescription>
-                        Add an existing user to this project.
+                        {t('members.add_description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="pm-search">Search users</Label>
+                        <Label htmlFor="pm-search">{t('members.search_users')}</Label>
                         <Input
                             id="pm-search"
                             value={searchTerm}
                             onChange={(e) => handleSearch(e.target.value)}
-                            placeholder="Search by email..."
+                            placeholder={t('members.search_by_email')}
                         />
                     </div>
 
@@ -120,7 +122,7 @@ export function ProjectMemberDialog({
                         <div className="max-h-40 overflow-y-auto rounded-md border">
                             {searching ? (
                                 <p className="px-3 py-2 text-sm text-muted-foreground">
-                                    Searching...
+                                    {t('members.searching')}
                                 </p>
                             ) : searchResults.length > 0 ? (
                                 searchResults.map((user) => (
@@ -146,7 +148,7 @@ export function ProjectMemberDialog({
                                 ))
                             ) : (
                                 <p className="px-3 py-2 text-sm text-muted-foreground">
-                                    No users found.
+                                    {t('members.no_users')}
                                 </p>
                             )}
                         </div>
@@ -154,7 +156,7 @@ export function ProjectMemberDialog({
 
                     {selectedUserId && (
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="pm-role">Role</Label>
+                            <Label htmlFor="pm-role">{t('members.role')}</Label>
                             <Select
                                 value={selectedRole}
                                 onValueChange={setSelectedRole}
@@ -163,19 +165,19 @@ export function ProjectMemberDialog({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="lead">Lead</SelectItem>
+                                    <SelectItem value="lead">{t('members.lead')}</SelectItem>
                                     <SelectItem value="manager">
-                                        Manager
+                                        {t('members.manager')}
                                     </SelectItem>
                                     <SelectItem value="developer">
-                                        Developer
+                                        {t('members.developer')}
                                     </SelectItem>
-                                    <SelectItem value="qa">QA</SelectItem>
+                                    <SelectItem value="qa">{t('members.qa')}</SelectItem>
                                     <SelectItem value="member">
-                                        Member
+                                        {t('members.member')}
                                     </SelectItem>
                                     <SelectItem value="viewer">
-                                        Viewer
+                                        {t('members.viewer')}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
@@ -187,10 +189,10 @@ export function ProjectMemberDialog({
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button onClick={handleAdd} disabled={!selectedUserId}>
-                            Add member
+                            {t('members.add_member')}
                         </Button>
                     </div>
                 </div>

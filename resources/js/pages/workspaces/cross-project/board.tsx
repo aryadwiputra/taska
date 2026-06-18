@@ -2,6 +2,7 @@
 
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { show as workspaceShow } from '@/routes/workspaces';
@@ -85,6 +86,7 @@ export default function CrossProjectBoard({
     tasks,
     projects,
 }: Props) {
+    const { t } = useTranslation();
     const grouped = columns.map((col) => ({
         ...col,
         tasks: tasks.filter((t) => t.status === col.status_key),
@@ -105,18 +107,17 @@ export default function CrossProjectBoard({
                     </Link>
                     <span className="text-sm text-muted-foreground">/</span>
                     <span className="text-sm text-muted-foreground">
-                        Cross-Project Board
+                        {t('cross_project.board')}
                     </span>
                 </div>
 
                 <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-6">
                         <h1 className="text-2xl font-semibold tracking-tight">
-                            Cross-Project Board
+                            {t('cross_project.board')}
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Kanban view spanning {projects.length} projects ·{' '}
-                            {tasks.length} tasks
+                            {t('cross_project.board_summary', { projectCount: projects.length, taskCount: tasks.length })}
                         </p>
                     </div>
 
@@ -242,7 +243,7 @@ export default function CrossProjectBoard({
 
                                     {col.tasks.length === 0 && (
                                         <div className="rounded-lg border border-dashed py-8 text-center text-xs text-muted-foreground">
-                                            No tasks
+                                            {t('cross_project.no_tasks')}
                                         </div>
                                     )}
                                 </div>

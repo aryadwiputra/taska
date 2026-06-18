@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -22,6 +23,7 @@ export function StepProject({
     onSkip,
     onCreated,
 }: StepProjectProps) {
+    const { t } = useTranslation();
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,9 +66,9 @@ export function StepProject({
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Create your first project</CardTitle>
+                <CardTitle>{t('onboarding.project_title')}</CardTitle>
                 <CardDescription>
-                    Projects help you organize tasks. You can create more later.
+                    {t('onboarding.project_description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -76,11 +78,11 @@ export function StepProject({
                     encType="multipart/form-data"
                 >
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="project-name">Project name</Label>
+                        <Label htmlFor="project-name">{t('onboarding.project_name')}</Label>
                         <Input
                             id="project-name"
                             name="name"
-                            placeholder="My Project"
+                            placeholder={t('onboarding.project_name_placeholder')}
                             required
                             onChange={(e) => {
                                 if (!slugManuallyEdited) {
@@ -119,11 +121,11 @@ export function StepProject({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="project-key">Key</Label>
+                            <Label htmlFor="project-key">{t('onboarding.project_key')}</Label>
                             <Input
                                 id="project-key"
                                 name="key"
-                                placeholder="MP"
+                                placeholder={t('onboarding.project_key_placeholder')}
                                 required
                                 maxLength={20}
                                 onFocus={() => setSlugManuallyEdited(true)}
@@ -138,11 +140,11 @@ export function StepProject({
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="project-slug">Slug</Label>
+                            <Label htmlFor="project-slug">{t('onboarding.project_slug')}</Label>
                             <Input
                                 id="project-slug"
                                 name="slug"
-                                placeholder="my-project"
+                                placeholder={t('onboarding.project_slug_placeholder')}
                                 required
                                 onFocus={() => setSlugManuallyEdited(true)}
                                 data-invalid={!!errors.slug}
@@ -158,9 +160,9 @@ export function StepProject({
 
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="project-color">
-                            Color{' '}
+                            {t('onboarding.project_color')}{' '}
                             <span className="text-muted-foreground">
-                                (optional)
+                                ({t('common.optional')})
                             </span>
                         </Label>
                         <Input
@@ -173,15 +175,15 @@ export function StepProject({
 
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="project-description">
-                            Description{' '}
+                            {t('onboarding.project_description_label')}{' '}
                             <span className="text-muted-foreground">
-                                (optional)
+                                ({t('common.optional')})
                             </span>
                         </Label>
                         <Input
                             id="project-description"
                             name="description"
-                            placeholder="What is this project about?"
+                            placeholder={t('onboarding.project_desc_placeholder')}
                         />
                     </div>
 
@@ -194,14 +196,14 @@ export function StepProject({
                             onClick={onSkip}
                             className="flex-1"
                         >
-                            Skip
+                            {t('common.skip')}
                         </Button>
                         <Button
                             type="submit"
                             disabled={processing}
                             className="flex-1"
                         >
-                            {processing ? 'Creating...' : 'Create project'}
+                            {processing ? t('workspace.creating') : t('onboarding.create_project')}
                         </Button>
                     </div>
                 </form>

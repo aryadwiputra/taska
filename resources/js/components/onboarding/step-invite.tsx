@@ -1,5 +1,6 @@
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -31,6 +32,7 @@ interface StepInviteProps {
 }
 
 export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
+    const { t } = useTranslation();
     const [invites, setInvites] = useState<InviteEntry[]>([]);
     const [email, setEmail] = useState('');
     const [role, setRole] = useState('member');
@@ -77,17 +79,16 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Invite your team</CardTitle>
+                <CardTitle>{t('onboarding.invite_title')}</CardTitle>
                 <CardDescription>
-                    Collaborate with your team members. You can skip this and
-                    invite later.
+                    {t('onboarding.invite_description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-4">
                     <div className="flex gap-2">
                         <Input
-                            placeholder="colleague@example.com"
+                            placeholder={t('onboarding.invite_email_placeholder')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             onKeyDown={(e) => {
@@ -102,11 +103,11 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
                             <SelectTrigger className="w-32">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="manager">Manager</SelectItem>
-                                <SelectItem value="member">Member</SelectItem>
-                                <SelectItem value="viewer">Viewer</SelectItem>
+                                <SelectContent>
+                                <SelectItem value="admin">{t('onboarding.admin')}</SelectItem>
+                                <SelectItem value="manager">{t('onboarding.manager')}</SelectItem>
+                                <SelectItem value="member">{t('onboarding.member')}</SelectItem>
+                                <SelectItem value="viewer">{t('onboarding.viewer')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <Button
@@ -156,7 +157,7 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
                             onClick={onSkip}
                             className="flex-1"
                         >
-                            Skip
+                            {t('common.skip')}
                         </Button>
                         <Button
                             type="button"
@@ -165,8 +166,8 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
                             className="flex-1"
                         >
                             {sending
-                                ? 'Sending...'
-                                : `Send ${invites.length} invite${invites.length !== 1 ? 's' : ''}`}
+                                ? t('common.sending')
+                                : t('onboarding.send_invites', { count: invites.length })}
                         </Button>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,6 +57,7 @@ interface StepProfileProps {
 }
 
 export function StepProfile({ onSkip, onDone }: StepProfileProps) {
+    const { t } = useTranslation();
     const { auth } = usePage<{ auth: Auth }>().props;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -103,10 +105,9 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Personalize your profile</CardTitle>
+                <CardTitle>{t('onboarding.profile_title')}</CardTitle>
                 <CardDescription>
-                    Set your avatar, timezone, and language. You can skip this
-                    and update later.
+                    {t('onboarding.profile_description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -140,12 +141,12 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                             onChange={handleAvatarChange}
                         />
                         <p className="text-xs text-muted-foreground">
-                            Click to upload avatar (JPG/PNG, max 2MB)
+                            {t('profile.click_to_upload')}
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="timezone">Timezone</Label>
+                        <Label htmlFor="timezone">{t('onboarding.timezone')}</Label>
                         <Select
                             defaultValue={auth.user.timezone ?? 'Asia/Jakarta'}
                             name="timezone"
@@ -164,7 +165,7 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="locale">Language</Label>
+                        <Label htmlFor="locale">{t('onboarding.language')}</Label>
                         <Select
                             defaultValue={auth.user.locale ?? 'id'}
                             name="locale"
@@ -192,14 +193,14 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                             onClick={onSkip}
                             className="flex-1"
                         >
-                            Skip
+                            {t('common.skip')}
                         </Button>
                         <Button
                             type="submit"
                             disabled={processing}
                             className="flex-1"
                         >
-                            {processing ? 'Saving...' : 'Save profile'}
+                            {processing ? t('common.saving') : t('onboarding.save_profile')}
                         </Button>
                     </div>
                 </form>

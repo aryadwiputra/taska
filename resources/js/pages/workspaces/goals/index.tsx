@@ -11,6 +11,7 @@ import {
     Pencil,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,6 +56,7 @@ interface Props {
 }
 
 export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
+    const { t } = useTranslation();
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [newGoal, setNewGoal] = useState({
         title: '',
@@ -82,7 +84,7 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
     };
 
     const handleDeleteGoal = (goalId: number) => {
-        if (!confirm('Delete this goal? This cannot be undone.')) {
+        if (!confirm(t('goal.delete_goal'))) {
             return;
         }
 
@@ -109,16 +111,16 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                         <span>{workspace.name}</span>
                     </Link>
                     <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm font-medium">Goals</span>
+                    <span className="text-sm font-medium">{t('goal.title')}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight">
-                            Goals
+                            {t('goal.title')}
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Define objectives and track key results
+                            {t('goal.description')}
                         </p>
                     </div>
 
@@ -129,19 +131,19 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                         <DialogTrigger asChild>
                             <Button>
                                 <Plus className="mr-2 size-4" />
-                                New Goal
+                                {t('goal.new_goal')}
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Create Goal</DialogTitle>
+                                <DialogTitle>{t('goal.create_goal')}</DialogTitle>
                             </DialogHeader>
                             <form
                                 onSubmit={handleCreateGoal}
                                 className="space-y-4"
                             >
                                 <div>
-                                    <Label>Title</Label>
+                                    <Label>{t('goal.title_label')}</Label>
                                     <Input
                                         value={newGoal.title}
                                         onChange={(e) =>
@@ -150,12 +152,12 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                                 title: e.target.value,
                                             })
                                         }
-                                        placeholder="e.g., Improve user engagement"
+                                        placeholder={t('goal.placeholder_title')}
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <Label>Description</Label>
+                                    <Label>{t('task.description')}</Label>
                                     <textarea
                                         value={newGoal.description}
                                         onChange={(e) =>
@@ -164,13 +166,13 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                                 description: e.target.value,
                                             })
                                         }
-                                        placeholder="Optional description..."
+                                        placeholder={t('goal.placeholder_description')}
                                         className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"
                                         rows={3}
                                     />
                                 </div>
                                 <div>
-                                    <Label>Target Date</Label>
+                                    <Label>{t('task.due_date')}</Label>
                                     <Input
                                         type="date"
                                         value={newGoal.target_date}
@@ -190,13 +192,13 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                             setShowCreateDialog(false)
                                         }
                                     >
-                                        Cancel
+                                        {t('common.cancel')}
                                     </Button>
                                     <Button
                                         type="submit"
                                         disabled={!newGoal.title.trim()}
                                     >
-                                        Create
+                                        {t('common.create')}
                                     </Button>
                                 </div>
                             </form>
@@ -233,7 +235,7 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                                     href={`/workspaces/${workspace.slug}/goals/${goal.id}`}
                                                 >
                                                     <Pencil className="mr-2 size-4" />
-                                                    Edit
+                                                    {t('common.edit')}
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
@@ -243,7 +245,7 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                                 }
                                             >
                                                 <Trash2 className="mr-2 size-4" />
-                                                Delete
+                                                {t('common.delete')}
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -273,7 +275,7 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
 
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>Progress</span>
+                                        <span>{t('goal.progress')}</span>
                                         <span>{goal.progress}%</span>
                                     </div>
                                     <div className="mt-1 h-2 rounded-full bg-muted">
@@ -289,9 +291,9 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                                 <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1">
                                         <Target className="size-3" />
-                                        {goal.key_results_count} key results
+                                        {goal.key_results_count} {t('goal.key_results_count')}
                                     </span>
-                                    <span>{goal.epics_count} epics</span>
+                                    <span>{goal.epics_count} {t('goal.epics_count')}</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -301,18 +303,17 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
                         <div className="col-span-full py-12 text-center">
                             <Target className="mx-auto size-12 text-muted-foreground/50" />
                             <h3 className="mt-4 text-lg font-medium">
-                                No goals yet
+                                {t('goal.no_goals')}
                             </h3>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Create your first goal to start tracking
-                                objectives.
+                                {t('goal.create_first')}
                             </p>
                             <Button
                                 className="mt-4"
                                 onClick={() => setShowCreateDialog(true)}
                             >
                                 <Plus className="mr-2 size-4" />
-                                New Goal
+                                {t('goal.new_goal')}
                             </Button>
                         </div>
                     )}

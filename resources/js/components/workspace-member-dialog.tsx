@@ -1,5 +1,6 @@
 import { router, useHttp } from '@inertiajs/react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -31,6 +32,7 @@ export function WorkspaceMemberDialog({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('member');
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -97,20 +99,20 @@ export function WorkspaceMemberDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add member</DialogTitle>
+                    <DialogTitle>{t('members.add_member')}</DialogTitle>
                     <DialogDescription>
-                        Invite a user to this workspace by their email address.
+                        {t('members.invite_description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="member-search">Search users</Label>
+                        <Label htmlFor="member-search">{t('members.search_users')}</Label>
                         <Input
                             id="member-search"
                             value={searchTerm}
                             onChange={(e) => handleSearch(e.target.value)}
-                            placeholder="Search by email..."
+                            placeholder={t('members.search_by_email')}
                         />
                     </div>
 
@@ -118,7 +120,7 @@ export function WorkspaceMemberDialog({
                         <div className="flex max-h-40 flex-col gap-1 overflow-y-auto rounded-md border">
                             {searching ? (
                                 <p className="px-3 py-2 text-sm text-muted-foreground">
-                                    Searching...
+                                    {t('members.searching')}
                                 </p>
                             ) : searchResults.length > 0 ? (
                                 searchResults.map((user) => (
@@ -144,7 +146,7 @@ export function WorkspaceMemberDialog({
                                 ))
                             ) : (
                                 <p className="px-3 py-2 text-sm text-muted-foreground">
-                                    No users found.
+                                    {t('members.no_users')}
                                 </p>
                             )}
                         </div>
@@ -152,7 +154,7 @@ export function WorkspaceMemberDialog({
 
                     {selectedUserId && (
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="member-role">Role</Label>
+                            <Label htmlFor="member-role">{t('members.role')}</Label>
                             <Select
                                 value={selectedRole}
                                 onValueChange={setSelectedRole}
@@ -161,15 +163,15 @@ export function WorkspaceMemberDialog({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="admin">{t('members.admin')}</SelectItem>
                                     <SelectItem value="manager">
-                                        Manager
+                                        {t('members.manager')}
                                     </SelectItem>
                                     <SelectItem value="member">
-                                        Member
+                                        {t('members.member')}
                                     </SelectItem>
                                     <SelectItem value="viewer">
-                                        Viewer
+                                        {t('members.viewer')}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
@@ -181,10 +183,10 @@ export function WorkspaceMemberDialog({
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button onClick={handleAdd} disabled={!selectedUserId}>
-                            Add member
+                            {t('members.add_member')}
                         </Button>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ import {
     Circle,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,6 +70,7 @@ interface Props {
 }
 
 export default function GoalShow({ workspace, goal: initialGoal }: Props) {
+    const { t } = useTranslation();
     const [goal, setGoal] = useState<Goal>(initialGoal);
     const [showAddKeyResult, setShowAddKeyResult] = useState(false);
     const [newKeyResult, setNewKeyResult] = useState({
@@ -135,7 +137,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
     };
 
     const handleDeleteKeyResult = (krId: number) => {
-        if (!confirm('Delete this key result?')) {
+        if (!confirm(t('goal.delete_key_result'))) {
             return;
         }
 
@@ -191,7 +193,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                         className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4" />
-                        <span>Goals</span>
+                        <span>{t('goal.title')}</span>
                     </Link>
                     <span className="text-sm text-muted-foreground">/</span>
                     <span className="text-sm font-medium">{goal.title}</span>
@@ -215,7 +217,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                 {goal.target_date && (
                                     <span className="flex items-center gap-1 text-sm text-muted-foreground">
                                         <Calendar className="size-4" />
-                                        Target:{' '}
+                                        {t('goal.target')}{' '}
                                         {new Date(
                                             goal.target_date,
                                         ).toLocaleDateString()}
@@ -227,7 +229,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
 
                     <div className="mt-6">
                         <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Overall Progress</span>
+                            <span>{t('goal.overall_progress')}</span>
                             <span className="font-medium text-foreground">
                                 {goal.progress}%
                             </span>
@@ -243,7 +245,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                     <div className="mt-8">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold">
-                                Key Results
+                                {t('goal.key_results')}
                             </h2>
                             <Dialog
                                 open={showAddKeyResult}
@@ -266,7 +268,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                         className="space-y-4"
                                     >
                                         <div>
-                                            <Label>Title</Label>
+                                            <Label>{t('goal.title_label')}</Label>
                                             <Input
                                                 value={newKeyResult.title}
                                                 onChange={(e) =>
@@ -275,12 +277,12 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                         title: e.target.value,
                                                     })
                                                 }
-                                                placeholder="e.g., Increase daily active users"
+                                                placeholder={t('goal.placeholder_key_result')}
                                                 required
                                             />
                                         </div>
                                         <div>
-                                            <Label>Target Value</Label>
+                                            <Label>{t('goal.target_value')}</Label>
                                             <Input
                                                 type="number"
                                                 min="0"
@@ -305,7 +307,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                     setShowAddKeyResult(false)
                                                 }
                                             >
-                                                Cancel
+                                                {t('common.cancel')}
                                             </Button>
                                             <Button
                                                 type="submit"
@@ -313,7 +315,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                     !newKeyResult.title.trim()
                                                 }
                                             >
-                                                Add
+                                                {t('common.add')}
                                             </Button>
                                         </div>
                                     </form>
@@ -395,7 +397,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                                 )
                                                             }
                                                         >
-                                                            Save
+                                                            {t('common.save')}
                                                         </Button>
                                                         <Button
                                                             size="sm"
@@ -406,7 +408,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                                 )
                                                             }
                                                         >
-                                                            Cancel
+                                                            {t('common.cancel')}
                                                         </Button>
                                                     </div>
                                                 ) : (
@@ -423,7 +425,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                                             });
                                                         }}
                                                     >
-                                                        Update
+                                                        {t('common.update')}
                                                     </Button>
                                                 )}
                                                 <Button
@@ -448,8 +450,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                                 <div className="py-8 text-center text-sm text-muted-foreground">
                                     <Target className="mx-auto size-8 text-muted-foreground/50" />
                                     <p className="mt-2">
-                                        No key results yet. Add one to track
-                                        progress.
+                                        {t('goal.no_key_results')}
                                     </p>
                                 </div>
                             )}
@@ -457,7 +458,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                     </div>
 
                     <div className="mt-8">
-                        <h2 className="text-lg font-semibold">Linked Epics</h2>
+                        <h2 className="text-lg font-semibold">{t('goal.linked_epics')}</h2>
                         <div className="mt-4 space-y-2">
                             {goal.epics.map((epic) => (
                                 <div
@@ -490,7 +491,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
 
                             {goal.epics.length === 0 && (
                                 <div className="py-8 text-center text-sm text-muted-foreground">
-                                    <p>No epics linked to this goal yet.</p>
+                                    <p>{t('goal.no_epics_linked')}</p>
                                 </div>
                             )}
                         </div>
