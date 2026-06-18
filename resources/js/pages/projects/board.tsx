@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BoardColumnManager } from '@/components/board-column-manager';
+import { FeatureGuide } from '@/components/feature-guide';
 import { TaskCard } from '@/components/task-card';
 import { TaskCreateDialog } from '@/components/task-create-dialog';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -89,6 +90,57 @@ interface TaskItem {
         end_date: string | null;
     }>;
 }
+
+const boardGuide = {
+    title: 'Kanban Board',
+    description:
+        'Visualize your workflow by dragging tasks across columns to reflect their current status.',
+    sections: [
+        {
+            title: 'How the Board Works',
+            content:
+                'Each column represents a stage in your workflow (e.g., To Do, In Progress, Done). Tasks are displayed as cards that you can drag between columns to update their status.',
+        },
+        {
+            title: 'Real-Time Collaboration',
+            content:
+                'See who else is viewing the board via the avatars in the header. Changes made by others appear instantly without page reload.',
+        },
+    ],
+    items: [
+        {
+            heading: 'Board Features',
+            data: [
+                {
+                    term: 'Drag & Drop',
+                    description:
+                        'Drag a task card from one column to another to change its status. The move is saved automatically.',
+                },
+                {
+                    term: 'Column Management',
+                    description:
+                        'Click "Columns" to add, rename, reorder, or delete board columns. You can also set WIP (Work In Progress) limits.',
+                },
+                {
+                    term: 'Swimlanes',
+                    description:
+                        'Group tasks by assignee, priority, or epic using the swimlane dropdown. Helps visualize workload distribution.',
+                },
+                {
+                    term: 'Multiple Boards',
+                    description:
+                        'Switch between different board views using the board selector in the header. Each board can have its own columns.',
+                },
+            ],
+        },
+    ],
+    tips: [
+        'Use keyboard shortcut "c" to quickly create a new task from the board.',
+        'Click a task card to open the detail drawer without leaving the board.',
+        'Set WIP limits on columns to prevent overloading your team.',
+        'Use swimlanes to spot bottlenecks in specific areas of work.',
+    ],
+};
 
 interface Column {
     id: number;
@@ -932,6 +984,7 @@ function BoardClient({
                                 router.reload();
                             }}
                         />
+                        <FeatureGuide content={boardGuide} />
                     </div>
                 </div>
 
