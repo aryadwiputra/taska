@@ -12,7 +12,7 @@ export function ActiveProjectsWidget({ projects }: Props) {
     const { t } = useTranslation();
 
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
                     {t('widget.active_projects')}
@@ -20,7 +20,7 @@ export function ActiveProjectsWidget({ projects }: Props) {
             </CardHeader>
             <CardContent>
                 {projects.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
                         {t('widget.no_active_projects')}
                     </p>
                 ) : (
@@ -28,7 +28,7 @@ export function ActiveProjectsWidget({ projects }: Props) {
                         {projects.map((project) => (
                             <div
                                 key={project.id}
-                                className="flex items-center gap-3 rounded-md bg-muted/40 px-3 py-2"
+                                className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2 transition-colors hover:bg-muted/30"
                             >
                                 <div
                                     className={cn(
@@ -63,7 +63,7 @@ export function ActiveProjectsWidget({ projects }: Props) {
 
 export function ActiveProjectsWidgetSkeleton() {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <Skeleton className="h-4 w-32" />
             </CardHeader>

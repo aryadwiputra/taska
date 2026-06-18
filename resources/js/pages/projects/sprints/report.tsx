@@ -1,7 +1,7 @@
 'use no memo';
 
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -88,29 +88,17 @@ export default function SprintReport({
             <Head title={`Report: ${sprint.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-4xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={sprint.name}
+                        description={`${formatDate(sprint.start_date)} — ${formatDate(sprint.end_date)}`}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        Sprint Report
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-4xl">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {sprint.name}
-                        </h1>
-                        <div className="mt-1 flex items-center gap-2">
+                        backLabel={project.name}
+                        badge={
                             <Badge
                                 variant="outline"
                                 className={cn(
@@ -119,12 +107,8 @@ export default function SprintReport({
                             >
                                 {sprint.status}
                             </Badge>
-                            <span className="text-sm text-muted-foreground">
-                                {formatDate(sprint.start_date)} —{' '}
-                                {formatDate(sprint.end_date)}
-                            </span>
-                        </div>
-                    </div>
+                        }
+                    />
 
                     <div className="mb-6 grid gap-4 sm:grid-cols-4">
                         <SummaryCard

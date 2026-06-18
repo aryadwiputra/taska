@@ -22,7 +22,7 @@ export function AssignedTasksWidget({ tasks, total }: Props) {
     const { t } = useTranslation();
 
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-medium">
                     {t('widget.assigned_to_you')}
@@ -31,7 +31,7 @@ export function AssignedTasksWidget({ tasks, total }: Props) {
             </CardHeader>
             <CardContent>
                 {tasks.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
                         {t('widget.no_assigned_tasks')}
                     </p>
                 ) : (
@@ -40,7 +40,7 @@ export function AssignedTasksWidget({ tasks, total }: Props) {
                             <div
                                 key={task.id}
                                 className={cn(
-                                    'flex flex-col gap-1 rounded-md border-l-2 bg-muted/40 px-3 py-2',
+                                    'flex flex-col gap-1 rounded-md border border-l-2 border-border bg-card px-3 py-2 transition-colors hover:bg-muted/30',
                                     task.priority_id
                                         ? (priorityColor[task.priority_id] ??
                                               'border-l-muted')
@@ -72,7 +72,7 @@ export function AssignedTasksWidget({ tasks, total }: Props) {
 
 export function AssignedTasksWidgetSkeleton() {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <Skeleton className="h-4 w-28" />
                 <Skeleton className="h-5 w-8 rounded-md" />

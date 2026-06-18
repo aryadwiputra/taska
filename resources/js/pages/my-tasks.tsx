@@ -1,6 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { Calendar, CheckCircle2, Filter } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,14 +86,10 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
             <Head title="My Tasks" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        My Tasks
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Tasks assigned to you across all projects.
-                    </p>
-                </div>
+                <PageHeader
+                    title="My Tasks"
+                    description="Tasks assigned to you across all projects."
+                />
 
                 <div className="flex flex-wrap items-center gap-3">
                     <Filter className="size-4 shrink-0 text-muted-foreground" />
@@ -154,17 +152,12 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                 </div>
 
                 {tasks.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-20">
-                        <CheckCircle2 className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                No tasks assigned
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Tasks assigned to you will appear here.
-                            </p>
-                        </div>
-                    </div>
+                    <EmptyState
+                        icon={CheckCircle2}
+                        title="No tasks assigned"
+                        description="Tasks assigned to you will appear here."
+                        className="py-20"
+                    />
                 ) : (
                     <div className="flex flex-col">
                         <div className="grid gap-3 md:hidden">

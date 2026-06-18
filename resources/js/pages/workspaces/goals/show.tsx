@@ -1,8 +1,7 @@
 'use no memo';
 
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import {
-    ArrowLeft,
     Plus,
     Target,
     Calendar,
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -187,45 +187,29 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
             <Head title={`${goal.title} — Goals`} />
 
             <div className="flex h-full flex-1 flex-col gap-6">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={`/workspaces/${workspace.slug}/goals`}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{t('goal.title')}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm font-medium">{goal.title}</span>
-                </div>
-
                 <div className="mx-auto w-full max-w-4xl">
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {goal.title}
-                            </h1>
-                            {goal.description && (
-                                <p className="mt-2 text-muted-foreground">
-                                    {goal.description}
-                                </p>
-                            )}
-                            <div className="mt-3 flex items-center gap-3">
-                                <Badge className={statusColors[goal.status]}>
-                                    {goal.status}
-                                </Badge>
-                                {goal.target_date && (
-                                    <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                                        <Calendar className="size-4" />
-                                        {t('goal.target')}{' '}
-                                        {new Date(
-                                            goal.target_date,
-                                        ).toLocaleDateString()}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    <PageHeader
+                        title={goal.title}
+                        description={goal.description}
+                        backHref={`/workspaces/${workspace.slug}/goals`}
+                        backLabel={t('goal.title')}
+                        badge={
+                            <Badge className={statusColors[goal.status]}>
+                                {goal.status}
+                            </Badge>
+                        }
+                        actions={
+                            goal.target_date && (
+                                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                                    <Calendar className="size-4" />
+                                    {t('goal.target')}{' '}
+                                    {new Date(
+                                        goal.target_date,
+                                    ).toLocaleDateString()}
+                                </span>
+                            )
+                        }
+                    />
 
                     <div className="mt-6">
                         <div className="flex items-center justify-between text-sm text-muted-foreground">

@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import Heading from '@/components/heading';
+import { SurfaceSection } from '@/components/surface-section';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -70,9 +71,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 <Separator className="my-6 lg:hidden" />
 
                 <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
-                        {children}
-                    </section>
+                    <SurfaceSection className="p-6">
+                        <section className="max-w-xl space-y-12">
+                            {children}
+                        </section>
+                    </SurfaceSection>
                 </div>
             </div>
         </div>

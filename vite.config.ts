@@ -6,6 +6,12 @@ import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    resolve: {
+        dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+        include: ['react', 'react-dom', 'react/jsx-runtime'],
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],

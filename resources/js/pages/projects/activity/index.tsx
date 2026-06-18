@@ -1,8 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
-import { Activity, ArrowLeft } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -156,30 +158,17 @@ export default function ActivityIndex({
             <Head title={`${t('task.activity')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-2xl">
+                    <PageHeader
+                        className="mb-6"
+                        title="Activity log"
+                        description="All changes made to tasks in this project."
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm">{t('task.activity')}</span>
-                </div>
-
-                <div className="mx-auto w-full max-w-2xl">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Activity log
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            All changes made to tasks in this project.
-                        </p>
-                    </div>
+                        backLabel={project.name}
+                    />
 
                     <div className="mb-6 flex flex-wrap items-center gap-3">
                         <div className="flex items-center gap-2">
@@ -300,18 +289,12 @@ export default function ActivityIndex({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                    <Activity className="size-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            No activity yet
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Activity will appear here when tasks
-                                            are created or updated.
-                                        </p>
-                                    </div>
-                                </div>
+                                <EmptyState
+                                    icon={Activity}
+                                    title="No activity yet"
+                                    description="Activity will appear here when tasks are created or updated."
+                                    className="border-0 bg-transparent py-12"
+                                />
                             )}
 
                             {activities.last_page > 1 && (

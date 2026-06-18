@@ -9,18 +9,18 @@ interface Props {
 
 export function OverdueTasksWidget({ count }: Props) {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-medium">Overdue</CardTitle>
                 {count > 0 && <Badge variant="destructive">{count}</Badge>}
             </CardHeader>
             <CardContent>
                 {count === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
                         Nothing overdue. Great job.
                     </p>
                 ) : (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-3">
                         <AlertCircle className="size-5 shrink-0 text-destructive" />
                         <p className="text-sm">
                             <span className="font-semibold text-destructive">
@@ -37,7 +37,7 @@ export function OverdueTasksWidget({ count }: Props) {
 
 export function OverdueTasksWidgetSkeleton() {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-5 w-8 rounded-md" />

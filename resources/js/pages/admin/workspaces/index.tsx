@@ -3,6 +3,7 @@ import { Archive, Search, Users } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -70,16 +71,11 @@ export default function AdminWorkspacesIndex({ workspaces, filters }: Props) {
         <>
             <Head title={t('admin.workspaces')} />
 
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {t('admin.workspaces')}
-                    </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {t('admin.all_workspaces')}
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                className="mb-6"
+                title={t('admin.workspaces')}
+                description={t('admin.all_workspaces')}
+            />
 
             <Card>
                 <CardHeader className="pb-3">

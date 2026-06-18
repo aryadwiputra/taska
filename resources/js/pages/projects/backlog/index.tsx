@@ -16,11 +16,13 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, GripVertical, Layers } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { CalendarDays, GripVertical, Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
 import { FeatureGuide } from '@/components/feature-guide';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -191,8 +193,8 @@ function SortableTaskRow({
             ref={setNodeRef}
             style={style}
             className={cn(
-                'flex items-center gap-3 border-b px-3 py-3 transition-colors last:border-0 hover:bg-muted/40',
-                isDragging && 'z-10 bg-muted shadow-md',
+                'flex items-center gap-3 border-b border-border px-3 py-3 transition-colors last:border-0 hover:bg-muted/30',
+                isDragging && 'z-10 bg-card shadow-soft',
             )}
         >
             <button
@@ -221,7 +223,7 @@ function SortableTaskRow({
                         {task.task_type.name}
                     </Badge>
                     {task.story_points != null && (
-                        <span className="inline-flex size-4 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                        <span className="inline-flex size-4 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-semibold text-muted-foreground">
                             {task.story_points}
                         </span>
                     )}
@@ -417,36 +419,19 @@ export default function BacklogIndex({
         <>
             <Head title={`Backlog — ${project.name}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+                <div className="mx-auto w-full max-w-4xl">
+                    <PageHeader
+                        className="mb-6"
+                        title="Backlog"
+                        description={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} not assigned to any sprint`}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm font-medium">Backlog</span>
-                </div>
-
-                <div className="mx-auto w-full max-w-4xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                Backlog
-                            </h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {tasks.length} task
-                                {tasks.length !== 1 ? 's' : ''} not assigned to
-                                any sprint
-                            </p>
-                        </div>
-                        <FeatureGuide content={backlogGuide} />
-                    </div>
+                        backLabel={project.name}
+                        actions={<FeatureGuide content={backlogGuide} />}
+                    />
 
                     {sprints.length > 0 && (
                         <Card className="mb-6">
@@ -460,7 +445,7 @@ export default function BacklogIndex({
                                     {sprints.map((sprint) => (
                                         <div
                                             key={sprint.id}
-                                            className="flex items-center justify-between rounded-md border px-3 py-2"
+                                            className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <Badge
@@ -521,7 +506,7 @@ export default function BacklogIndex({
                                     onDragStart={handleDragStart}
                                     onDragEnd={handleDragEnd}
                                 >
-                                    <div className="flex flex-col rounded-md border">
+                                    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
                                         <SortableContext
                                             items={tasks.map((t) => t.id)}
                                             strategy={
@@ -548,7 +533,7 @@ export default function BacklogIndex({
                                     </div>
                                     <DragOverlay>
                                         {activeTask && (
-                                            <div className="flex items-center gap-3 rounded-md border bg-background px-3 py-3 shadow-md">
+                                            <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 shadow-elevated">
                                                 <GripVertical className="size-4 text-muted-foreground" />
                                                 <span className="font-mono text-xs text-muted-foreground">
                                                     {activeTask.code}
@@ -561,18 +546,12 @@ export default function BacklogIndex({
                                     </DragOverlay>
                                 </DndContext>
                             ) : (
-                                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                    <Layers className="size-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            Backlog is empty
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Create tasks to add them to the
-                                            backlog
-                                        </p>
-                                    </div>
-                                </div>
+                                <EmptyState
+                                    icon={Layers}
+                                    title="Backlog is empty"
+                                    description="Create tasks to add them to the backlog."
+                                    className="bg-muted/30 py-12"
+                                />
                             )}
                         </CardContent>
                     </Card>

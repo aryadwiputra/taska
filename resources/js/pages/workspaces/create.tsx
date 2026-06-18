@@ -1,9 +1,9 @@
-import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,21 +20,14 @@ export default function WorkspacesCreate() {
             <Head title={t('workspace.create_workspace')} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <Link
-                    href={workspaceIndex()}
-                    className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    <ArrowLeft className="size-4" />
-                    <span>{t('workspace.back_to_workspaces')}</span>
-                </Link>
+                <PageHeader
+                    title={t('workspace.create_workspace')}
+                    backHref={workspaceIndex()}
+                    backLabel={t('workspace.back_to_workspaces')}
+                />
 
                 <div className="mx-auto w-full max-w-lg">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>
-                                {t('workspace.create_workspace')}
-                            </CardTitle>
-                        </CardHeader>
                         <CardContent>
                             <Form
                                 action={workspaceStore()}

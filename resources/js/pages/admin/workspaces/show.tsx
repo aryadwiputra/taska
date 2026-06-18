@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Building2, User } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
@@ -40,24 +41,22 @@ export default function AdminWorkspaceShow({ workspace, members }: Props) {
         <>
             <Head title={workspace.name} />
 
-            <Link
-                href="/admin/workspaces"
-                className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-                <ArrowLeft className="size-4" />
-                {t('workspace.back_to_workspaces')}
-            </Link>
+            <PageHeader
+                title={workspace.name}
+                description={workspace.description}
+                backHref="/admin/workspaces"
+                backLabel={t('workspace.back_to_workspaces')}
+                badge={
+                    <span className="text-xs text-green-600 dark:text-green-400">
+                        {t('admin.active')}
+                    </span>
+                }
+            />
 
             <div className="grid gap-6 lg:grid-cols-3">
                 <div className="space-y-6 lg:col-span-2">
                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Building2 className="size-5" />
-                                {workspace.name}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 text-sm">
+                        <CardContent className="space-y-3 pt-6 text-sm">
                             <div className="flex items-center gap-2">
                                 <span className="w-24 text-muted-foreground">
                                     {t('admin.slug')}:

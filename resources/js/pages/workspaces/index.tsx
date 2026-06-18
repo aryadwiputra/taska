@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { Archive, FolderKanban, Plus, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,39 +38,11 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
         <>
             <Head title={t('admin.workspaces')} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {t('admin.workspaces')}
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {t('workspace.manage_your_workspaces')}
-                        </p>
-                    </div>
-                    <Link
-                        href={workspaceCreate()}
-                        className={cn(
-                            buttonVariants(),
-                            'flex items-center gap-2',
-                        )}
-                    >
-                        <Plus className="size-4" />
-                        <span>{t('workspace.new_workspace')}</span>
-                    </Link>
-                </div>
-
-                {workspaces.length === 0 && (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-16">
-                        <FolderKanban className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                {t('workspace.no_workspaces_yet')}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {t('workspace.create_first_workspace')}
-                            </p>
-                        </div>
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+                <PageHeader
+                    title={t('admin.workspaces')}
+                    description={t('workspace.manage_your_workspaces')}
+                    actions={
                         <Link
                             href={workspaceCreate()}
                             className={cn(
@@ -77,9 +51,29 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
                             )}
                         >
                             <Plus className="size-4" />
-                            <span>{t('workspace.create_workspace')}</span>
+                            <span>{t('workspace.new_workspace')}</span>
                         </Link>
-                    </div>
+                    }
+                />
+
+                {workspaces.length === 0 && (
+                    <EmptyState
+                        icon={FolderKanban}
+                        title={t('workspace.no_workspaces_yet')}
+                        description={t('workspace.create_first_workspace')}
+                        action={
+                            <Link
+                                href={workspaceCreate()}
+                                className={cn(
+                                    buttonVariants(),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Plus className="size-4" />
+                                <span>{t('workspace.create_workspace')}</span>
+                            </Link>
+                        }
+                    />
                 )}
 
                 {activeWorkspaces.length > 0 && (
@@ -92,10 +86,10 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
                                 })}
                                 className="block"
                             >
-                                <Card className="transition-shadow hover:shadow-md">
+                                <Card className="transition-shadow hover:shadow-soft">
                                     <CardContent className="flex flex-col gap-3 pt-6">
                                         <div className="flex items-start gap-3">
-                                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
+                                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-soft">
                                                 {workspace.name
                                                     .charAt(0)
                                                     .toUpperCase()}
@@ -137,7 +131,7 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
                         </div>
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {archivedWorkspaces.map((workspace) => (
-                                <Card key={workspace.id} className="opacity-60">
+                                <Card key={workspace.id} className="opacity-70">
                                     <CardContent className="flex flex-col gap-3 pt-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex min-w-0 items-center gap-3">

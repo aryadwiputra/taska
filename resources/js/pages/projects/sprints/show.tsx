@@ -1,6 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
-    ArrowLeft,
     CalendarDays,
     Check,
     Play,
@@ -10,8 +9,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
 import { FeatureGuide } from '@/components/feature-guide';
 import type { GuideContent } from '@/components/feature-guide';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -239,30 +240,18 @@ export default function SprintShow({
             <Head title={`${sprint.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-3xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={sprint.name}
+                        description={sprint.goal}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        {t('sprint_page.sprints')}
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-3xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {sprint.name}
-                            </h1>
-                            <div className="mt-1 flex items-center gap-2">
+                        backLabel={project.name}
+                        badge={
+                            <>
                                 <Badge
                                     variant="outline"
                                     className={cn(
@@ -279,101 +268,103 @@ export default function SprintShow({
                                         {completedPoints}/{totalPoints} pts
                                     </Badge>
                                 )}
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <FeatureGuide content={sprintGuide} />
-                            {sprint.status === 'planned' && (
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() =>
-                                        router.post(
-                                            sprintStart({
-                                                workspace: workspace.slug,
-                                                project: project.slug,
-                                                sprint: sprint.id,
-                                            }),
-                                            {},
-                                            { preserveScroll: true },
-                                        )
-                                    }
-                                >
-                                    <Play className="size-3" />
-                                    {t('sprint_page.start_sprint')}
-                                </Button>
-                            )}
-                            {sprint.status === 'active' && (
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => {
-                                        if (
-                                            !confirm(
-                                                t(
-                                                    'sprint_page.complete_confirm',
-                                                ),
+                            </>
+                        }
+                        actions={
+                            <>
+                                <FeatureGuide content={sprintGuide} />
+                                {sprint.status === 'planned' && (
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() =>
+                                            router.post(
+                                                sprintStart({
+                                                    workspace: workspace.slug,
+                                                    project: project.slug,
+                                                    sprint: sprint.id,
+                                                }),
+                                                {},
+                                                { preserveScroll: true },
                                             )
-                                        ) {
-                                            return;
                                         }
+                                    >
+                                        <Play className="size-3" />
+                                        {t('sprint_page.start_sprint')}
+                                    </Button>
+                                )}
+                                {sprint.status === 'active' && (
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (
+                                                !confirm(
+                                                    t(
+                                                        'sprint_page.complete_confirm',
+                                                    ),
+                                                )
+                                            ) {
+                                                return;
+                                            }
 
-                                        router.post(
-                                            sprintClose({
-                                                workspace: workspace.slug,
-                                                project: project.slug,
-                                                sprint: sprint.id,
-                                            }),
-                                            {},
-                                            { preserveScroll: true },
-                                        );
-                                    }}
-                                >
-                                    <Check className="size-3" />
-                                    {t('sprint_page.complete_sprint')}
-                                </Button>
-                            )}
-                            {sprint.status === 'completed' && (
+                                            router.post(
+                                                sprintClose({
+                                                    workspace: workspace.slug,
+                                                    project: project.slug,
+                                                    sprint: sprint.id,
+                                                }),
+                                                {},
+                                                { preserveScroll: true },
+                                            );
+                                        }}
+                                    >
+                                        <Check className="size-3" />
+                                        {t('sprint_page.complete_sprint')}
+                                    </Button>
+                                )}
+                                {sprint.status === 'completed' && (
+                                    <Link
+                                        href={sprintReport({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                            sprint: sprint.id,
+                                        })}
+                                    >
+                                        <Button variant="outline" size="sm">
+                                            <SquareChartGantt className="size-3" />
+                                            {t('sprint_page.view_report')}
+                                        </Button>
+                                    </Link>
+                                )}
                                 <Link
-                                    href={sprintReport({
+                                    href={projectBoard.url(
+                                        {
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                        },
+                                        {
+                                            query: { sprint_id: sprint.id },
+                                        },
+                                    )}
+                                >
+                                    <Button variant="outline" size="sm">
+                                        {t('sprint_page.open_board')}
+                                    </Button>
+                                </Link>
+                                <Link
+                                    href={projectSettings({
                                         workspace: workspace.slug,
                                         project: project.slug,
-                                        sprint: sprint.id,
                                     })}
                                 >
                                     <Button variant="outline" size="sm">
-                                        <SquareChartGantt className="size-3" />
-                                        {t('sprint_page.view_report')}
+                                        {t('sprint_page.edit_sprint')}
                                     </Button>
                                 </Link>
-                            )}
-                            <Link
-                                href={projectBoard.url(
-                                    {
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                    },
-                                    {
-                                        query: { sprint_id: sprint.id },
-                                    },
-                                )}
-                            >
-                                <Button variant="outline" size="sm">
-                                    {t('sprint_page.open_board')}
-                                </Button>
-                            </Link>
-                            <Link
-                                href={projectSettings({
-                                    workspace: workspace.slug,
-                                    project: project.slug,
-                                })}
-                            >
-                                <Button variant="outline" size="sm">
-                                    {t('sprint_page.edit_sprint')}
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
+                            </>
+                        }
+                    />
 
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                         <div
@@ -381,12 +372,6 @@ export default function SprintShow({
                             style={{ width: `${percent}%` }}
                         />
                     </div>
-
-                    {sprint.goal && (
-                        <p className="mb-6 text-sm text-muted-foreground">
-                            {sprint.goal}
-                        </p>
-                    )}
 
                     <div className="mb-6 flex items-center gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1.5">
@@ -543,19 +528,14 @@ export default function SprintShow({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                    <Check className="size-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            {t('sprint_page.no_tasks')}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {t(
-                                                'sprint_page.no_tasks_description',
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
+                                <EmptyState
+                                    icon={Check}
+                                    title={t('sprint_page.no_tasks')}
+                                    description={t(
+                                        'sprint_page.no_tasks_description',
+                                    )}
+                                    className="border-0 bg-transparent py-12"
+                                />
                             )}
                         </CardContent>
                     </Card>

@@ -1,12 +1,14 @@
 'use no memo';
 
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { EmptyState } from '@/components/empty-state';
 import { FeatureGuide, InlineTooltip } from '@/components/feature-guide';
 import type { GuideContent } from '@/components/feature-guide';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -184,45 +186,30 @@ export default function SlaSettings({
             <Head title={`SLA Policies — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-3xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={t('sla_page.title')}
+                        description={t('sla_page.description')}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        {t('sla_page.title')}
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-3xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {t('sla_page.title')}
-                            </h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {t('sla_page.description')}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <FeatureGuide content={slaGuide} />
-                            <Button
-                                size="sm"
-                                onClick={openCreate}
-                                disabled={availableTypes.length === 0}
-                            >
-                                <Plus className="size-3" />
-                                {t('sla_page.add_policy')}
-                            </Button>
-                        </div>
-                    </div>
+                        backLabel={project.name}
+                        actions={
+                            <>
+                                <FeatureGuide content={slaGuide} />
+                                <Button
+                                    size="sm"
+                                    onClick={openCreate}
+                                    disabled={availableTypes.length === 0}
+                                >
+                                    <Plus className="size-3" />
+                                    {t('sla_page.add_policy')}
+                                </Button>
+                            </>
+                        }
+                    />
 
                     {policies.length > 0 ? (
                         <div className="flex flex-col rounded-md border">
@@ -307,24 +294,20 @@ export default function SlaSettings({
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed py-16 text-center">
-                            <div>
-                                <p className="text-sm font-medium">
-                                    {t('sla_page.no_policies')}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    {t('sla_page.no_policies_description')}
-                                </p>
-                            </div>
-                            <Button
-                                size="sm"
-                                onClick={openCreate}
-                                disabled={availableTypes.length === 0}
-                            >
-                                <Plus className="size-3" />
-                                {t('sla_page.add_policy')}
-                            </Button>
-                        </div>
+                        <EmptyState
+                            title={t('sla_page.no_policies')}
+                            description={t('sla_page.no_policies_description')}
+                            action={
+                                <Button
+                                    size="sm"
+                                    onClick={openCreate}
+                                    disabled={availableTypes.length === 0}
+                                >
+                                    <Plus className="size-3" />
+                                    {t('sla_page.add_policy')}
+                                </Button>
+                            }
+                        />
                     )}
                 </div>
             </div>

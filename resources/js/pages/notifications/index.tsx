@@ -13,6 +13,8 @@ import {
     UserPlus,
 } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -187,44 +189,38 @@ export default function NotificationsIndex({
             <Head title="Notifications" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Notifications
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Stay updated on your tasks and projects.
-                        </p>
-                    </div>
-                    {unreadCount > 0 && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                router.post(notificationReadAll(), undefined, {
-                                    onSuccess: () => setUnreadCount(0),
-                                });
-                            }}
-                        >
-                            <CheckCheck className="size-4" />
-                            <span>Mark all read</span>
-                        </Button>
-                    )}
-                </div>
+                <PageHeader
+                    title="Notifications"
+                    description="Stay updated on your tasks and projects."
+                    actions={
+                        unreadCount > 0 && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    router.post(
+                                        notificationReadAll(),
+                                        undefined,
+                                        {
+                                            onSuccess: () => setUnreadCount(0),
+                                        },
+                                    );
+                                }}
+                            >
+                                <CheckCheck className="size-4" />
+                                <span>Mark all read</span>
+                            </Button>
+                        )
+                    }
+                />
 
                 {notifications.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-20">
-                        <Bell className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                No notifications
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Notifications about your tasks and projects will
-                                appear here.
-                            </p>
-                        </div>
-                    </div>
+                    <EmptyState
+                        icon={Bell}
+                        title="No notifications"
+                        description="Notifications about your tasks and projects will appear here."
+                        className="py-20"
+                    />
                 ) : (
                     <div className="flex flex-col gap-6">
                         {groups.map(([label, items]) => (

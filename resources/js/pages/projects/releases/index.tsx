@@ -1,9 +1,11 @@
 'use no memo';
 
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, Plus, Rocket, Trash2 } from 'lucide-react';
+import { CalendarDays, Plus, Rocket, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -239,39 +241,26 @@ export default function ReleasesIndex({
             <Head title={`${t('release.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-4xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={t('release.title')}
+                        description={`${releases.length} release${releases.length !== 1 ? 's' : ''}`}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm font-medium">
-                        {t('release.title')}
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-4xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {t('release.title')}
-                            </h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {releases.length} release
-                                {releases.length !== 1 ? 's' : ''}
-                            </p>
-                        </div>
-                        <Button size="sm" onClick={() => setCreateOpen(true)}>
-                            <Plus className="mr-1.5 size-3.5" />
-                            New release
-                        </Button>
-                    </div>
+                        backLabel={project.name}
+                        actions={
+                            <Button
+                                size="sm"
+                                onClick={() => setCreateOpen(true)}
+                            >
+                                <Plus className="mr-1.5 size-3.5" />
+                                New release
+                            </Button>
+                        }
+                    />
 
                     {releases.length > 0 ? (
                         <div className="flex flex-col gap-3">
@@ -381,17 +370,11 @@ export default function ReleasesIndex({
                             })}
                         </div>
                     ) : (
-                        <Card>
-                            <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                <Rocket className="size-8 text-muted-foreground" />
-                                <div>
-                                    <p className="text-sm font-medium">
-                                        No releases yet
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Create a release to start tracking
-                                    </p>
-                                </div>
+                        <EmptyState
+                            icon={Rocket}
+                            title="No releases yet"
+                            description="Create a release to start tracking."
+                            action={
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -400,8 +383,8 @@ export default function ReleasesIndex({
                                     <Plus className="mr-1.5 size-3.5" />
                                     New release
                                 </Button>
-                            </CardContent>
-                        </Card>
+                            }
+                        />
                     )}
                 </div>
             </div>

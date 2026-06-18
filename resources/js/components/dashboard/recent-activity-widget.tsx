@@ -9,7 +9,7 @@ interface Props {
 
 export function RecentActivityWidget({ activities }: Props) {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
                     Recent activity
@@ -17,7 +17,7 @@ export function RecentActivityWidget({ activities }: Props) {
             </CardHeader>
             <CardContent>
                 {activities.length === 0 ? (
-                    <div className="flex flex-col items-center gap-3 py-6">
+                    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed bg-muted/30 px-3 py-8">
                         <Activity className="size-8 text-muted-foreground/50" />
                         <p className="text-center text-sm text-muted-foreground">
                             No recent activity yet. Start collaborating on tasks
@@ -29,7 +29,7 @@ export function RecentActivityWidget({ activities }: Props) {
                         {activities.map((item, index) => (
                             <div
                                 key={item.id}
-                                className="flex items-start gap-3 py-2.5"
+                                className="flex items-start gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-muted/30"
                             >
                                 <div className="flex flex-col items-center gap-1 pt-0.5">
                                     <div className="size-2 rounded-full bg-muted-foreground/40" />
@@ -83,7 +83,7 @@ function formatTimeAgo(date: string): string {
 
 export function RecentActivityWidgetSkeleton() {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <Skeleton className="h-4 w-28" />
             </CardHeader>

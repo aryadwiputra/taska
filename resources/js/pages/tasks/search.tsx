@@ -1,6 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { SearchX } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { TaskSearchFilters } from '@/components/task-search-filters';
 import type {
@@ -34,34 +36,26 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
             <Head title="Task Search" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Task Search
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Search tasks across projects you can access.
-                        </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        {tasks.total} {tasks.total === 1 ? 'result' : 'results'}
-                    </p>
-                </div>
+                <PageHeader
+                    title="Task Search"
+                    description="Search tasks across projects you can access."
+                    badge={
+                        <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                            {tasks.total}{' '}
+                            {tasks.total === 1 ? 'result' : 'results'}
+                        </span>
+                    }
+                />
 
                 <TaskSearchFilters filters={filters} options={options} />
 
                 {tasks.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-20">
-                        <SearchX className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                No matching tasks
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Try changing the search term or filters.
-                            </p>
-                        </div>
-                    </div>
+                    <EmptyState
+                        icon={SearchX}
+                        title="No matching tasks"
+                        description="Try changing the search term or filters."
+                        className="py-20"
+                    />
                 ) : (
                     <div className="flex flex-col gap-3">
                         {tasks.data.map((task) => (

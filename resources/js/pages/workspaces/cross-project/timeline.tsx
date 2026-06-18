@@ -1,9 +1,10 @@
 'use no memo';
 
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
 import { GanttChart } from '@/components/gantt-chart';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { show as workspaceShow } from '@/routes/workspaces';
 
@@ -81,32 +82,17 @@ export default function CrossProjectTimeline({
             <Head title={`Cross-Project Timeline — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspaceShow({ workspace: workspace.slug })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{workspace.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        {t('cross_project.timeline')}
-                    </span>
-                </div>
-
                 <div className="mx-auto w-full max-w-6xl">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {t('cross_project.timeline')}
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('cross_project.timeline_summary', {
-                                projectCount: projects.length,
-                                taskCount: tasks.length,
-                            })}
-                        </p>
-                    </div>
+                    <PageHeader
+                        className="mb-6"
+                        title={t('cross_project.timeline')}
+                        description={t('cross_project.timeline_summary', {
+                            projectCount: projects.length,
+                            taskCount: tasks.length,
+                        })}
+                        backHref={workspaceShow({ workspace: workspace.slug })}
+                        backLabel={workspace.name}
+                    />
 
                     <div className="mb-4 flex flex-wrap gap-2">
                         {projects.map((project) => (
@@ -140,14 +126,12 @@ export default function CrossProjectTimeline({
                             />
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
-                            <p className="text-sm font-medium">
-                                {t('cross_project.no_scheduled_tasks')}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {t('cross_project.timeline_description')}
-                            </p>
-                        </div>
+                        <EmptyState
+                            title={t('cross_project.no_scheduled_tasks')}
+                            description={t(
+                                'cross_project.timeline_description',
+                            )}
+                        />
                     )}
                 </div>
             </div>

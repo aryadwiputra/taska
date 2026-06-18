@@ -1,7 +1,6 @@
-import { Form, Head, Link, router } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import {
     AlertTriangle,
-    ArrowLeft,
     ArrowUpDown,
     Bell,
     Check,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -277,19 +277,12 @@ export default function WorkspaceSettings({
             <Head title={`${workspace.name} — Settings`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspaceIndex()}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>Workspaces</span>
-                    </Link>
-                    <Separator orientation="vertical" className="h-4" />
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {workspace.name}
-                    </h1>
-                </div>
+                <PageHeader
+                    title={workspace.name}
+                    description={t('workspace.settings')}
+                    backHref={workspaceIndex()}
+                    backLabel="Workspaces"
+                />
 
                 <div className="mx-auto w-full max-w-2xl">
                     <Tabs defaultValue="general">

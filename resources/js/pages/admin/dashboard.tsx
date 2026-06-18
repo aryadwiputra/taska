@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { LayoutDashboard, Users, Building2, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface RecentUser {
@@ -26,16 +27,10 @@ export default function AdminDashboard({ stats }: Props) {
         <>
             <Head title={t('admin.dashboard')} />
 
-            <div className="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {t('admin.dashboard')}
-                    </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {t('admin.system_overview')}
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                title={t('admin.dashboard')}
+                description={t('admin.system_overview')}
+            />
 
             <div className="grid gap-6 sm:grid-cols-3">
                 <Card>

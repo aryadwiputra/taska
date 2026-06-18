@@ -3,20 +3,12 @@
 import type { RequestPayload } from '@inertiajs/core';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
-import {
-    ArrowLeft,
-    Eye,
-    EyeOff,
-    Paperclip,
-    Plus,
-    Trash2,
-    Upload,
-    X,
-} from 'lucide-react';
+import { Eye, EyeOff, Paperclip, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { AttachmentPreviewDialog } from '@/components/attachment-preview-dialog';
 import { BranchInfo } from '@/components/git-info';
 import { MentionInput } from '@/components/mention-autocomplete';
+import { PageHeader } from '@/components/page-header';
 import { TaskComment } from '@/components/task-comment';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -749,22 +741,15 @@ export default function TaskShow({
             <Head title={`${task.code} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="font-mono text-sm text-muted-foreground">
-                        {task.code}
-                    </span>
-                </div>
+                <PageHeader
+                    title={task.code}
+                    description={project.name}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                />
 
                 <div className="mx-auto flex w-full max-w-6xl gap-8">
                     <div className="flex min-w-0 flex-1 flex-col gap-6">

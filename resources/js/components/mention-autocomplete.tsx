@@ -151,7 +151,7 @@ export function MentionInput({ value, onChange, members, placeholder }: Props) {
             {mentionQuery && filteredMembers.length > 0 && (
                 <div
                     ref={dropdownRef}
-                    className="absolute left-0 z-50 mt-1 max-h-48 w-64 overflow-y-auto rounded-md border bg-popover shadow-md"
+                    className="absolute left-0 z-50 mt-1 max-h-48 w-64 overflow-y-auto rounded-md border bg-popover shadow-elevated"
                 >
                     {filteredMembers.slice(0, 8).map((member, index) => (
                         <button

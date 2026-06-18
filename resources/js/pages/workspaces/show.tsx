@@ -1,6 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
 import {
-    ArrowLeft,
     FolderKanban,
     GanttChart,
     LayoutGrid,
@@ -10,6 +9,8 @@ import {
     Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -60,117 +61,107 @@ export default function WorkspaceShow({ workspace, projects }: Props) {
             <Head title={`${workspace.name} — Projects`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspacesIndex()}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{t('workspace.back_to_workspaces')}</span>
-                    </Link>
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {workspace.name}
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {hasProjects
-                                ? `${projects.length} project${projects.length !== 1 ? 's' : ''}`
-                                : t('workspace.no_projects_yet')}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href={`/workspaces/${workspace.slug}/goals`}
-                            className={cn(
-                                buttonVariants({ variant: 'outline' }),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <Target className="size-4" />
-                            <span className="hidden sm:inline">
-                                {t('workspace.goals')}
-                            </span>
-                        </Link>
-                        <Link
-                            href={crossProjectTimeline({
-                                workspace: workspace.slug,
-                            })}
-                            className={cn(
-                                buttonVariants({ variant: 'outline' }),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <GanttChart className="size-4" />
-                            <span className="hidden sm:inline">
-                                {t('workspace.timeline')}
-                            </span>
-                        </Link>
-                        <Link
-                            href={crossProjectBoard({
-                                workspace: workspace.slug,
-                            })}
-                            className={cn(
-                                buttonVariants({ variant: 'outline' }),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <LayoutGrid className="size-4" />
-                            <span className="hidden sm:inline">
-                                {t('workspace.board')}
-                            </span>
-                        </Link>
-                        <Link
-                            href={workspaceSettings({
-                                workspace: workspace.slug,
-                            })}
-                            className={cn(
-                                buttonVariants({ variant: 'outline' }),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <Settings className="size-4" />
-                            <span className="hidden sm:inline">
-                                {t('workspace.settings')}
-                            </span>
-                        </Link>
-                        <Link
-                            href={projectCreate({ workspace: workspace.slug })}
-                            className={cn(
-                                buttonVariants(),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <Plus className="size-4" />
-                            <span>{t('workspace.new_project')}</span>
-                        </Link>
-                    </div>
-                </div>
+                <PageHeader
+                    title={workspace.name}
+                    description={
+                        hasProjects
+                            ? `${projects.length} project${projects.length !== 1 ? 's' : ''}`
+                            : t('workspace.no_projects_yet')
+                    }
+                    backHref={workspacesIndex()}
+                    backLabel={t('workspace.back_to_workspaces')}
+                    actions={
+                        <>
+                            <Link
+                                href={`/workspaces/${workspace.slug}/goals`}
+                                className={cn(
+                                    buttonVariants({ variant: 'outline' }),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Target className="size-4" />
+                                <span className="hidden sm:inline">
+                                    {t('workspace.goals')}
+                                </span>
+                            </Link>
+                            <Link
+                                href={crossProjectTimeline({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants({ variant: 'outline' }),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <GanttChart className="size-4" />
+                                <span className="hidden sm:inline">
+                                    {t('workspace.timeline')}
+                                </span>
+                            </Link>
+                            <Link
+                                href={crossProjectBoard({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants({ variant: 'outline' }),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <LayoutGrid className="size-4" />
+                                <span className="hidden sm:inline">
+                                    {t('workspace.board')}
+                                </span>
+                            </Link>
+                            <Link
+                                href={workspaceSettings({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants({ variant: 'outline' }),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Settings className="size-4" />
+                                <span className="hidden sm:inline">
+                                    {t('workspace.settings')}
+                                </span>
+                            </Link>
+                            <Link
+                                href={projectCreate({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants(),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Plus className="size-4" />
+                                <span>{t('workspace.new_project')}</span>
+                            </Link>
+                        </>
+                    }
+                />
 
                 {!hasProjects && (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-16">
-                        <FolderKanban className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                {t('workspace.no_projects_yet')}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {t('workspace.create_first_project')}
-                            </p>
-                        </div>
-                        <Link
-                            href={projectCreate({ workspace: workspace.slug })}
-                            className={cn(
-                                buttonVariants(),
-                                'flex items-center gap-2',
-                            )}
-                        >
-                            <Plus className="size-4" />
-                            <span>{t('workspace.create_project')}</span>
-                        </Link>
-                    </div>
+                    <EmptyState
+                        icon={FolderKanban}
+                        title={t('workspace.no_projects_yet')}
+                        description={t('workspace.create_first_project')}
+                        action={
+                            <Link
+                                href={projectCreate({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants(),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Plus className="size-4" />
+                                <span>{t('workspace.create_project')}</span>
+                            </Link>
+                        }
+                    />
                 )}
 
                 {activeProjects.length > 0 && (
@@ -184,7 +175,7 @@ export default function WorkspaceShow({ workspace, projects }: Props) {
                                 })}
                                 className="block"
                             >
-                                <Card className="transition-shadow hover:shadow-md">
+                                <Card className="transition-shadow hover:shadow-soft">
                                     <CardContent className="flex flex-col gap-3 pt-6">
                                         <div className="flex items-start gap-3">
                                             <div

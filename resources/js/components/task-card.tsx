@@ -76,8 +76,9 @@ export function TaskCard({
         <div
             onClick={onClick}
             className={cn(
-                'flex cursor-pointer flex-col gap-2 rounded-lg border bg-card p-3 text-card-foreground shadow-sm transition-shadow hover:shadow-md',
-                isDragging && 'opacity-80 shadow-md ring-2 ring-primary/20',
+                'flex cursor-pointer flex-col gap-2 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-none transition-[border-color,box-shadow,transform] hover:border-primary/30 hover:shadow-soft',
+                isDragging &&
+                    'opacity-90 shadow-elevated ring-2 ring-primary/20',
             )}
         >
             <div className="flex items-start justify-between gap-2">
@@ -87,21 +88,21 @@ export function TaskCard({
                 <div className="flex items-center gap-2">
                     {task.is_blocked && (
                         <div
-                            className="flex items-center gap-1 rounded-full bg-red-500/10 px-1.5 py-0.5"
+                            className="flex items-center gap-1 rounded-full border border-destructive/20 bg-destructive/10 px-1.5 py-0.5"
                             title={
                                 task.blocked_by
                                     ? `${t('task.blocked_by')}: ${task.blocked_by.map((b) => b.code).join(', ')}`
                                     : t('task.blocked')
                             }
                         >
-                            <ShieldAlert className="size-3 text-red-500" />
-                            <span className="text-[10px] font-medium text-red-500">
+                            <ShieldAlert className="size-3 text-destructive" />
+                            <span className="text-[10px] font-medium text-destructive">
                                 {t('task.blocked_short')}
                             </span>
                         </div>
                     )}
                     {task.story_points != null && (
-                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                        <span className="inline-flex size-5 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-semibold text-muted-foreground">
                             {task.story_points}
                         </span>
                     )}
@@ -124,7 +125,7 @@ export function TaskCard({
                     {task.epics?.slice(0, 1).map((epic) => (
                         <span
                             key={epic.id}
-                            className="inline-flex max-w-full items-center gap-1 truncate rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                            className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-card px-2 py-0.5 text-[10px] font-medium"
                             style={{
                                 borderColor: epic.color ?? undefined,
                                 color: epic.color ?? undefined,
@@ -142,7 +143,7 @@ export function TaskCard({
                     {task.sprints?.slice(0, 1).map((sprint) => (
                         <span
                             key={sprint.id}
-                            className="inline-flex max-w-full truncate rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                            className="inline-flex max-w-full truncate rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
                         >
                             {sprint.name}
                         </span>
@@ -155,14 +156,14 @@ export function TaskCard({
                     {task.assignees.slice(0, 3).map((a) => (
                         <div
                             key={a.id}
-                            className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium"
+                            className="flex size-5 items-center justify-center rounded-full border border-card bg-muted text-[10px] font-medium"
                             title={a.name}
                         >
                             {a.name.charAt(0).toUpperCase()}
                         </div>
                     ))}
                     {task.assignees.length > 3 && (
-                        <div className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
+                        <div className="flex size-5 items-center justify-center rounded-full border border-card bg-muted text-[10px] font-medium text-muted-foreground">
                             +{task.assignees.length - 3}
                         </div>
                     )}

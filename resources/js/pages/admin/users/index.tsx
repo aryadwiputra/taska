@@ -4,6 +4,7 @@ import { Plus, Search, Trash2, ShieldCheck, Shield } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -218,23 +219,20 @@ export default function AdminUsersIndex({ users, filters }: Props) {
         <>
             <Head title={t('admin.users')} />
 
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {t('admin.users')}
-                    </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {t('admin.manage_all_users')}
-                    </p>
-                </div>
-                <Button
-                    onClick={openCreate}
-                    className="flex items-center gap-2"
-                >
-                    <Plus className="size-4" />
-                    {t('admin.create_user')}
-                </Button>
-            </div>
+            <PageHeader
+                className="mb-6"
+                title={t('admin.users')}
+                description={t('admin.manage_all_users')}
+                actions={
+                    <Button
+                        onClick={openCreate}
+                        className="flex items-center gap-2"
+                    >
+                        <Plus className="size-4" />
+                        {t('admin.create_user')}
+                    </Button>
+                }
+            />
 
             <Card>
                 <CardHeader className="pb-3">

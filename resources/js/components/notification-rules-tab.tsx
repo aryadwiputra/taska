@@ -15,6 +15,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import {
+    store as notificationRuleStore,
+    destroy as notificationRuleDestroy,
+    toggle as notificationRuleToggle,
+} from '@/routes/projects/notification-rules';
 
 interface Workspace {
     id: number;
@@ -95,7 +100,10 @@ export function NotificationRulesTab({
         }
 
         router.post(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/notification-rules`,
+            notificationRuleStore({
+                workspace: workspace.slug,
+                project: project.slug,
+            }).url,
             {
                 name,
                 event_type: eventType,
@@ -119,7 +127,11 @@ export function NotificationRulesTab({
 
     const handleToggle = (ruleId: number) => {
         router.post(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/notification-rules/${ruleId}/toggle`,
+            notificationRuleToggle({
+                workspace: workspace.slug,
+                project: project.slug,
+                rule: ruleId,
+            }).url,
             {},
             {
                 preserveScroll: true,
@@ -140,7 +152,11 @@ export function NotificationRulesTab({
         }
 
         router.delete(
-            `/workspaces/${workspace.slug}/projects/${project.slug}/notification-rules/${ruleId}`,
+            notificationRuleDestroy({
+                workspace: workspace.slug,
+                project: project.slug,
+                rule: ruleId,
+            }).url,
             {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -333,11 +349,10 @@ export function NotificationRulesTab({
                             <Label>{t('settings.channels')}</Label>
                             <div className="flex gap-4">
                                 <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
+                                    <Switch
                                         checked={channels.includes('in_app')}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
+                                        onCheckedChange={(checked) => {
+                                            if (checked) {
                                                 setChannels((prev) => [
                                                     ...prev,
                                                     'in_app',
@@ -350,18 +365,16 @@ export function NotificationRulesTab({
                                                 );
                                             }
                                         }}
-                                        className="rounded"
                                     />
                                     <span className="text-sm">
                                         {t('settings.in_app')}
                                     </span>
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
+                                    <Switch
                                         checked={channels.includes('email')}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
+                                        onCheckedChange={(checked) => {
+                                            if (checked) {
                                                 setChannels((prev) => [
                                                     ...prev,
                                                     'email',
@@ -374,7 +387,6 @@ export function NotificationRulesTab({
                                                 );
                                             }
                                         }}
-                                        className="rounded"
                                     />
                                     <span className="text-sm">
                                         {t('settings.email')}

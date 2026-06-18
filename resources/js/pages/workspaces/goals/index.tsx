@@ -2,7 +2,6 @@
 
 import { Head, Link, router } from '@inertiajs/react';
 import {
-    ArrowLeft,
     Plus,
     Target,
     Calendar,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -102,117 +102,100 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
             <Head title={`Goals — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspaceShow({ workspace: workspace.slug })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{workspace.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm font-medium">
-                        {t('goal.title')}
-                    </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {t('goal.title')}
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('goal.description')}
-                        </p>
-                    </div>
-
-                    <Dialog
-                        open={showCreateDialog}
-                        onOpenChange={setShowCreateDialog}
-                    >
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="mr-2 size-4" />
-                                {t('goal.new_goal')}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    {t('goal.create_goal')}
-                                </DialogTitle>
-                            </DialogHeader>
-                            <form
-                                onSubmit={handleCreateGoal}
-                                className="space-y-4"
-                            >
-                                <div>
-                                    <Label>{t('goal.title_label')}</Label>
-                                    <Input
-                                        value={newGoal.title}
-                                        onChange={(e) =>
-                                            setNewGoal({
-                                                ...newGoal,
-                                                title: e.target.value,
-                                            })
-                                        }
-                                        placeholder={t(
-                                            'goal.placeholder_title',
-                                        )}
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <Label>{t('task.description')}</Label>
-                                    <textarea
-                                        value={newGoal.description}
-                                        onChange={(e) =>
-                                            setNewGoal({
-                                                ...newGoal,
-                                                description: e.target.value,
-                                            })
-                                        }
-                                        placeholder={t(
-                                            'goal.placeholder_description',
-                                        )}
-                                        className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"
-                                        rows={3}
-                                    />
-                                </div>
-                                <div>
-                                    <Label>{t('task.due_date')}</Label>
-                                    <Input
-                                        type="date"
-                                        value={newGoal.target_date}
-                                        onChange={(e) =>
-                                            setNewGoal({
-                                                ...newGoal,
-                                                target_date: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() =>
-                                            setShowCreateDialog(false)
-                                        }
-                                    >
-                                        {t('common.cancel')}
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={!newGoal.title.trim()}
-                                    >
-                                        {t('common.create')}
-                                    </Button>
-                                </div>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                </div>
+                <PageHeader
+                    title={t('goal.title')}
+                    description={t('goal.description')}
+                    backHref={workspaceShow({ workspace: workspace.slug })}
+                    backLabel={workspace.name}
+                    actions={
+                        <Dialog
+                            open={showCreateDialog}
+                            onOpenChange={setShowCreateDialog}
+                        >
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Plus className="mr-2 size-4" />
+                                    {t('goal.new_goal')}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        {t('goal.create_goal')}
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <form
+                                    onSubmit={handleCreateGoal}
+                                    className="space-y-4"
+                                >
+                                    <div>
+                                        <Label>{t('goal.title_label')}</Label>
+                                        <Input
+                                            value={newGoal.title}
+                                            onChange={(e) =>
+                                                setNewGoal({
+                                                    ...newGoal,
+                                                    title: e.target.value,
+                                                })
+                                            }
+                                            placeholder={t(
+                                                'goal.placeholder_title',
+                                            )}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>{t('task.description')}</Label>
+                                        <textarea
+                                            value={newGoal.description}
+                                            onChange={(e) =>
+                                                setNewGoal({
+                                                    ...newGoal,
+                                                    description: e.target.value,
+                                                })
+                                            }
+                                            placeholder={t(
+                                                'goal.placeholder_description',
+                                            )}
+                                            className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"
+                                            rows={3}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>{t('task.due_date')}</Label>
+                                        <Input
+                                            type="date"
+                                            value={newGoal.target_date}
+                                            onChange={(e) =>
+                                                setNewGoal({
+                                                    ...newGoal,
+                                                    target_date: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                setShowCreateDialog(false)
+                                            }
+                                        >
+                                            {t('common.cancel')}
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={!newGoal.title.trim()}
+                                        >
+                                            {t('common.create')}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                    }
+                />
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {initialGoals.map((goal) => (

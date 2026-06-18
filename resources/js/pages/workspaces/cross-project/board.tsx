@@ -1,8 +1,8 @@
 'use no memo';
 
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { show as workspaceShow } from '@/routes/workspaces';
@@ -97,32 +97,17 @@ export default function CrossProjectBoard({
             <Head title={`Cross-Project Board — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspaceShow({ workspace: workspace.slug })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{workspace.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        {t('cross_project.board')}
-                    </span>
-                </div>
-
                 <div className="mx-auto w-full max-w-7xl">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {t('cross_project.board')}
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('cross_project.board_summary', {
-                                projectCount: projects.length,
-                                taskCount: tasks.length,
-                            })}
-                        </p>
-                    </div>
+                    <PageHeader
+                        className="mb-6"
+                        title={t('cross_project.board')}
+                        description={t('cross_project.board_summary', {
+                            projectCount: projects.length,
+                            taskCount: tasks.length,
+                        })}
+                        backHref={workspaceShow({ workspace: workspace.slug })}
+                        backLabel={workspace.name}
+                    />
 
                     <div className="mb-4 flex flex-wrap gap-2">
                         {projects.map((project) => (

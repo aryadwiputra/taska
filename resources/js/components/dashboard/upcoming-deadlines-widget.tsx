@@ -18,7 +18,7 @@ const priorityIndicator: Record<number, string> = {
 
 export function UpcomingDeadlinesWidget({ deadlines }: Props) {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
                     Upcoming deadlines
@@ -26,7 +26,7 @@ export function UpcomingDeadlinesWidget({ deadlines }: Props) {
             </CardHeader>
             <CardContent>
                 {deadlines.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
                         No upcoming deadlines this week.
                     </p>
                 ) : (
@@ -34,7 +34,7 @@ export function UpcomingDeadlinesWidget({ deadlines }: Props) {
                         {deadlines.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center gap-3 rounded-md bg-muted/40 px-3 py-2"
+                                className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2 transition-colors hover:bg-muted/30"
                             >
                                 <div
                                     className={cn(
@@ -90,7 +90,7 @@ function formatRelativeDate(date: string): string {
 
 export function UpcomingDeadlinesWidgetSkeleton() {
     return (
-        <Card>
+        <Card className="min-h-full">
             <CardHeader>
                 <Skeleton className="h-4 w-36" />
             </CardHeader>

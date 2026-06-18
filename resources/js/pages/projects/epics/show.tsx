@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, Check, Plus, X } from 'lucide-react';
+import { CalendarDays, Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,24 +155,17 @@ export default function EpicShow({
             <Head title={`${epic.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-3xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={epic.name}
+                        description={epic.summary}
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">Epics</span>
-                </div>
-
-                <div className="mx-auto w-full max-w-3xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
+                        backLabel={project.name}
+                        leading={
                             <div
                                 className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
                                 style={{
@@ -179,31 +174,28 @@ export default function EpicShow({
                             >
                                 {epic.name.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    {epic.name}
-                                </h1>
-                                <div className="mt-1 flex items-center gap-2">
-                                    <Badge variant="outline">
-                                        {epic.status}
-                                    </Badge>
-                                    <Badge variant="secondary">
-                                        {completedTasks}/{totalTasks} tasks
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
-                        <Link
-                            href={projectSettings({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                            })}
-                        >
-                            <Button variant="outline" size="sm">
-                                Edit epic
-                            </Button>
-                        </Link>
-                    </div>
+                        }
+                        badge={
+                            <>
+                                <Badge variant="outline">{epic.status}</Badge>
+                                <Badge variant="secondary">
+                                    {completedTasks}/{totalTasks} tasks
+                                </Badge>
+                            </>
+                        }
+                        actions={
+                            <Link
+                                href={projectSettings({
+                                    workspace: workspace.slug,
+                                    project: project.slug,
+                                })}
+                            >
+                                <Button variant="outline" size="sm">
+                                    Edit epic
+                                </Button>
+                            </Link>
+                        }
+                    />
 
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                         <div
@@ -211,12 +203,6 @@ export default function EpicShow({
                             style={{ width: `${percent}%` }}
                         />
                     </div>
-
-                    {epic.summary && (
-                        <p className="mb-6 text-sm text-muted-foreground">
-                            {epic.summary}
-                        </p>
-                    )}
 
                     <div className="mb-6 flex items-center gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1.5">
@@ -361,18 +347,12 @@ export default function EpicShow({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                    <Check className="size-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            No tasks in this epic
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Add tasks to start tracking
-                                            progress.
-                                        </p>
-                                    </div>
-                                </div>
+                                <EmptyState
+                                    icon={Check}
+                                    title="No tasks in this epic"
+                                    description="Add tasks to start tracking progress."
+                                    className="border-0 bg-transparent py-12"
+                                />
                             )}
                         </CardContent>
                     </Card>

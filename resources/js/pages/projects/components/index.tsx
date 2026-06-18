@@ -1,10 +1,12 @@
 'use no memo';
 
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Plus, Trash2, Users } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Plus, Trash2, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -128,38 +130,23 @@ export default function ComponentsIndex({
             <Head title={`${t('component.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-3xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={t('component.title')}
+                        description="Categorize tasks by UI or backend components."
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        {t('component.title')}
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-3xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {t('component.title')}
-                            </h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Categorize tasks by UI or backend components.
-                            </p>
-                        </div>
-                        <Button size="sm" onClick={openCreate}>
-                            <Plus className="size-3" />
-                            {t('component.create_component')}
-                        </Button>
-                    </div>
+                        backLabel={project.name}
+                        actions={
+                            <Button size="sm" onClick={openCreate}>
+                                <Plus className="size-3" />
+                                {t('component.create_component')}
+                            </Button>
+                        }
+                    />
 
                     {components.length > 0 ? (
                         <div className="flex flex-col rounded-md border">
@@ -215,21 +202,17 @@ export default function ComponentsIndex({
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed py-16 text-center">
-                            <Users className="size-8 text-muted-foreground" />
-                            <div>
-                                <p className="text-sm font-medium">
-                                    {t('component.no_components')}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    {t('component.create_first')}
-                                </p>
-                            </div>
-                            <Button size="sm" onClick={openCreate}>
-                                <Plus className="size-3" />
-                                {t('component.create_component')}
-                            </Button>
-                        </div>
+                        <EmptyState
+                            icon={Users}
+                            title={t('component.no_components')}
+                            description={t('component.create_first')}
+                            action={
+                                <Button size="sm" onClick={openCreate}>
+                                    <Plus className="size-3" />
+                                    {t('component.create_component')}
+                                </Button>
+                            }
+                        />
                     )}
                 </div>
             </div>

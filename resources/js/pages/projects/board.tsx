@@ -18,20 +18,15 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useEcho, useEchoPresence } from '@laravel/echo-react';
-import {
-    ArrowDown,
-    ArrowLeft,
-    GripVertical,
-    Settings2,
-    Users,
-} from 'lucide-react';
+import { ArrowDown, GripVertical, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BoardColumnManager } from '@/components/board-column-manager';
 import { FeatureGuide } from '@/components/feature-guide';
 import type { GuideContent } from '@/components/feature-guide';
+import { PageHeader } from '@/components/page-header';
 import { TaskCard } from '@/components/task-card';
 import { TaskCreateDialog } from '@/components/task-create-dialog';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -299,10 +294,12 @@ function SortableTask({
     task,
     isDragging,
     onClick,
+    isOver,
 }: {
     task: TaskItem;
     isDragging?: boolean;
     onClick?: () => void;
+    isOver?: boolean;
 }) {
     const {
         attributes,
@@ -322,6 +319,9 @@ function SortableTask({
     return (
         <div ref={setNodeRef} style={style} {...attributes}>
             <div className="group/task relative">
+                {isOver && (
+                    <div className="absolute -top-1 right-2 left-2 z-10 h-0.5 rounded-full bg-primary" />
+                )}
                 <div
                     {...listeners}
                     className="absolute top-1/2 left-0 -translate-y-1/2 cursor-grab opacity-0 transition-opacity group-hover/task:opacity-100"
@@ -343,10 +343,12 @@ function SortableTask({
 function DroppableColumn({
     column,
     activeTaskId,
+    isOverForReorder,
     children,
 }: {
     column: Column;
     activeTaskId: number | null;
+    isOverForReorder?: boolean;
     children: React.ReactNode;
 }) {
     const { t } = useTranslation();
@@ -358,16 +360,25 @@ function DroppableColumn({
         <div
             ref={setNodeRef}
             className={cn(
-                'group flex w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-lg bg-muted/50 transition-colors sm:w-72',
-                isOver && !isEmpty && 'ring-2 ring-primary/50',
+                'group flex w-[calc(100vw-2rem)] shrink-0 snap-start flex-col rounded-xl border border-border bg-card/70 transition-[background-color,border-color,box-shadow] sm:w-72',
+                isOver && hasActiveTask && !isEmpty && !isOverForReorder
+                    ? 'border-dashed border-primary/50 bg-primary/[0.04]'
+                    : isOver &&
+                          hasActiveTask &&
+                          !isEmpty &&
+                          'border-primary/40 bg-primary/[0.04] shadow-soft',
                 isOver &&
                     isEmpty &&
-                    'border-2 border-dashed border-primary/50 bg-primary/5',
+                    hasActiveTask &&
+                    'border-dashed border-primary/50 bg-primary/5 shadow-soft',
+                isOverForReorder &&
+                    hasActiveTask &&
+                    'border-dashed border-primary/50 bg-primary/[0.06] shadow-soft',
             )}
         >
             {children}
-            {isOver && isEmpty && hasActiveTask && (
-                <div className="flex flex-1 items-center justify-center py-12">
+            {isOver && hasActiveTask && (
+                <div className="flex flex-1 items-center justify-center py-4">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <ArrowDown className="size-6 animate-bounce text-primary" />
                         <p className="text-xs font-medium text-primary">
@@ -389,9 +400,11 @@ function DroppableColumn({
 
 function SortableColumnHeader({
     column,
+    isTarget,
     children,
 }: {
     column: Column;
+    isTarget?: boolean;
     children: React.ReactNode;
 }) {
     const {
@@ -417,7 +430,9 @@ function SortableColumnHeader({
             style={style}
             className={cn(
                 'flex items-center justify-between px-3 py-2.5',
-                isDragging && 'rounded-lg bg-muted opacity-50',
+                isDragging && 'rounded-lg bg-muted opacity-60 shadow-soft',
+                isTarget &&
+                    'rounded-lg border-2 border-dashed border-primary/60 bg-primary/[0.06]',
             )}
             {...attributes}
             {...listeners}
@@ -453,6 +468,8 @@ function BoardClient({
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [columnManagerOpen, setColumnManagerOpen] = useState(false);
     const [newTaskOpen, setNewTaskOpen] = useState(false);
+    const [overTaskId, setOverTaskId] = useState<number | null>(null);
+    const [overColumnId, setOverColumnId] = useState<number | null>(null);
 
     const [presenceUsers, setPresenceUsers] = useState<
         Array<{ id: number; name: string }>
@@ -556,6 +573,9 @@ function BoardClient({
         const { active, over } = event;
 
         if (!over || active.id === over.id) {
+            setOverTaskId(null);
+            setOverColumnId(null);
+
             return;
         }
 
@@ -570,92 +590,23 @@ function BoardClient({
                       ? Number(over.id.slice(4))
                       : null;
 
-            if (!overColId || activeColId === overColId) {
-                return;
+            if (overColId && overColId !== activeColId) {
+                setOverColumnId(overColId);
+                setOverTaskId(null);
             }
-
-            setColumns((prev) => {
-                const activeIdx = prev.findIndex((c) => c.id === activeColId);
-                const overIdx = prev.findIndex((c) => c.id === overColId);
-
-                if (activeIdx < 0 || overIdx < 0) {
-                    return prev;
-                }
-
-                const updated = [...prev];
-                const [moved] = updated.splice(activeIdx, 1);
-                updated.splice(overIdx, 0, moved);
-
-                return updated;
-            });
 
             return;
         }
 
-        const activeTaskId = active.id as number;
         const overId = over.id;
 
-        let toColId: number | undefined;
-
         if (typeof overId === 'string' && overId.startsWith('col:')) {
-            toColId = Number(overId.slice(4));
+            setOverColumnId(Number(overId.slice(4)));
+            setOverTaskId(null);
         } else {
-            const col = columns.find((c) =>
-                c.tasks.some((t) => t.id === overId),
-            );
-            toColId = col?.id;
+            setOverTaskId(overId as number);
+            setOverColumnId(null);
         }
-
-        if (!toColId) {
-            return;
-        }
-
-        setColumns((prev) => {
-            const src = prev.find((c) =>
-                c.tasks.some((t) => t.id === activeTaskId),
-            );
-            const tgt = prev.find((c) => c.id === toColId);
-
-            if (!src || !tgt || src.id === tgt.id) {
-                return prev;
-            }
-
-            const task = src.tasks.find((t) => t.id === activeTaskId);
-
-            if (!task) {
-                return prev;
-            }
-
-            let insertIndex: number;
-
-            if (typeof overId === 'string' && overId.startsWith('col:')) {
-                insertIndex = tgt.tasks.length;
-            } else {
-                insertIndex = tgt.tasks.findIndex((t) => t.id === overId);
-
-                if (insertIndex < 0) {
-                    insertIndex = tgt.tasks.length;
-                }
-            }
-
-            return prev.map((col) => {
-                if (col.id === src.id) {
-                    return {
-                        ...col,
-                        tasks: col.tasks.filter((t) => t.id !== activeTaskId),
-                    };
-                }
-
-                if (col.id === tgt.id) {
-                    const updated = [...col.tasks];
-                    updated.splice(insertIndex, 0, task);
-
-                    return { ...col, tasks: updated };
-                }
-
-                return col;
-            });
-        });
     };
 
     interface TaskMovedEvent {
@@ -758,6 +709,8 @@ function BoardClient({
         const { active, over } = event;
         setActiveTask(null);
         setActiveColumn(null);
+        setOverTaskId(null);
+        setOverColumnId(null);
 
         if (!over || !active) {
             setColumns(columnsSnapshotRef.current);
@@ -782,14 +735,25 @@ function BoardClient({
                 return;
             }
 
-            setColumns((prev) =>
-                prev.map((col, idx) => ({ ...col, position: idx })),
-            );
+            const snap = [...columnsSnapshotRef.current];
+            const activeIdx = snap.findIndex((c) => c.id === activeColId);
+            const overIdx = snap.findIndex((c) => c.id === overColId);
 
-            const updatedColumns = columns.map((col, idx) => ({
+            if (activeIdx < 0 || overIdx < 0) {
+                setColumns(columnsSnapshotRef.current);
+
+                return;
+            }
+
+            const [moved] = snap.splice(activeIdx, 1);
+            snap.splice(overIdx, 0, moved);
+
+            const updatedColumns = snap.map((col, idx) => ({
                 id: col.id,
                 position: idx,
             }));
+
+            setColumns(snap.map((col, idx) => ({ ...col, position: idx })));
 
             fetch(
                 reorderColumns({
@@ -870,8 +834,14 @@ function BoardClient({
                 }),
             );
         } else {
-            position = toColumn.tasks.findIndex((t) => t.id === taskId);
-            position = Math.max(0, position);
+            if (typeof overId === 'string' && overId.startsWith('col:')) {
+                position = toColumn.tasks.length;
+            } else {
+                position = toColumn.tasks.findIndex(
+                    (t) => t.id === (overId as number),
+                );
+                position = Math.max(0, position);
+            }
         }
 
         fetch(
@@ -902,165 +872,167 @@ function BoardClient({
             <Head title={`${project.name} — Board`} />
 
             <div
-                className="flex h-full flex-1 flex-col overflow-hidden"
+                className="mx-auto flex h-full w-full max-w-[1600px] flex-1 flex-col overflow-hidden"
                 suppressHydrationWarning
             >
-                <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href={projectShow({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                            })}
-                            className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                            <ArrowLeft className="size-4" />
-                            <span>{project.name}</span>
-                        </Link>
-
-                        {allBoards.length > 1 && (
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                    {t('board.board_label')}
-                                </span>
-                                <Select
-                                    value={String(board.id)}
-                                    onValueChange={(value) => {
-                                        const url = projectBoard.url(
-                                            {
-                                                workspace: workspace.slug,
-                                                project: project.slug,
-                                            },
-                                            {
-                                                query: {
-                                                    board_id: value,
-                                                    ...(activeSprintId
-                                                        ? {
-                                                              sprint_id:
-                                                                  activeSprintId,
-                                                          }
-                                                        : {}),
-                                                },
-                                            },
-                                        );
-                                        router.visit(url);
-                                    }}
-                                >
-                                    <SelectTrigger className="h-8 w-44">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {allBoards.map((b) => (
-                                            <SelectItem
-                                                key={b.id}
-                                                value={String(b.id)}
-                                            >
-                                                {b.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-
-                        {sprints.length > 0 && (
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                    {t('board.sprint_label')}
-                                </span>
-                                <Select
-                                    value={
-                                        activeSprintId
-                                            ? String(activeSprintId)
-                                            : 'all'
-                                    }
-                                    onValueChange={(value) => {
-                                        const query: Record<string, string> =
-                                            {};
-
-                                        if (value !== 'all') {
-                                            query.sprint_id = value;
-                                        }
-
-                                        if (board.id) {
-                                            query.board_id = String(board.id);
-                                        }
-
-                                        router.visit(
-                                            projectBoard.url(
+                <PageHeader
+                    className="mb-4 shrink-0"
+                    title={t('board.board')}
+                    description={project.name}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    actions={
+                        <>
+                            {allBoards.length > 1 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-muted-foreground">
+                                        {t('board.board_label')}
+                                    </span>
+                                    <Select
+                                        value={String(board.id)}
+                                        onValueChange={(value) => {
+                                            const url = projectBoard.url(
                                                 {
                                                     workspace: workspace.slug,
                                                     project: project.slug,
                                                 },
-                                                { query },
-                                            ),
-                                        );
-                                    }}
-                                >
-                                    <SelectTrigger className="h-8 w-44">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">
-                                            {t('board.all_sprints')}
-                                        </SelectItem>
-                                        {sprints.map((s) => (
-                                            <SelectItem
-                                                key={s.id}
-                                                value={String(s.id)}
-                                            >
-                                                {s.name}
-                                                {s.status === 'active' && (
-                                                    <Badge
-                                                        variant="default"
-                                                        className="ml-2 px-1 py-0 text-[10px]"
-                                                    >
-                                                        {t('sprint.active')}
-                                                    </Badge>
-                                                )}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-                    </div>
+                                                {
+                                                    query: {
+                                                        board_id: value,
+                                                        ...(activeSprintId
+                                                            ? {
+                                                                  sprint_id:
+                                                                      activeSprintId,
+                                                              }
+                                                            : {}),
+                                                    },
+                                                },
+                                            );
+                                            router.visit(url);
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-8 w-44">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allBoards.map((b) => (
+                                                <SelectItem
+                                                    key={b.id}
+                                                    value={String(b.id)}
+                                                >
+                                                    {b.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
 
-                    <div className="flex items-center gap-3">
-                        <PresenceAvatars
-                            users={presenceUsers}
-                            currentUserId={
-                                (
-                                    usePage().props.auth as {
-                                        user: { id: number };
-                                    }
-                                )?.user?.id
-                            }
-                        />
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setColumnManagerOpen(true)}
-                        >
-                            <Settings2 className="size-3.5" />
-                            <span>{t('board.columns')}</span>
-                        </Button>
-                        <TaskCreateDialog
-                            workspaceSlug={workspace.slug}
-                            projectSlug={project.slug}
-                            taskTypes={taskTypes}
-                            priorities={priorities}
-                            epics={epics}
-                            sprints={sprints}
-                            open={newTaskOpen}
-                            onOpenChange={setNewTaskOpen}
-                            onCreated={() => {
-                                router.reload();
-                            }}
-                        />
-                        <FeatureGuide content={boardGuide} />
-                    </div>
-                </div>
+                            {sprints.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-muted-foreground">
+                                        {t('board.sprint_label')}
+                                    </span>
+                                    <Select
+                                        value={
+                                            activeSprintId
+                                                ? String(activeSprintId)
+                                                : 'all'
+                                        }
+                                        onValueChange={(value) => {
+                                            const query: Record<
+                                                string,
+                                                string
+                                            > = {};
+
+                                            if (value !== 'all') {
+                                                query.sprint_id = value;
+                                            }
+
+                                            if (board.id) {
+                                                query.board_id = String(
+                                                    board.id,
+                                                );
+                                            }
+
+                                            router.visit(
+                                                projectBoard.url(
+                                                    {
+                                                        workspace:
+                                                            workspace.slug,
+                                                        project: project.slug,
+                                                    },
+                                                    { query },
+                                                ),
+                                            );
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-8 w-44">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">
+                                                {t('board.all_sprints')}
+                                            </SelectItem>
+                                            {sprints.map((s) => (
+                                                <SelectItem
+                                                    key={s.id}
+                                                    value={String(s.id)}
+                                                >
+                                                    {s.name}
+                                                    {s.status === 'active' && (
+                                                        <Badge
+                                                            variant="default"
+                                                            className="ml-2 px-1 py-0 text-[10px]"
+                                                        >
+                                                            {t('sprint.active')}
+                                                        </Badge>
+                                                    )}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            <PresenceAvatars
+                                users={presenceUsers}
+                                currentUserId={
+                                    (
+                                        usePage().props.auth as {
+                                            user: { id: number };
+                                        }
+                                    )?.user?.id
+                                }
+                            />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setColumnManagerOpen(true)}
+                            >
+                                <Settings2 className="size-3.5" />
+                                <span>{t('board.columns')}</span>
+                            </Button>
+                            <TaskCreateDialog
+                                workspaceSlug={workspace.slug}
+                                projectSlug={project.slug}
+                                taskTypes={taskTypes}
+                                priorities={priorities}
+                                epics={epics}
+                                sprints={sprints}
+                                open={newTaskOpen}
+                                onOpenChange={setNewTaskOpen}
+                                onCreated={() => {
+                                    router.reload();
+                                }}
+                            />
+                            <FeatureGuide content={boardGuide} />
+                        </>
+                    }
+                />
 
                 <DndContext
                     id="board-dnd"
@@ -1080,8 +1052,17 @@ function BoardClient({
                                     key={column.id}
                                     column={column}
                                     activeTaskId={activeTask?.id ?? null}
+                                    isOverForReorder={
+                                        overColumnId === column.id
+                                    }
                                 >
-                                    <SortableColumnHeader column={column}>
+                                    <SortableColumnHeader
+                                        column={column}
+                                        isTarget={
+                                            overColumnId === column.id &&
+                                            activeColumn !== null
+                                        }
+                                    >
                                         <div className="flex items-center gap-2">
                                             <div
                                                 className="size-2.5 rounded-full"
@@ -1152,7 +1133,7 @@ function BoardClient({
                                                                   key={group}
                                                                   className="flex flex-col gap-1"
                                                               >
-                                                                  <div className="px-1 py-1 text-[10px] font-medium text-muted-foreground uppercase">
+                                                                  <div className="px-1 py-1 text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                                                                       {group}
                                                                   </div>
                                                                   {tasks.map(
@@ -1168,6 +1149,10 @@ function BoardClient({
                                                                               }
                                                                               isDragging={
                                                                                   activeTask?.id ===
+                                                                                  task.id
+                                                                              }
+                                                                              isOver={
+                                                                                  overTaskId ===
                                                                                   task.id
                                                                               }
                                                                               onClick={() => {
@@ -1193,6 +1178,10 @@ function BoardClient({
                                                               activeTask?.id ===
                                                               task.id
                                                           }
+                                                          isOver={
+                                                              overTaskId ===
+                                                              task.id
+                                                          }
                                                           onClick={() => {
                                                               setDrawerTaskId(
                                                                   task.id,
@@ -1212,12 +1201,12 @@ function BoardClient({
 
                     <DragOverlay dropAnimation={null}>
                         {activeTask && (
-                            <div className="w-72 rotate-2 shadow-xl">
+                            <div className="w-72 rotate-2 shadow-elevated">
                                 <TaskCard task={activeTask} isDragging />
                             </div>
                         )}
                         {activeColumn && (
-                            <div className="w-72 rotate-2 rounded-lg bg-muted/50 shadow-xl">
+                            <div className="w-72 rotate-2 rounded-xl border border-border bg-card shadow-elevated">
                                 <div className="flex items-center justify-between px-3 py-2.5">
                                     <div className="flex items-center gap-2">
                                         <div

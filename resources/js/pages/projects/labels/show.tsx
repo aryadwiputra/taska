@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Hash } from 'lucide-react';
+import { Hash } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -91,26 +93,16 @@ export default function LabelShow({
             <Head title={`${label.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectSettings({
+                <div className="mx-auto w-full max-w-3xl">
+                    <PageHeader
+                        className="mb-6"
+                        title={label.name}
+                        backHref={projectSettings({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>Settings</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        Labels
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-3xl">
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
+                        backLabel="Settings"
+                        leading={
                             <div
                                 className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
                                 style={{
@@ -119,26 +111,25 @@ export default function LabelShow({
                             >
                                 <Hash className="size-6" />
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    {label.name}
-                                </h1>
-                                <Badge variant="secondary" className="mt-1">
-                                    {label.tasks_count} tasks
-                                </Badge>
-                            </div>
-                        </div>
-                        <Link
-                            href={projectSettings({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                            })}
-                        >
-                            <Button variant="outline" size="sm">
-                                Edit label
-                            </Button>
-                        </Link>
-                    </div>
+                        }
+                        badge={
+                            <Badge variant="secondary">
+                                {label.tasks_count} tasks
+                            </Badge>
+                        }
+                        actions={
+                            <Link
+                                href={projectSettings({
+                                    workspace: workspace.slug,
+                                    project: project.slug,
+                                })}
+                            >
+                                <Button variant="outline" size="sm">
+                                    Edit label
+                                </Button>
+                            </Link>
+                        }
+                    />
 
                     <Card>
                         <CardHeader>
@@ -225,18 +216,12 @@ export default function LabelShow({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                                    <Hash className="size-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            No tasks with this label
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Assign this label to tasks via the
-                                            task drawer.
-                                        </p>
-                                    </div>
-                                </div>
+                                <EmptyState
+                                    icon={Hash}
+                                    title="No tasks with this label"
+                                    description="Assign this label to tasks via the task drawer."
+                                    className="border-0 bg-transparent py-12"
+                                />
                             )}
                         </CardContent>
                     </Card>

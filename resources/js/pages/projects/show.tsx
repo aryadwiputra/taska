@@ -9,7 +9,6 @@ import {
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
     Activity as ActivityIcon,
-    ArrowLeft,
     BarChart3,
     Calendar as CalendarIcon,
     CalendarDays,
@@ -27,6 +26,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EpicDialog } from '@/components/epic-dialog';
 import { GanttChart } from '@/components/gantt-chart';
 import { LabelDialog } from '@/components/label-dialog';
+import { PageHeader } from '@/components/page-header';
 import { ReportsTab } from '@/components/reports-tab';
 import { SavedFilterDropdown } from '@/components/saved-filter-dropdown';
 import { SprintDialog } from '@/components/sprint-dialog';
@@ -47,6 +47,7 @@ import {
     settings as projectSettings,
 } from '@/routes/projects';
 import { index as activityIndex } from '@/routes/projects/activity';
+import { index as automationIndex } from '@/routes/projects/automation';
 import { index as backlogShow } from '@/routes/projects/backlog';
 import { index as componentIndex } from '@/routes/projects/components';
 import {
@@ -770,70 +771,53 @@ export default function ProjectShow({
         <>
             <Head title={`${project.name} — ${workspace.name}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectsIndex({ workspace: workspace.slug })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{t('sidebar.projects')}</span>
-                    </Link>
-                </div>
-
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-3">
-                            <div
-                                className={`flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${project.color ? 'text-white' : 'bg-muted text-muted-foreground'}`}
-                                style={
-                                    project.color
-                                        ? { backgroundColor: project.color }
-                                        : undefined
-                                }
-                            >
-                                {project.key.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    {project.name}
-                                </h1>
-                                <div className="mt-1 flex items-center gap-2">
-                                    <Badge
-                                        variant="secondary"
-                                        className="font-mono text-xs"
-                                    >
-                                        {project.key}
-                                    </Badge>
-                                    {project.visibility === 'private' && (
-                                        <Badge
-                                            variant="outline"
-                                            className="text-xs"
-                                        >
-                                            Private
-                                        </Badge>
-                                    )}
-                                </div>
-                            </div>
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+                <PageHeader
+                    title={project.name}
+                    description={project.description}
+                    backHref={projectsIndex({ workspace: workspace.slug })}
+                    backLabel={t('sidebar.projects')}
+                    leading={
+                        <div
+                            className={`flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${project.color ? 'text-white' : 'bg-muted text-muted-foreground'}`}
+                            style={
+                                project.color
+                                    ? { backgroundColor: project.color }
+                                    : undefined
+                            }
+                        >
+                            {project.key.charAt(0).toUpperCase()}
                         </div>
-                        {project.description && (
-                            <p className="max-w-2xl text-sm text-muted-foreground">
-                                {project.description}
-                            </p>
-                        )}
-                    </div>
-                    <Link
-                        href={projectSettings({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                    >
-                        <Button variant="outline" size="sm">
-                            <Settings className="size-4" />
-                            <span>{t('settings.title')}</span>
-                        </Button>
-                    </Link>
-                </div>
+                    }
+                    badge={
+                        <>
+                            <Badge
+                                variant="secondary"
+                                className="font-mono text-xs"
+                            >
+                                {project.key}
+                            </Badge>
+                            {project.visibility === 'private' && (
+                                <Badge variant="outline" className="text-xs">
+                                    Private
+                                </Badge>
+                            )}
+                        </>
+                    }
+                    actions={
+                        <Link
+                            href={projectSettings({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
+                        >
+                            <Button variant="outline" size="sm">
+                                <Settings className="size-4" />
+                                <span>{t('settings.title')}</span>
+                            </Button>
+                        </Link>
+                    }
+                />
 
                 <Tabs
                     value={activeTab}
@@ -925,7 +909,10 @@ export default function ProjectShow({
                             value="automation"
                             onClick={() =>
                                 router.visit(
-                                    `/workspaces/${workspace.slug}/projects/${project.slug}/automation`,
+                                    automationIndex({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    }).url,
                                 )
                             }
                         >
@@ -986,9 +973,9 @@ export default function ProjectShow({
                                     onAction={openBulkDialog}
                                 />
 
-                                <div className="overflow-hidden rounded-md border">
+                                <div className="overflow-hidden rounded-lg border border-border bg-card">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-muted/50">
+                                        <thead className="bg-muted/40">
                                             {table
                                                 .getHeaderGroups()
                                                 .map((headerGroup) => (
@@ -1010,7 +997,7 @@ export default function ProjectShow({
                                                                     key={
                                                                         header.id
                                                                     }
-                                                                    className="px-3 py-2 text-left font-medium text-muted-foreground"
+                                                                    className="px-3 py-2 text-left text-xs font-semibold tracking-[0.01em] text-muted-foreground"
                                                                 >
                                                                     <button
                                                                         type="button"
@@ -1041,7 +1028,7 @@ export default function ProjectShow({
                                             {pageRows.map((row) => (
                                                 <tr
                                                     key={row.id}
-                                                    className="cursor-pointer border-t transition-colors hover:bg-muted/40"
+                                                    className="cursor-pointer border-t border-border transition-colors hover:bg-muted/30"
                                                     onClick={() => {
                                                         setDrawerTaskId(
                                                             row.original.id,
@@ -1089,7 +1076,7 @@ export default function ProjectShow({
                                                         colSpan={
                                                             columns.length + 1
                                                         }
-                                                        className="px-3 py-12 text-center text-sm text-muted-foreground"
+                                                        className="bg-muted/20 px-3 py-12 text-center text-sm text-muted-foreground"
                                                     >
                                                         {t('common.no_results')}
                                                     </td>
@@ -1164,7 +1151,7 @@ export default function ProjectShow({
                                         {epics.map((epic) => (
                                             <div
                                                 key={epic.id}
-                                                className="group relative rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-muted/50"
+                                                className="group relative rounded-lg border border-border bg-card p-4 transition-[background-color,border-color,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-soft"
                                             >
                                                 <Link
                                                     href={epicShow({
@@ -1312,11 +1299,11 @@ export default function ProjectShow({
                             </CardHeader>
                             <CardContent>
                                 {sprints.length > 0 ? (
-                                    <div className="flex flex-col rounded-md border">
+                                    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
                                         {sprints.map((sprint) => (
                                             <div
                                                 key={sprint.id}
-                                                className="group relative border-b p-4 transition-colors last:border-0 hover:bg-muted/50"
+                                                className="group relative border-b border-border p-4 transition-colors last:border-0 hover:bg-muted/30"
                                             >
                                                 <Link
                                                     href={sprintShow({
@@ -1480,7 +1467,7 @@ export default function ProjectShow({
                             </CardHeader>
                             <CardContent>
                                 {labels.length > 0 ? (
-                                    <div className="flex flex-col rounded-md border">
+                                    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
                                         {labels.map((label) => (
                                             <div
                                                 key={label.id}
@@ -1584,7 +1571,7 @@ export default function ProjectShow({
                                     <CalendarDays className="size-5" />
                                     Timeline
                                 </CardTitle>
-                                <div className="flex items-center gap-1 rounded-md border p-0.5">
+                                <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
                                     <Button
                                         type="button"
                                         variant={
@@ -1654,7 +1641,7 @@ export default function ProjectShow({
                             </CardHeader>
                             <CardContent>
                                 {attachments.length > 0 ? (
-                                    <div className="flex flex-col rounded-md border">
+                                    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
                                         {attachments.map((attachment) => (
                                             <div
                                                 key={attachment.id}
@@ -1681,7 +1668,7 @@ export default function ProjectShow({
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed py-16 text-center">
+                                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/30 px-6 py-16 text-center">
                                         <Upload className="size-8 text-muted-foreground" />
                                         <div>
                                             <p className="text-sm font-medium">

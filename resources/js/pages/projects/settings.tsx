@@ -1,7 +1,6 @@
 import { Form, Head, Link, router } from '@inertiajs/react';
 import {
     AlertTriangle,
-    ArrowLeft,
     Bell,
     Check,
     LayoutGrid,
@@ -15,6 +14,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GithubSettingsTab } from '@/components/github-settings-tab';
 import { NotificationRulesTab } from '@/components/notification-rules-tab';
+import { PageHeader } from '@/components/page-header';
 import { ProjectMemberDialog } from '@/components/project-member-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -223,7 +223,7 @@ export default function ProjectSettings({
     };
 
     const handleRemoveMember = (memberId: number) => {
-        if (!confirm('Remove this member from the project?')) {
+        if (!confirm(t('settings.confirm_remove_member'))) {
             return;
         }
 
@@ -260,7 +260,7 @@ export default function ProjectSettings({
     };
 
     const handleDeleteLabel = (labelId: number) => {
-        if (!confirm('Delete this label? It will be removed from all tasks.')) {
+        if (!confirm(t('settings.confirm_delete_label'))) {
             return;
         }
 
@@ -301,7 +301,7 @@ export default function ProjectSettings({
     };
 
     const handleDeleteEpic = (epicId: number) => {
-        if (!confirm('Delete this epic? It will be removed from all tasks.')) {
+        if (!confirm(t('settings.confirm_delete_epic'))) {
             return;
         }
 
@@ -341,9 +341,7 @@ export default function ProjectSettings({
     };
 
     const handleDeleteSprint = (sprintId: number) => {
-        if (
-            !confirm('Delete this sprint? It will be removed from all tasks.')
-        ) {
+        if (!confirm(t('settings.confirm_delete_sprint'))) {
             return;
         }
 
@@ -382,11 +380,7 @@ export default function ProjectSettings({
     };
 
     const handleDeleteColumn = (boardId: number, columnId: number) => {
-        if (
-            !confirm(
-                'Delete this column? Tasks in this column will lose their column reference.',
-            )
-        ) {
+        if (!confirm(t('settings.confirm_delete_column'))) {
             return;
         }
 
@@ -405,46 +399,49 @@ export default function ProjectSettings({
         <>
             <Head title={`${project.name} — Settings`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <Separator orientation="vertical" className="h-4" />
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {t('settings.title')}
-                    </h1>
-                </div>
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+                <PageHeader
+                    title={t('settings.title')}
+                    description="Manage project details, workflow, members, and integrations."
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                />
 
-                <div className="mx-auto w-full max-w-2xl">
+                <div className="mx-auto w-full max-w-4xl">
                     <Tabs defaultValue="general">
-                        <TabsList className="mb-6">
-                            <TabsTrigger value="general">General</TabsTrigger>
+                        <TabsList className="mb-6 flex h-auto max-w-full flex-wrap justify-start">
+                            <TabsTrigger value="general">
+                                {t('settings.general')}
+                            </TabsTrigger>
                             <TabsTrigger value="settings">
                                 {t('settings.title')}
                             </TabsTrigger>
-                            <TabsTrigger value="members">Members</TabsTrigger>
+                            <TabsTrigger value="members">
+                                {t('settings.members')}
+                            </TabsTrigger>
                             <TabsTrigger value="labels">
                                 {t('task.labels')}
                             </TabsTrigger>
                             <TabsTrigger value="board">
                                 {t('board.board')}
                             </TabsTrigger>
-                            <TabsTrigger value="epics">Epics</TabsTrigger>
-                            <TabsTrigger value="sprints">Sprints</TabsTrigger>
-                            <TabsTrigger value="github">GitHub</TabsTrigger>
+                            <TabsTrigger value="epics">
+                                {t('settings.epics')}
+                            </TabsTrigger>
+                            <TabsTrigger value="sprints">
+                                {t('settings.sprints')}
+                            </TabsTrigger>
+                            <TabsTrigger value="github">
+                                {t('settings.github')}
+                            </TabsTrigger>
                             <TabsTrigger value="notifications">
                                 {t('settings.notifications')}
                             </TabsTrigger>
                             <TabsTrigger value="danger">
-                                Danger zone
+                                {t('settings.danger_zone')}
                             </TabsTrigger>
                         </TabsList>
 
@@ -811,7 +808,7 @@ export default function ProjectSettings({
                                             </div>
                                         ))}
                                         {members.length === 0 && (
-                                            <p className="py-8 text-center text-sm text-muted-foreground">
+                                            <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                                 No members yet.
                                             </p>
                                         )}
@@ -1032,7 +1029,7 @@ export default function ProjectSettings({
                                             );
                                         })}
                                         {labels.length === 0 && (
-                                            <p className="py-8 text-center text-sm text-muted-foreground">
+                                            <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                                 No labels yet.
                                             </p>
                                         )}
@@ -1048,7 +1045,7 @@ export default function ProjectSettings({
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     {boards.length === 0 && (
-                                        <p className="py-8 text-center text-sm text-muted-foreground">
+                                        <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                             No board found.
                                         </p>
                                     )}
@@ -1297,7 +1294,7 @@ export default function ProjectSettings({
                                                         );
                                                     })}
                                                 {board.columns.length === 0 && (
-                                                    <p className="py-8 text-center text-sm text-muted-foreground">
+                                                    <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                                         No columns yet.
                                                     </p>
                                                 )}
@@ -1682,7 +1679,7 @@ export default function ProjectSettings({
                                             );
                                         })}
                                         {epics.length === 0 && (
-                                            <p className="py-8 text-center text-sm text-muted-foreground">
+                                            <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                                 No epics yet.
                                             </p>
                                         )}
@@ -2030,7 +2027,7 @@ export default function ProjectSettings({
                                             );
                                         })}
                                         {sprints.length === 0 && (
-                                            <p className="py-8 text-center text-sm text-muted-foreground">
+                                            <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
                                                 No sprints yet.
                                             </p>
                                         )}
@@ -2056,7 +2053,7 @@ export default function ProjectSettings({
                         </TabsContent>
 
                         <TabsContent value="danger">
-                            <Card className="border-destructive/30">
+                            <Card className="border-destructive/30 bg-card">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-destructive">
                                         <AlertTriangle className="size-5" />

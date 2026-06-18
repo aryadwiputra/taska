@@ -1,4 +1,6 @@
 import { Head, WhenVisible } from '@inertiajs/react';
+import { AlertTriangle, CheckCircle2, Clock, FolderKanban } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
     ActiveProjectsWidget,
     ActiveProjectsWidgetSkeleton,
@@ -16,6 +18,9 @@ import {
     UpcomingDeadlinesWidget,
     UpcomingDeadlinesWidgetSkeleton,
 } from '@/components/dashboard/upcoming-deadlines-widget';
+import { PageHeader } from '@/components/page-header';
+import { SurfaceSection } from '@/components/surface-section';
+import { Card, CardContent } from '@/components/ui/card';
 import { dashboard } from '@/routes';
 import type {
     DashboardActivity,
@@ -33,6 +38,32 @@ interface Props {
     recentActivity?: DashboardActivity[];
 }
 
+function StatCard({
+    icon: Icon,
+    label,
+    value,
+}: {
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    value: number;
+}) {
+    return (
+        <Card>
+            <CardContent className="flex items-center gap-4 p-4">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Icon className="size-5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                    <p className="text-2xl font-bold tracking-[-0.02em]">
+                        {value}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function Dashboard({
     stats,
     assignedTasks,
@@ -40,21 +71,44 @@ export default function Dashboard({
     upcomingDeadlines,
     recentActivity,
 }: Props) {
+    const { t } = useTranslation();
+
     return (
         <>
             <Head title="Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        Dashboard
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Overview of your tasks and projects.
-                    </p>
-                </div>
+            <div className="flex flex-1 flex-col gap-6 pb-8">
+                <PageHeader
+                    title="Dashboard"
+                    description="Overview of your tasks and projects."
+                />
 
-                <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <SurfaceSection className="p-4 sm:p-6">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <StatCard
+                            icon={CheckCircle2}
+                            label={t('widget.assigned_to_you')}
+                            value={stats.assigned}
+                        />
+                        <StatCard
+                            icon={AlertTriangle}
+                            label={t('widget.overdue')}
+                            value={stats.overdue}
+                        />
+                        <StatCard
+                            icon={FolderKanban}
+                            label={t('widget.active_projects')}
+                            value={stats.activeProjects}
+                        />
+                        <StatCard
+                            icon={Clock}
+                            label={t('widget.upcoming_deadlines')}
+                            value={stats.upcomingDeadlines}
+                        />
+                    </div>
+                </SurfaceSection>
+
+                <div className="grid auto-rows-min gap-4 md:grid-cols-2">
                     <WhenVisible
                         data="assignedTasks"
                         fallback={<AssignedTasksWidgetSkeleton />}

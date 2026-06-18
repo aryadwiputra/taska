@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, FolderKanban, Plus, Users } from 'lucide-react';
+import { FolderKanban, Plus, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -44,49 +46,13 @@ export default function ProjectsIndex({ workspace, projects }: Props) {
         <>
             <Head title={`${workspace.name} — ${t('sidebar.projects')}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={workspacesIndex()}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{t('project.workspaces')}</span>
-                    </Link>
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            {workspace.name}
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {t('project.projects_in_workspace')}
-                        </p>
-                    </div>
-                    <Link
-                        href={projectCreate({ workspace: workspace.slug })}
-                        className={cn(
-                            buttonVariants(),
-                            'flex items-center gap-2',
-                        )}
-                    >
-                        <Plus className="size-4" />
-                        <span>{t('sidebar.new_project')}</span>
-                    </Link>
-                </div>
-
-                {!hasProjects && (
-                    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border py-16">
-                        <FolderKanban className="size-12 text-muted-foreground/40" />
-                        <div className="text-center">
-                            <p className="text-lg font-medium">
-                                {t('project.no_projects')}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {t('project.create_first')}
-                            </p>
-                        </div>
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+                <PageHeader
+                    title={workspace.name}
+                    description={t('project.projects_in_workspace')}
+                    backHref={workspacesIndex()}
+                    backLabel={t('project.workspaces')}
+                    actions={
                         <Link
                             href={projectCreate({ workspace: workspace.slug })}
                             className={cn(
@@ -95,9 +61,31 @@ export default function ProjectsIndex({ workspace, projects }: Props) {
                             )}
                         >
                             <Plus className="size-4" />
-                            <span>{t('project.create_project')}</span>
+                            <span>{t('sidebar.new_project')}</span>
                         </Link>
-                    </div>
+                    }
+                />
+
+                {!hasProjects && (
+                    <EmptyState
+                        icon={FolderKanban}
+                        title={t('project.no_projects')}
+                        description={t('project.create_first')}
+                        action={
+                            <Link
+                                href={projectCreate({
+                                    workspace: workspace.slug,
+                                })}
+                                className={cn(
+                                    buttonVariants(),
+                                    'flex items-center gap-2',
+                                )}
+                            >
+                                <Plus className="size-4" />
+                                <span>{t('project.create_project')}</span>
+                            </Link>
+                        }
+                    />
                 )}
 
                 {activeProjects.length > 0 && (
@@ -111,7 +99,7 @@ export default function ProjectsIndex({ workspace, projects }: Props) {
                                 })}
                                 className="block"
                             >
-                                <Card className="transition-shadow hover:shadow-md">
+                                <Card className="transition-shadow hover:shadow-soft">
                                     <CardContent className="flex flex-col gap-3 pt-6">
                                         <div className="flex items-start gap-3">
                                             <div

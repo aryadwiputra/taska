@@ -1,9 +1,11 @@
 'use no memo';
 
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Users } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Users } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
+import { PageHeader } from '@/components/page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -112,33 +114,17 @@ export default function WorkloadPage({
             <Head title={`Workload — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={projectShow({
+                <div className="mx-auto w-full max-w-4xl">
+                    <PageHeader
+                        className="mb-6"
+                        title="Team Workload"
+                        description="View task distribution and capacity across team members."
+                        backHref={projectShow({
                             workspace: workspace.slug,
                             project: project.slug,
                         })}
-                        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        <span>{project.name}</span>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">/</span>
-                    <span className="text-sm text-muted-foreground">
-                        Workload
-                    </span>
-                </div>
-
-                <div className="mx-auto w-full max-w-4xl">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Team Workload
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            View task distribution and capacity across team
-                            members.
-                        </p>
-                    </div>
+                        backLabel={project.name}
+                    />
 
                     {sprints.length > 0 && (
                         <div className="mb-6">
@@ -293,18 +279,11 @@ export default function WorkloadPage({
                             })}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed py-16 text-center">
-                            <Users className="size-8 text-muted-foreground" />
-                            <div>
-                                <p className="text-sm font-medium">
-                                    No team members
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    Add members to this project to view
-                                    workload.
-                                </p>
-                            </div>
-                        </div>
+                        <EmptyState
+                            icon={Users}
+                            title="No team members"
+                            description="Add members to this project to view workload."
+                        />
                     )}
                 </div>
             </div>
