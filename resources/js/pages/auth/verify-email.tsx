@@ -1,9 +1,9 @@
 // Components
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useTranslation } from 'react-i18next';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 

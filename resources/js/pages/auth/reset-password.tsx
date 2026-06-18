@@ -1,11 +1,11 @@
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { useTranslation } from 'react-i18next';
 import { update } from '@/routes/password';
 
 type Props = {

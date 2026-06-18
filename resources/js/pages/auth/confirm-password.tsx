@@ -1,4 +1,5 @@
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import {
     index as confirmOptions,
     store as confirmStore,
@@ -9,7 +10,6 @@ import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { useTranslation } from 'react-i18next';
 import { store } from '@/routes/password/confirm';
 
 export default function ConfirmPassword() {

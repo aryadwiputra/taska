@@ -153,7 +153,7 @@ export function ReportsTab({ workspaceSlug, projectSlug }: ReportsTabProps) {
             .finally(() => setLoading(false));
 
         return () => controller.abort();
-    }, [workspaceSlug, projectSlug]);
+    }, [workspaceSlug, projectSlug, t]);
 
     if (loading) {
         return (
