@@ -419,10 +419,9 @@ export default function BacklogIndex({
         <>
             <Head title={`Backlog — ${project.name}`} />
 
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
-                        className="mb-6"
                         title="Backlog"
                         description={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} not assigned to any sprint`}
                         backHref={projectShow({

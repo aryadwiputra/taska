@@ -399,7 +399,7 @@ export default function ProjectSettings({
         <>
             <Head title={`${project.name} — Settings`} />
 
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={t('settings.title')}
                     description="Manage project details, workflow, members, and integrations."

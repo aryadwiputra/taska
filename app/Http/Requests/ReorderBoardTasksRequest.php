@@ -8,7 +8,7 @@ class ReorderBoardTasksRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('update', $this->board) ?? false;
+        return $this->user()?->can('view', $this->board) ?? false;
     }
 
     public function rules(): array

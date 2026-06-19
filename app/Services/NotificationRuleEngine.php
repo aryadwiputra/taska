@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TaskUpdated;
 use App\Models\Notification;
 use App\Models\NotificationRule;
 use App\Models\Task;
@@ -70,7 +71,7 @@ class NotificationRuleEngine
         $channels = $rule->channels ?? ['in_app'];
 
         if (in_array('in_app', $channels)) {
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $user->id,
                 'type' => 'rule_triggered',
                 'title' => $rule->name,
@@ -83,6 +84,19 @@ class NotificationRuleEngine
                     'changes' => $changes,
                 ],
             ]);
+
+            $task->loadMissing('project');
+
+            TaskUpdated::dispatch(
+                $user->id,
+                'rule_triggered',
+                $rule->name,
+                "Rule \"{$rule->name}\" triggered for task {$task->code}.",
+                $task->code,
+                $task->project->slug,
+                (string) $notification->id,
+                $task->id,
+            );
         }
 
         if (in_array('email', $channels)) {

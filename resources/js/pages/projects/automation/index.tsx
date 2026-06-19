@@ -356,7 +356,7 @@ export default function AutomationIndex({
         <>
             <Head title={`Automation — ${project.name}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={t('automation.title')}
                     description={t('automation.description')}

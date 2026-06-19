@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetPermissionsTeamId
@@ -28,6 +29,7 @@ class SetPermissionsTeamId
 
             if ($workspaceId) {
                 setPermissionsTeamId($workspaceId);
+                app(PermissionRegistrar::class)->forgetCachedPermissions();
             }
         }
 

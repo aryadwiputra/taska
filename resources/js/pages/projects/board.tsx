@@ -273,6 +273,23 @@ function BoardClient({
     const pointerYRef = useRef(0);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const serverColumnsRef = useRef(initialColumns);
+
+    useEffect(() => {
+        if (serverColumnsRef.current === initialColumns) {
+            return;
+        }
+
+        serverColumnsRef.current = initialColumns;
+
+        if (!activeTask && !activeColumn) {
+            // Sync local columns state with server data after Inertia re-visit.
+            // useState initializer runs only once, so this effect picks up
+            // new columns from server after drawer PATCH redirect.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setColumns(initialColumns);
+        }
+    }, [initialColumns, activeTask, activeColumn]);
 
     const showError = (msg: string) => {
         setErrorMessage(msg);
@@ -480,11 +497,14 @@ function BoardClient({
 
                     if (idx === tgtIdx) {
                         const updated = [...col.tasks];
+                        const insertIdx = updated.findIndex(
+                            (t) => (t.position ?? 0) > e.position,
+                        );
 
-                        if (e.position < updated.length) {
-                            updated.splice(e.position, 0, e.task);
-                        } else {
+                        if (insertIdx === -1) {
                             updated.push(e.task);
+                        } else {
+                            updated.splice(insertIdx, 0, e.task);
                         }
 
                         return { ...col, tasks: updated };
@@ -500,6 +520,76 @@ function BoardClient({
     useEcho(`private-project.${project.id}`, '.task.moved', handleTaskMoved, [
         activeTask,
     ]);
+
+    interface TaskCreatedEvent {
+        task: BoardTaskItem;
+        column_id: number;
+    }
+
+    const handleTaskCreated = useCallback((e: TaskCreatedEvent) => {
+        setColumns((prev) =>
+            prev.map((col) => {
+                if (col.id !== e.column_id) {
+                    return col;
+                }
+
+                return { ...col, tasks: [...col.tasks, e.task] };
+            }),
+        );
+    }, []);
+
+    useEcho(
+        `private-project.${project.id}`,
+        '.task.created',
+        handleTaskCreated,
+        [],
+    );
+
+    interface TaskFieldUpdatedEvent {
+        taskId: number;
+        changes: Record<string, unknown>;
+    }
+
+    const handleTaskFieldUpdated = useCallback(
+        (e: TaskFieldUpdatedEvent) => {
+            setColumns((prev) =>
+                prev.map((col) => ({
+                    ...col,
+                    tasks: col.tasks.map((t) =>
+                        t.id === e.taskId ? { ...t, ...e.changes } : t,
+                    ),
+                })),
+            );
+        },
+        [],
+    );
+
+    useEcho(
+        `private-project.${project.id}`,
+        '.task.field.updated',
+        handleTaskFieldUpdated,
+        [],
+    );
+
+    interface TaskDeletedEvent {
+        taskId: number;
+    }
+
+    const handleTaskDeleted = useCallback((e: TaskDeletedEvent) => {
+        setColumns((prev) =>
+            prev.map((col) => ({
+                ...col,
+                tasks: col.tasks.filter((t) => t.id !== e.taskId),
+            })),
+        );
+    }, []);
+
+    useEcho(
+        `private-project.${project.id}`,
+        '.task.deleted',
+        handleTaskDeleted,
+        [],
+    );
 
     interface TasksReorderedEvent {
         columns: BoardColumn[];
@@ -921,7 +1011,7 @@ function BoardClient({
                                 open={newTaskOpen}
                                 onOpenChange={setNewTaskOpen}
                                 onCreated={() => {
-                                    router.reload();
+                                    setNewTaskOpen(false);
                                 }}
                             />
                             <FeatureGuide content={boardGuide} />

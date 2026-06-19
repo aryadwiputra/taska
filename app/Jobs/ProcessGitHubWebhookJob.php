@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\CommentCreated;
 use App\Models\Project;
 use App\Models\TaskActivity;
 use App\Models\User;
@@ -133,6 +134,8 @@ class ProcessGitHubWebhookJob implements ShouldQueue
                 'body' => $body,
             ]);
 
+            CommentCreated::dispatch($this->projectId, $task->id, $comment->id, $comment->body);
+
             TaskActivity::create([
                 'task_id' => $task->id,
                 'user_id' => $this->getBotUserId(),
@@ -154,10 +157,12 @@ class ProcessGitHubWebhookJob implements ShouldQueue
         $firstLine = strtok($message, "\n") ?: $message;
         $body = "{$sender} pushed commit [{$repository}@{$shortSha}]({$commitUrl}): {$firstLine}";
 
-        $task->comments()->create([
+        $comment = $task->comments()->create([
             'user_id' => $this->getBotUserId(),
             'body' => $body,
         ]);
+
+        CommentCreated::dispatch($this->projectId, $task->id, $comment->id, $comment->body);
     }
 
     protected function logActivity($task, string $sender, string $repository, string $shortSha): void

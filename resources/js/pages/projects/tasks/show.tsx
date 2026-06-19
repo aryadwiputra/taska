@@ -13,6 +13,13 @@ import { TaskComment } from '@/components/task-comment';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -279,6 +286,13 @@ export default function TaskShow({
         null,
     );
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [taskDeleted, setTaskDeleted] = useState(false);
+    const [typingUsers, setTypingUsers] = useState<
+        Array<{ userId: number; name: string }>
+    >([]);
+    const typingTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+        new Map(),
+    );
 
     const refreshTaskDetails = useCallback(() => {
         fetch(
@@ -736,6 +750,54 @@ export default function TaskShow({
         [projectId, task.id],
     );
 
+    useEcho(
+        `private-project.${projectId}`,
+        '.task.deleted',
+        (e: { taskId: number }) => {
+            if (e.taskId !== task.id) {
+                return;
+            }
+
+            setTaskDeleted(true);
+        },
+        [projectId, task.id],
+    );
+
+    useEcho(
+        `private-project.${projectId}`,
+        '.comment.typing',
+        (e: { task_id: number; user_id: number; user_name: string }) => {
+            if (e.task_id !== task.id || e.user_id === user?.id) {
+                return;
+            }
+
+            setTypingUsers((prev) => {
+                if (prev.some((u) => u.userId === e.user_id)) {
+                    return prev;
+                }
+
+                return [...prev, { userId: e.user_id, name: e.user_name }];
+            });
+
+            const existing = typingTimersRef.current.get(e.user_id);
+
+            if (existing) {
+                clearTimeout(existing);
+            }
+
+            typingTimersRef.current.set(
+                e.user_id,
+                setTimeout(() => {
+                    setTypingUsers((prev) =>
+                        prev.filter((u) => u.userId !== e.user_id),
+                    );
+                    typingTimersRef.current.delete(e.user_id);
+                }, 4000),
+            );
+        },
+        [projectId, task.id, user?.id],
+    );
+
     return (
         <>
             <Head title={`${task.code} — ${project.name}`} />
@@ -1156,6 +1218,15 @@ export default function TaskShow({
                                         Comment
                                     </Button>
                                 </form>
+
+                                {typingUsers.length > 0 && (
+                                    <p className="text-xs text-muted-foreground italic">
+                                        {typingUsers.length === 1
+                                            ? `${typingUsers[0].name} is typing...`
+                                            : `${typingUsers.length} people are typing...`}
+                                    </p>
+                                )}
+
                                 {comments.map((comment) => (
                                     <TaskComment
                                         key={comment.id}
@@ -1713,6 +1784,44 @@ export default function TaskShow({
                     isPdf={attachmentPreviewIsPdf}
                 />
             )}
+
+            <Dialog
+                open={taskDeleted}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        router.visit(
+                            projectShow.url({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            }),
+                        );
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Task Deleted</DialogTitle>
+                        <DialogDescription>
+                            This task has been deleted by another user. You
+                            will be redirected to the project page.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end">
+                        <Button
+                            onClick={() =>
+                                router.visit(
+                                    projectShow.url({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    }),
+                                )
+                            }
+                        >
+                            Go to Project
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

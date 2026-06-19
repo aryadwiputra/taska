@@ -188,7 +188,6 @@ export default function SlaSettings({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
-                        className="mb-6"
                         title={t('sla_page.title')}
                         description={t('sla_page.description')}
                         backHref={projectShow({

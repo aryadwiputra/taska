@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TaskUpdated;
 use App\Models\AutomationRule;
 use App\Models\BoardColumn;
 use App\Models\Label;
@@ -159,15 +160,28 @@ class AutomationEngine
 
         $recipients = $task->assignees->isEmpty() ? [$task->reporter] : $task->assignees->all();
 
+        $task->loadMissing('project');
+
         foreach ($recipients as $recipient) {
             if ($recipient) {
-                Notification::create([
+                $notification = Notification::create([
                     'user_id' => $recipient->id,
                     'type' => 'automation',
                     'title' => 'Automation Rule Triggered',
                     'body' => $value,
                     'data' => ['task_id' => $task->id, 'task_code' => $task->code],
                 ]);
+
+                TaskUpdated::dispatch(
+                    $recipient->id,
+                    'automation',
+                    'Automation Rule Triggered',
+                    $value,
+                    $task->code,
+                    $task->project->slug,
+                    (string) $notification->id,
+                    $task->id,
+                );
             }
         }
     }

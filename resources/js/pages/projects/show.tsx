@@ -771,7 +771,7 @@ export default function ProjectShow({
         <>
             <Head title={`${project.name} — ${workspace.name}`} />
 
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={project.name}
                     description={project.description}

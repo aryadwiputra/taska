@@ -132,7 +132,6 @@ export default function ComponentsIndex({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
-                        className="mb-6"
                         title={t('component.title')}
                         description="Categorize tasks by UI or backend components."
                         backHref={projectShow({

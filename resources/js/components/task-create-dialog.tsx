@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -82,68 +83,32 @@ export function TaskCreateDialog({
             return;
         }
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = taskStore.url({
-            workspace: workspaceSlug,
-            project: projectSlug,
-        });
-
-        const token = document.createElement('input');
-        token.type = 'hidden';
-        token.name = '_token';
-        token.value =
-            (
-                document.querySelector(
-                    'meta[name="csrf-token"]',
-                ) as HTMLMetaElement
-            )?.content ?? '';
-        form.appendChild(token);
-
-        const titleInput = document.createElement('input');
-        titleInput.type = 'hidden';
-        titleInput.name = 'title';
-        titleInput.value = title;
-        form.appendChild(titleInput);
-
-        const typeInput = document.createElement('input');
-        typeInput.type = 'hidden';
-        typeInput.name = 'task_type_id';
-        typeInput.value = taskTypeId;
-        form.appendChild(typeInput);
-
-        if (priorityId !== NO_PRIORITY_VALUE) {
-            const priorityInput = document.createElement('input');
-            priorityInput.type = 'hidden';
-            priorityInput.name = 'priority_id';
-            priorityInput.value = priorityId;
-            form.appendChild(priorityInput);
-        }
-
-        if (epicId !== NO_EPIC_VALUE) {
-            const epicInput = document.createElement('input');
-            epicInput.type = 'hidden';
-            epicInput.name = 'epic_ids[]';
-            epicInput.value = epicId;
-            form.appendChild(epicInput);
-        }
-
-        if (sprintId !== NO_SPRINT_VALUE) {
-            const sprintInput = document.createElement('input');
-            sprintInput.type = 'hidden';
-            sprintInput.name = 'sprint_ids[]';
-            sprintInput.value = sprintId;
-            form.appendChild(sprintInput);
-        }
-
-        document.body.appendChild(form);
-        form.submit();
-
-        setOpen(false);
-        setTitle('');
-        setEpicId(NO_EPIC_VALUE);
-        setSprintId(NO_SPRINT_VALUE);
-        onCreated?.();
+        router.post(
+            taskStore.url({ workspace: workspaceSlug, project: projectSlug }),
+            {
+                title: title.trim(),
+                task_type_id: Number(taskTypeId),
+                priority_id:
+                    priorityId !== NO_PRIORITY_VALUE
+                        ? Number(priorityId)
+                        : undefined,
+                epic_ids:
+                    epicId !== NO_EPIC_VALUE ? [Number(epicId)] : undefined,
+                sprint_ids:
+                    sprintId !== NO_SPRINT_VALUE
+                        ? [Number(sprintId)]
+                        : undefined,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setTitle('');
+                    setEpicId(NO_EPIC_VALUE);
+                    setSprintId(NO_SPRINT_VALUE);
+                    onCreated?.();
+                },
+            },
+        );
     };
 
     return (

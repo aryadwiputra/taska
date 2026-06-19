@@ -46,7 +46,7 @@ export default function ProjectsIndex({ workspace, projects }: Props) {
         <>
             <Head title={`${workspace.name} — ${t('sidebar.projects')}`} />
 
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={workspace.name}
                     description={t('project.projects_in_workspace')}

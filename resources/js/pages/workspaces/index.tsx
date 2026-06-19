@@ -38,7 +38,7 @@ export default function WorkspacesIndex({ workspaces, showArchived }: Props) {
         <>
             <Head title={t('admin.workspaces')} />
 
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={t('admin.workspaces')}
                     description={t('workspace.manage_your_workspaces')}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\TaskCreated;
+use App\Events\TaskDeleted;
 use App\Events\TaskFieldUpdated;
 use App\Events\TaskMoved;
 use App\Http\Requests\MoveTaskColumnRequest;
@@ -374,6 +375,27 @@ class TaskController extends Controller
             TaskFieldUpdated::dispatch($project->id, $task->id, $fieldChanges);
         }
 
+        if (array_key_exists('board_column_id', $fieldChanges)) {
+            $oldColumnId = (int) ($before['board_column_id'] ?? $task->board_column_id);
+            $toColumn = BoardColumn::findOrFail($task->board_column_id);
+
+            $maxPosition = (int) Task::where('board_column_id', $task->board_column_id)
+                ->where('id', '!=', $task->id)
+                ->max('position');
+
+            $task->updateQuietly(['position' => $maxPosition + 1000]);
+            $task->refresh();
+
+            broadcast(new TaskMoved(
+                task: $task,
+                fromColumnId: $oldColumnId,
+                toColumnId: $toColumn->id,
+                position: $task->position,
+                status: $toColumn->status_key,
+                projectId: $project->id,
+            ));
+        }
+
         if (array_key_exists('assignee_ids', $validated)) {
             $addedAssignees = array_diff($newAssigneeIds, $oldAssigneeIds);
 
@@ -394,6 +416,8 @@ class TaskController extends Controller
         Gate::authorize('delete', $task);
 
         $activity->deleted($task, request()->user());
+
+        TaskDeleted::dispatch($project->id, $task->id);
 
         $task->delete();
 
@@ -524,7 +548,7 @@ class TaskController extends Controller
             position: $task->position,
             status: $targetColumn->status_key,
             projectId: $project->id,
-        ))->toOthers();
+        ));
 
         return back(303);
     }

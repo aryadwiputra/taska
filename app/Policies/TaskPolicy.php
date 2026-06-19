@@ -43,7 +43,7 @@ class TaskPolicy
             || $task->assignees()->where('users.id', $user->id)->exists();
 
         return ($isReporterOrAssignee || Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.edit-any'))
-            && Rbac::projectRoleAllows($user, $task->project, ['lead', 'manager', 'developer']);
+            && Rbac::projectRoleAllows($user, $task->project, ['lead', 'manager', 'developer', 'qa', 'member']);
     }
 
     /**

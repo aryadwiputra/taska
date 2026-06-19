@@ -219,7 +219,7 @@ export default function ApprovalsSettings({
         <>
             <Head title={`Approval Flows — ${project.name}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6">
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={t('approvals_page.title')}
                     description={t('approvals_page.description')}

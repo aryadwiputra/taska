@@ -850,24 +850,98 @@
     },
     "welcome": {
         "title": "Qeerja",
-        "eyebrow": "Project work, calmly organized",
-        "hero_title": "A calmer desk for serious project work.",
-        "hero_description": "Plan tasks, sprints, approvals, and team work in one clean workspace that stays quiet until action matters.",
+        "eyebrow": "Project work, clearly connected",
+        "hero_title": "Plan work without losing context",
+        "hero_description": "Qeerja brings boards, sprints, approvals, releases, and automation into one focused workspace.",
         "primary_cta": "Get started",
         "secondary_cta": "Log in",
-        "preview_title": "Workspace overview",
-        "preview_subtitle": "Built for focused teams",
-        "preview_badge": "Live",
-        "preview_item_1": "Sprint board ready",
-        "preview_item_2": "Automation rules active",
-        "preview_item_3": "Approvals tracked",
-        "lets_get_started": "Let's get started",
-        "ecosystem": "Laravel has an incredibly rich ecosystem.",
-        "read_docs": "Read the",
-        "documentation": "Documentation",
-        "watch_videos": "Watch video tutorials at",
-        "laracasts": "Laracasts",
-        "deploy_now": "Deploy now"
+        "hero_image_alt": "Focused workspace with planning boards and team notes",
+        "hero_image_caption": "A focused workspace for planning, delivery, and review.",
+        "proof_description": "Built on a modern Laravel, Inertia, React, Tailwind, and MySQL stack for teams that care about maintainable product systems.",
+        "nav": {
+            "features": "Features",
+            "workflow": "Workflow",
+            "security": "Control"
+        },
+        "workflow_title": "One workspace for the full delivery loop",
+        "workflow_description": "Move from backlog to release with fewer tabs, fewer handoffs, and fewer missing decisions.",
+        "workflow": {
+            "backlog": {
+                "title": "Shape the backlog",
+                "description": "Keep scope, priority, labels, epics, and sprint context close to the work that needs it."
+            },
+            "board": {
+                "title": "Run the board",
+                "description": "Drag tasks across columns, keep order stable, and make status visible without slowing the team down."
+            },
+            "sprints": {
+                "title": "Focus the sprint",
+                "description": "Plan active work with sprint views that connect back to every task and project decision."
+            },
+            "automation": {
+                "title": "Automate the repeat work",
+                "description": "Rules handle assignment, labels, notifications, and status changes when the pattern is predictable."
+            },
+            "releases": {
+                "title": "Prepare the release",
+                "description": "Group finished work into releases so delivery stays visible after the task card moves to done."
+            }
+        },
+        "collaboration_title": "Built for the moments between updates",
+        "collaboration_description": "Qeerja keeps the conversation near the task, so context survives reviews, blocked work, and handoffs.",
+        "collaboration_image_alt": "Team planning table with notes and product planning material",
+        "collaboration": {
+            "plan": {
+                "title": "Clarify the next move",
+                "description": "Comments, relations, attachments, and activity history keep task intent visible to everyone."
+            },
+            "move": {
+                "title": "Track status changes",
+                "description": "Realtime board updates keep teammates aligned without asking them to refresh the page."
+            },
+            "ship": {
+                "title": "Close the loop",
+                "description": "Reports, releases, and approvals help managers understand what shipped and what still needs attention."
+            }
+        },
+        "developer_title": "Developer friendly by design",
+        "developer_description": "The product is built on a stack your team can understand, extend, and deploy without fighting the framework.",
+        "developer": {
+            "laravel": {
+                "title": "Laravel backend",
+                "description": "Policies, requests, jobs, events, and transactions keep product behavior explicit."
+            },
+            "inertia": {
+                "title": "Inertia flow",
+                "description": "Server data and React screens stay connected without building a separate API layer for every page."
+            },
+            "react": {
+                "title": "React interface",
+                "description": "Interactive boards, drawers, filters, and settings are built with typed components."
+            },
+            "mysql": {
+                "title": "MySQL storage",
+                "description": "Projects, boards, tasks, releases, and activity stay in a familiar relational model."
+            }
+        },
+        "trust_title": "Control for teams that move fast",
+        "trust_description": "Workspace roles, approval flows, activity history, and notifications give teams structure without adding ceremony.",
+        "trust": {
+            "roles": {
+                "title": "Workspace roles",
+                "description": "Keep access aligned with how managers, developers, and members work inside a project."
+            },
+            "approvals": {
+                "title": "Approval gates",
+                "description": "Route sensitive column changes through approval flows before work moves forward."
+            },
+            "activity": {
+                "title": "Activity trail",
+                "description": "Track important task changes so decisions are easier to audit later."
+            }
+        },
+        "final_title": "Bring the board, sprint, and release into one place",
+        "final_description": "Start with a workspace, invite your team, and run project work without losing the thread."
     },
     "empty_state": {
         "no_data": "No data.",

@@ -6,14 +6,16 @@ use App\Http\Requests\StoreProjectMemberRequest;
 use App\Http\Requests\UpdateProjectMemberRequest;
 use App\Models\Project;
 use App\Models\ProjectMember;
+use App\Models\User;
 use App\Models\Workspace;
+use App\Services\WorkspaceRoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ProjectMemberController extends Controller
 {
-    public function store(StoreProjectMemberRequest $request, Workspace $workspace, Project $project): RedirectResponse
+    public function store(StoreProjectMemberRequest $request, Workspace $workspace, Project $project, WorkspaceRoleService $roleService): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -23,6 +25,21 @@ class ProjectMemberController extends Controller
             Inertia::flash('toast', ['type' => 'warning', 'message' => 'User is already a member.']);
 
             return back();
+        }
+
+        if (! $workspace->members()->where('user_id', $validated['user_id'])->exists()) {
+            $workspace->members()->create([
+                'user_id' => $validated['user_id'],
+                'role' => 'member',
+                'invited_by' => $request->user()->id,
+                'status' => 'active',
+            ]);
+
+            $roleService->syncRole(
+                User::findOrFail($validated['user_id']),
+                $workspace,
+                'member',
+            );
         }
 
         $project->members()->create([

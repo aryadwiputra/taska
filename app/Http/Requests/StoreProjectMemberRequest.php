@@ -16,7 +16,7 @@ class StoreProjectMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', Rule::exists('workspace_members', 'user_id')->where('workspace_id', $this->workspace->id)->where('status', 'active'), Rule::unique('project_members')->where('project_id', $this->project->id)],
+            'user_id' => ['required', 'exists:users,id', Rule::unique('project_members')->where('project_id', $this->project->id)],
             'role' => ['required', Rule::in(Rbac::PROJECT_ROLES)],
         ];
     }

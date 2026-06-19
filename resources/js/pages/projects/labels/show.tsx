@@ -95,7 +95,6 @@ export default function LabelShow({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
-                        className="mb-6"
                         title={label.name}
                         backHref={projectSettings({
                             workspace: workspace.slug,

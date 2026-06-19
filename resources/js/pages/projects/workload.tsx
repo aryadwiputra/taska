@@ -116,7 +116,6 @@ export default function WorkloadPage({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
-                        className="mb-6"
                         title="Team Workload"
                         description="View task distribution and capacity across team members."
                         backHref={projectShow({

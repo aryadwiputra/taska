@@ -160,7 +160,6 @@ export default function ActivityIndex({
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <div className="mx-auto w-full max-w-2xl">
                     <PageHeader
-                        className="mb-6"
                         title="Activity log"
                         description="All changes made to tasks in this project."
                         backHref={projectShow({

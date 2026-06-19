@@ -60,7 +60,7 @@ export function UserMenuContent({ user }: Props) {
                 </DropdownMenuItem>
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                        <Globe className="mr-2" />
+                        <Globe className="mr-2 size-4 text-muted-foreground" />
                         {t('profile.language')}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
