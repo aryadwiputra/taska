@@ -24,6 +24,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    index as adminUsersIndex,
+    store as adminUsersStore,
+    update as adminUsersUpdate,
+    destroy as adminUsersDestroy,
+} from '@/routes/admin/users';
 
 interface UserData {
     id: number;
@@ -74,14 +80,14 @@ function UserFormDialog({
         e.preventDefault();
 
         if (user) {
-            patch(`/admin/users/${user.id}`, {
+            patch(adminUsersUpdate(user.id).url, {
                 onSuccess: () => {
                     onOpenChange(false);
                     reset();
                 },
             });
         } else {
-            post('/admin/users', {
+            post(adminUsersStore().url, {
                 onSuccess: () => {
                     onOpenChange(false);
                     reset();
@@ -189,7 +195,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
     function handleSearch(e: FormEvent) {
         e.preventDefault();
         router.get(
-            '/admin/users',
+            adminUsersIndex(),
             { search },
             { preserveState: true, replace: true },
         );
@@ -200,7 +206,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
             return;
         }
 
-        router.delete(`/admin/users/${user.id}`, { preserveScroll: true });
+        router.delete(adminUsersDestroy(user.id), { preserveScroll: true });
     }
 
     function openEdit(user: UserData) {

@@ -86,6 +86,11 @@ class Project extends Model
         return $this->hasMany(SlaPolicy::class);
     }
 
+    public function releases(): HasMany
+    {
+        return $this->hasMany(Release::class);
+    }
+
     public function integrations(): HasMany
     {
         return $this->hasMany(Integration::class);
@@ -106,8 +111,28 @@ class Project extends Model
         return $this->hasMany(SavedFilter::class);
     }
 
+    public function notificationRules(): HasMany
+    {
+        return $this->hasMany(NotificationRule::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
     public function integration(): HasOne
     {
         return $this->hasOne(Integration::class);
+    }
+
+    public function flows(): HasMany
+    {
+        return $this->approvalFlows();
+    }
+
+    public function rules(): HasMany
+    {
+        return $this->automationRules();
     }
 }

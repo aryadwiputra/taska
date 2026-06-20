@@ -130,7 +130,6 @@ export default function ComponentsIndex({
             <Head title={`${t('component.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
                         title={t('component.title')}
                         description="Categorize tasks by UI or backend components."
@@ -147,6 +146,7 @@ export default function ComponentsIndex({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-3xl">
                     {components.length > 0 ? (
                         <div className="flex flex-col rounded-md border">
                             {components.map((component) => (

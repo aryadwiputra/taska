@@ -78,8 +78,8 @@ class CrossProjectController extends Controller
             ->get();
 
         $allColumns = $projects->flatMap(function ($project) {
-            $defaultBoard = $project->boards()->where('is_default', true)->first()
-                ?? $project->boards()->first();
+            $defaultBoard = $project->boards->firstWhere('is_default', true)
+                ?? $project->boards->first();
 
             if (! $defaultBoard) {
                 return collect();

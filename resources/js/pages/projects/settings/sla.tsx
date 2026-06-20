@@ -186,7 +186,6 @@ export default function SlaSettings({
             <Head title={`SLA Policies — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
                         title={t('sla_page.title')}
                         description={t('sla_page.description')}
@@ -210,6 +209,7 @@ export default function SlaSettings({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-3xl">
                     {policies.length > 0 ? (
                         <div className="flex flex-col rounded-md border">
                             {policies.map((policy) => (

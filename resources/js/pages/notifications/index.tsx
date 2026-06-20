@@ -13,6 +13,7 @@ import {
     UserPlus,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils';
 import {
     readAll as notificationReadAll,
     read as notificationRead,
+    destroy as notificationDestroy,
 } from '@/routes/my-notifications';
 
 interface NotificationItem {
@@ -59,13 +61,13 @@ const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     due_date_reminder: CalendarClock,
 };
 
-const typeLabels: Record<string, string> = {
-    'task.assigned': 'Task assigned',
-    'task.updated': 'Task updated',
-    'task.commented': 'Comment',
-    'task.mentioned': 'Mention',
-    'member.added': 'Member added',
-    due_date_reminder: 'Due date',
+const typeI18nKeys: Record<string, string> = {
+    'task.assigned': 'notification.type_task_assigned',
+    'task.updated': 'notification.type_task_updated',
+    'task.commented': 'notification.type_comment',
+    'task.mentioned': 'notification.type_mention',
+    'member.added': 'notification.type_member_added',
+    due_date_reminder: 'notification.type_due_date',
 };
 
 const taskRoute = (
@@ -118,6 +120,7 @@ export default function NotificationsIndex({
     notifications: initialNotifications,
     unreadCount: initialUnreadCount,
 }: Props) {
+    const { t } = useTranslation();
     const { props } = usePage();
     const workspaceSlug = (props.currentWorkspace as { slug: string } | null)
         ?.slug;
@@ -186,12 +189,12 @@ export default function NotificationsIndex({
 
     return (
         <>
-            <Head title="Notifications" />
+            <Head title={t('notification.notifications')} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
-                    title="Notifications"
-                    description="Stay updated on your tasks and projects."
+                    title={t('notification.notifications')}
+                    description={t('notification.description')}
                     actions={
                         unreadCount > 0 && (
                             <Button
@@ -208,7 +211,7 @@ export default function NotificationsIndex({
                                 }}
                             >
                                 <CheckCheck className="size-4" />
-                                <span>Mark all read</span>
+                                <span>{t('notification.mark_all_read_short')}</span>
                             </Button>
                         )
                     }
@@ -217,8 +220,8 @@ export default function NotificationsIndex({
                 {notifications.data.length === 0 ? (
                     <EmptyState
                         icon={Bell}
-                        title="No notifications"
-                        description="Notifications about your tasks and projects will appear here."
+                        title={t('notification.empty_title')}
+                        description={t('notification.empty_description')}
                         className="py-20"
                     />
                 ) : (
@@ -226,7 +229,7 @@ export default function NotificationsIndex({
                         {groups.map(([label, items]) => (
                             <div key={label}>
                                 <h2 className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    {label}
+                                    {label === 'Today' ? t('common.today') : label === 'Yesterday' ? t('notification.group_yesterday') : label === 'This Week' ? t('notification.group_this_week') : t('notification.group_older')}
                                 </h2>
                                 <div className="overflow-hidden rounded-lg border">
                                     {items.map((notification) => {
@@ -292,11 +295,11 @@ export default function NotificationsIndex({
                                                     )}
                                                     <div className="mt-1 flex items-center gap-3">
                                                         <span className="text-xs text-muted-foreground">
-                                                            {typeLabels[
+                                                            {t(typeI18nKeys[
                                                                 notification
                                                                     .type
                                                             ] ??
-                                                                notification.type}
+                                                                notification.type)}
                                                         </span>
                                                         <span className="text-xs text-muted-foreground">
                                                             {formatTimeAgo(
@@ -357,9 +360,9 @@ export default function NotificationsIndex({
                                                                         },
                                                                     );
                                                                 }}
-                                                            >
-                                                                Mark read
-                                                            </button>
+                                                             >
+                                                                 {t('notification.mark_read')}
+                                                             </button>
                                                         )}
                                                         <button
                                                             type="button"
@@ -367,7 +370,7 @@ export default function NotificationsIndex({
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 router.delete(
-                                                                    `/notifications/${notification.id}`,
+                                                                     notificationDestroy(notification.id),
                                                                     {
                                                                         preserveScroll: true,
                                                                         onSuccess:

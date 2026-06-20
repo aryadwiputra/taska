@@ -79,7 +79,7 @@ test('users can delete their own notifications', function () {
     ]);
 
     $this->actingAs($user)->withSession(['current_workspace_id' => $workspace->id])
-        ->delete("/notifications/{$notification->id}")
+        ->delete(route('my-notifications.destroy', $notification))
         ->assertRedirect();
 
     expect(Notification::whereKey($notification->id)->exists())->toBeFalse();
@@ -97,7 +97,7 @@ test('users cannot delete other users notifications', function () {
     ]);
 
     $this->actingAs($user)->withSession(['current_workspace_id' => $workspace->id])
-        ->delete("/notifications/{$notification->id}")
+        ->delete(route('my-notifications.destroy', $notification))
         ->assertForbidden();
 });
 

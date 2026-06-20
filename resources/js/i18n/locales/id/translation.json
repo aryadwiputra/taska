@@ -242,7 +242,13 @@
         "active": "Aktif",
         "completed": "Selesai",
         "archived": "Diarsipkan",
-        "all_states": "Semua kondisi"
+        "all_states": "Semua kondisi",
+        "title": "Pencarian Tugas",
+        "description": "Cari tugas di semua proyek yang dapat Anda akses.",
+        "result": "hasil",
+        "results": "hasil",
+        "empty_title": "Tidak ada tugas yang cocok",
+        "empty_description": "Coba ubah istilah pencarian atau filter."
     },
     "board": {
         "columns": "Kolom",
@@ -467,7 +473,21 @@
     "notification": {
         "notifications": "Notifikasi",
         "mark_all_read": "Tandai semua sudah dibaca",
-        "no_notifications": "Belum ada notifikasi."
+        "no_notifications": "Belum ada notifikasi.",
+        "description": "Pantau tugas dan proyek Anda.",
+        "mark_all_read_short": "Tandai semua dibaca",
+        "mark_read": "Tandai dibaca",
+        "empty_title": "Belum ada notifikasi",
+        "empty_description": "Notifikasi tentang tugas dan proyek Anda akan muncul di sini.",
+        "group_yesterday": "Kemarin",
+        "group_this_week": "Minggu Ini",
+        "group_older": "Lama",
+        "type_task_assigned": "Tugas ditugaskan",
+        "type_task_updated": "Tugas diperbarui",
+        "type_comment": "Komentar",
+        "type_mention": "Menyebut",
+        "type_member_added": "Anggota ditambahkan",
+        "type_due_date": "Batas waktu"
     },
     "onboarding": {
         "get_started": "Mulai",
@@ -504,7 +524,12 @@
         "admin": "Admin",
         "manager": "Manajer",
         "member": "Anggota",
-        "viewer": "Penonton"
+        "viewer": "Penonton",
+        "steps_workspace": "Ruang Kerja",
+        "steps_project": "Proyek",
+        "steps_invite": "Undang",
+        "steps_profile": "Profil",
+        "skip_all_dashboard": "Lewati semua dan ke dashboard →"
     },
     "members": {
         "invite_member": "Undang anggota",

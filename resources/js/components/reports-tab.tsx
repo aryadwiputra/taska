@@ -382,8 +382,7 @@ function BurndownChart({ data }: { data: BurndownPoint[] }) {
     return (
         <svg
             viewBox={`0 0 ${width} ${height}`}
-            className="w-full max-w-full"
-            style={{ fontFamily: 'monospace' }}
+            className="w-full max-w-full font-mono"
         >
             <line
                 x1={padding.left}

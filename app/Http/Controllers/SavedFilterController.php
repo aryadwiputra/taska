@@ -15,7 +15,7 @@ class SavedFilterController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $userId = $request->user()->id;
+        $userId = auth()->id();
 
         $filters = SavedFilter::where('project_id', $project->id)
             ->where(fn ($q) => $q->where('user_id', $userId)->orWhere('is_shared', true))
@@ -62,7 +62,7 @@ class SavedFilterController extends Controller
 
         abort_unless((int) $savedFilter->project_id === (int) $project->id, 404);
         abort_unless(
-            (int) $savedFilter->user_id === (int) $request->user()->id || $request->user()->can('update', $project),
+            (int) $savedFilter->user_id === (int) auth()->id() || auth()->user()->can('update', $project),
             403,
         );
 

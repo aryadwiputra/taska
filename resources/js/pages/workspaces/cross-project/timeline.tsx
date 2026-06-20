@@ -82,7 +82,6 @@ export default function CrossProjectTimeline({
             <Head title={`Cross-Project Timeline — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-6xl">
                     <PageHeader
                         title={t('cross_project.timeline')}
                         description={t('cross_project.timeline_summary', {
@@ -93,6 +92,7 @@ export default function CrossProjectTimeline({
                         backLabel={workspace.name}
                     />
 
+                <div className="mx-auto w-full max-w-6xl">
                     <div className="mb-4 flex flex-wrap gap-2">
                         {projects.map((project) => (
                             <Badge

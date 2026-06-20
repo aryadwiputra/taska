@@ -120,7 +120,11 @@
     "my_tasks": {
         "title": "My Tasks",
         "description": "Tasks assigned to you across all projects.",
-        "no_tasks": "No tasks assigned to you yet."
+        "no_tasks": "No tasks assigned to you yet.",
+        "empty_title": "No tasks assigned",
+        "empty_description": "Tasks assigned to you will appear here.",
+        "table_task": "Task",
+        "table_project": "Project"
     },
     "widget": {
         "assigned_to_you": "Assigned to you",
@@ -227,6 +231,14 @@
         "select_member": "Select member",
         "select_label": "Select label"
     },
+    "priority_labels": {
+        "lowest": "Lowest",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "highest": "Highest",
+        "urgent": "Urgent"
+    },
     "task_search": {
         "all_statuses": "All statuses",
         "all_workspaces": "All workspaces",
@@ -243,7 +255,13 @@
         "active": "Active",
         "completed": "Completed",
         "archived": "Archived",
-        "all_states": "All states"
+        "all_states": "All states",
+        "title": "Task Search",
+        "description": "Search tasks across projects you can access.",
+        "result": "result",
+        "results": "results",
+        "empty_title": "No matching tasks",
+        "empty_description": "Try changing the search term or filters."
     },
     "board": {
         "columns": "Columns",
@@ -468,7 +486,21 @@
     "notification": {
         "notifications": "Notifications",
         "mark_all_read": "Mark all as read",
-        "no_notifications": "No notifications yet."
+        "no_notifications": "No notifications yet.",
+        "description": "Stay updated on your tasks and projects.",
+        "mark_all_read_short": "Mark all read",
+        "mark_read": "Mark read",
+        "empty_title": "No notifications",
+        "empty_description": "Notifications about your tasks and projects will appear here.",
+        "type_task_assigned": "Task assigned",
+        "type_task_updated": "Task updated",
+        "type_comment": "Comment",
+        "type_mention": "Mention",
+        "type_member_added": "Member added",
+        "type_due_date": "Due date",
+        "group_yesterday": "Yesterday",
+        "group_this_week": "This Week",
+        "group_older": "Older"
     },
     "onboarding": {
         "get_started": "Get Started",
@@ -505,7 +537,15 @@
         "admin": "Admin",
         "manager": "Manager",
         "member": "Member",
-        "viewer": "Viewer"
+        "viewer": "Viewer",
+        "steps_workspace": "Workspace",
+        "steps_project": "Project",
+        "steps_invite": "Invite",
+        "steps_profile": "Profile",
+        "skip_all_dashboard": "Skip all and go to dashboard →",
+        "avatar_preview_alt": "Avatar preview",
+        "select_timezone": "Select timezone",
+        "select_language": "Select language"
     },
     "members": {
         "invite_member": "Invite member",

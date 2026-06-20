@@ -97,7 +97,6 @@ export default function CrossProjectBoard({
             <Head title={`Cross-Project Board — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-7xl">
                     <PageHeader
                         title={t('cross_project.board')}
                         description={t('cross_project.board_summary', {
@@ -108,6 +107,7 @@ export default function CrossProjectBoard({
                         backLabel={workspace.name}
                     />
 
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-4 flex flex-wrap gap-2">
                         {projects.map((project) => (
                             <Badge

@@ -103,7 +103,9 @@ export default function ReleasesIndex({
             .then((data) => {
                 setReleases(data.releases ?? []);
             })
-            .catch(() => {});
+            .catch((e) => {
+                console.error('Failed to fetch releases:', e);
+            });
 
         return () => controller.abort();
     }, [workspace.slug, project.slug]);
@@ -164,7 +166,8 @@ export default function ReleasesIndex({
                 setNewDate('');
                 setCreating(false);
             })
-            .catch(() => {
+            .catch((e) => {
+                console.error('Failed to create release:', e);
                 setCreating(false);
             });
     };
@@ -241,7 +244,6 @@ export default function ReleasesIndex({
             <Head title={`${t('release.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
                         title={t('release.title')}
                         description={`${releases.length} release${releases.length !== 1 ? 's' : ''}`}
@@ -261,6 +263,7 @@ export default function ReleasesIndex({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-4xl">
                     {releases.length > 0 ? (
                         <div className="flex flex-col gap-3">
                             {releases.map((release) => {

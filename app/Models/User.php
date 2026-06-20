@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -61,6 +62,86 @@ class User extends Authenticatable implements PasskeyUser
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function ownedWorkspaces(): HasMany
+    {
+        return $this->hasMany(Workspace::class, 'owner_id');
+    }
+
+    public function reportedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'reporter_id');
+    }
+
+    public function uploadedAttachments(): HasMany
+    {
+        return $this->hasMany(TaskAttachment::class, 'uploaded_by');
+    }
+
+    public function mentions(): HasMany
+    {
+        return $this->hasMany(CommentMention::class);
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(TaskApproval::class, 'approver_id');
+    }
+
+    public function createdReleases(): HasMany
+    {
+        return $this->hasMany(Release::class, 'created_by');
+    }
+
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(WorkspaceInvitation::class, 'invited_by');
+    }
+
+    public function membersInvitedBy(): HasMany
+    {
+        return $this->hasMany(WorkspaceMember::class, 'invited_by');
+    }
+
+    public function projectMembersAddedBy(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class, 'added_by');
+    }
+
+    public function ledComponents(): HasMany
+    {
+        return $this->hasMany(Component::class, 'lead_id');
+    }
+
+    public function notificationRules(): HasMany
+    {
+        return $this->hasMany(NotificationRule::class);
+    }
+
+    public function notificationPreference(): HasOne
+    {
+        return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function savedFilters(): HasMany
+    {
+        return $this->hasMany(SavedFilter::class);
+    }
+
+    public function taskActivities(): HasMany
+    {
+        return $this->hasMany(TaskActivity::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function watchedTasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'task_watchers');
     }
 
     /**

@@ -317,7 +317,9 @@ export default function BacklogIndex({
             .then((data) => {
                 setTasks(data.backlog_tasks ?? []);
             })
-            .catch(() => {});
+            .catch((e) => {
+                console.error('Failed to fetch backlog tasks:', e);
+            });
 
         return () => controller.abort();
     }, [workspace.slug, project.slug]);
@@ -377,7 +379,9 @@ export default function BacklogIndex({
                             task_ids: reordered.map((t) => t.id),
                         }),
                     },
-                ).catch(() => {});
+                ).catch((e) => {
+                    console.error('Failed to reorder backlog tasks:', e);
+                });
 
                 return reordered;
             });
@@ -420,7 +424,6 @@ export default function BacklogIndex({
             <Head title={`Backlog — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
                         title="Backlog"
                         description={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} not assigned to any sprint`}
@@ -432,6 +435,7 @@ export default function BacklogIndex({
                         actions={<FeatureGuide content={backlogGuide} />}
                     />
 
+                <div className="mx-auto w-full max-w-4xl">
                     {sprints.length > 0 && (
                         <Card className="mb-6">
                             <CardHeader>

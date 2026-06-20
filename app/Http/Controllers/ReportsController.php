@@ -116,18 +116,16 @@ class ReportsController extends Controller
 
         $completedSprints = $project->sprints()
             ->where('status', 'completed')
+            ->withSum(['tasks as completed_story_points' => fn ($q) => $q->whereNotNull('tasks.completed_at')], 'tasks.story_points')
             ->orderBy('completed_at')
-            ->get();
+            ->get(['id', 'name', 'committed_points']);
 
         $velocity = $completedSprints->map(function ($sprint) {
-            $completedPoints = $sprint->tasks()
-                ->whereNotNull('completed_at')
-                ->sum('story_points');
 
             return [
                 'name' => $sprint->name,
                 'committed' => $sprint->committed_points,
-                'completed' => $completedPoints,
+                'completed' => (int) ($sprint->completed_story_points ?? 0),
             ];
         });
 

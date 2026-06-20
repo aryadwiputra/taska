@@ -114,7 +114,6 @@ export default function WorkloadPage({
             <Head title={`Workload — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
                         title="Team Workload"
                         description="View task distribution and capacity across team members."
@@ -125,6 +124,7 @@ export default function WorkloadPage({
                         backLabel={project.name}
                     />
 
+                <div className="mx-auto w-full max-w-4xl">
                     {sprints.length > 0 && (
                         <div className="mb-6">
                             <h2 className="mb-3 text-sm font-medium text-muted-foreground">

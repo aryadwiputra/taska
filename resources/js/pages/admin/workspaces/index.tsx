@@ -15,6 +15,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    index as adminWorkspacesIndex,
+    show as adminWorkspaceShow,
+} from '@/routes/admin/workspaces';
 
 interface WorkspaceData {
     id: number;
@@ -51,7 +55,7 @@ export default function AdminWorkspacesIndex({ workspaces, filters }: Props) {
     function handleSearch(e: FormEvent) {
         e.preventDefault();
         router.get(
-            '/admin/workspaces',
+            adminWorkspacesIndex(),
             { search, archived: filters.archived },
             { preserveState: true, replace: true },
         );
@@ -59,7 +63,7 @@ export default function AdminWorkspacesIndex({ workspaces, filters }: Props) {
 
     function toggleArchived() {
         router.get(
-            '/admin/workspaces',
+            adminWorkspacesIndex(),
             { search: filters.search, archived: !filters.archived },
             { preserveState: true, replace: true },
         );
@@ -158,7 +162,7 @@ export default function AdminWorkspacesIndex({ workspaces, filters }: Props) {
                                         </TableCell>
                                         <TableCell>
                                             <Link
-                                                href={`/admin/workspaces/${ws.id}`}
+                                                href={adminWorkspaceShow(ws.slug)}
                                                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                                             >
                                                 {t('common.view')}

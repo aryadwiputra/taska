@@ -18,48 +18,56 @@ class WorkloadController extends Controller
 
         $members = $project->members()
             ->with('user:id,name,avatar')
-            ->get()
-            ->map(function ($member) use ($project) {
-                $tasks = $project->tasks()
-                    ->whereHas('assignees', fn ($q) => $q->where('users.id', $member->user_id))
-                    ->whereNull('archived_at')
-                    ->get();
+            ->get();
 
-                $totalStoryPoints = $tasks->sum('story_points');
-                $completedStoryPoints = $tasks->filter(fn ($t) => $t->completed_at !== null)->sum('story_points');
+        $allTasks = $project->tasks()
+            ->with(['assignees:id', 'sprints:id,name,status'])
+            ->whereNull('archived_at')
+            ->get();
 
-                $bySprint = $tasks->flatMap(fn ($t) => $t->sprints->map(fn ($s) => $s->id))
-                    ->countBy()
-                    ->map(function ($count, $sprintId) use ($tasks, $project) {
-                        $sprint = $project->sprints()->find($sprintId);
-                        $sprintTasks = $tasks->filter(fn ($t) => $t->sprints->contains('id', $sprintId));
+        $allSprints = $project->sprints()
+            ->get(['id', 'name', 'status']);
 
-                        return [
-                            'id' => $sprintId,
-                            'name' => $sprint?->name ?? 'Unknown',
-                            'status' => $sprint?->status ?? 'unknown',
-                            'total' => $sprintTasks->count(),
-                            'completed' => $sprintTasks->filter(fn ($t) => $t->completed_at !== null)->count(),
-                            'story_points' => $sprintTasks->sum('story_points'),
-                        ];
-                    })
-                    ->values();
+        $members = $members->map(function ($member) use ($allTasks, $allSprints) {
+            $tasks = $allTasks->filter(
+                fn ($t) => $t->assignees->contains('id', $member->user_id)
+            );
 
-                $unscheduledTasks = $tasks->filter(fn ($t) => $t->sprints->isEmpty());
+            $totalStoryPoints = $tasks->sum('story_points');
+            $completedStoryPoints = $tasks->filter(fn ($t) => $t->completed_at !== null)->sum('story_points');
 
-                return [
-                    'id' => $member->user->id,
-                    'name' => $member->user->name,
-                    'avatar' => $member->user->avatar,
-                    'capacity_hours' => $member->capacity_hours,
-                    'total_tasks' => $tasks->count(),
-                    'completed_tasks' => $tasks->filter(fn ($t) => $t->completed_at !== null)->count(),
-                    'total_story_points' => $totalStoryPoints,
-                    'completed_story_points' => $completedStoryPoints,
-                    'by_sprint' => $bySprint,
-                    'unscheduled_count' => $unscheduledTasks->count(),
-                ];
-            })
+            $bySprint = $tasks->flatMap(fn ($t) => $t->sprints->map(fn ($s) => $s->id))
+                ->countBy()
+                ->map(function ($count, $sprintId) use ($tasks, $allSprints) {
+                    $sprint = $allSprints->firstWhere('id', (int) $sprintId);
+                    $sprintTasks = $tasks->filter(fn ($t) => $t->sprints->contains('id', (int) $sprintId));
+
+                    return [
+                        'id' => $sprintId,
+                        'name' => $sprint?->name ?? 'Unknown',
+                        'status' => $sprint?->status ?? 'unknown',
+                        'total' => $sprintTasks->count(),
+                        'completed' => $sprintTasks->filter(fn ($t) => $t->completed_at !== null)->count(),
+                        'story_points' => $sprintTasks->sum('story_points'),
+                    ];
+                })
+                ->values();
+
+            $unscheduledTasks = $tasks->filter(fn ($t) => $t->sprints->isEmpty());
+
+            return [
+                'id' => $member->user->id,
+                'name' => $member->user->name,
+                'avatar' => $member->user->avatar,
+                'capacity_hours' => $member->capacity_hours,
+                'total_tasks' => $tasks->count(),
+                'completed_tasks' => $tasks->filter(fn ($t) => $t->completed_at !== null)->count(),
+                'total_story_points' => $totalStoryPoints,
+                'completed_story_points' => $completedStoryPoints,
+                'by_sprint' => $bySprint,
+                'unscheduled_count' => $unscheduledTasks->count(),
+            ];
+        })
             ->sortByDesc('total_tasks')
             ->values();
 

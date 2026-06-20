@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { SearchX } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export default function TaskSearch({ tasks, filters, options }: Props) {
+    const { t } = useTranslation();
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerWorkspaceSlug, setDrawerWorkspaceSlug] = useState<string>('');
     const [drawerProjectSlug, setDrawerProjectSlug] = useState<string>('');
@@ -33,16 +35,16 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
 
     return (
         <>
-            <Head title="Task Search" />
+            <Head title={t('task_search.title')} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
-                    title="Task Search"
-                    description="Search tasks across projects you can access."
+                    title={t('task_search.title')}
+                    description={t('task_search.description')}
                     badge={
                         <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                             {tasks.total}{' '}
-                            {tasks.total === 1 ? 'result' : 'results'}
+                            {tasks.total === 1 ? t('task_search.result') : t('task_search.results')}
                         </span>
                     }
                 />
@@ -52,8 +54,8 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
                 {tasks.data.length === 0 ? (
                     <EmptyState
                         icon={SearchX}
-                        title="No matching tasks"
-                        description="Try changing the search term or filters."
+                        title={t('task_search.empty_title')}
+                        description={t('task_search.empty_description')}
                         className="py-20"
                     />
                 ) : (

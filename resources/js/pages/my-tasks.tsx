@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Calendar, CheckCircle2, Filter } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -48,19 +49,32 @@ const priorityLabels: Record<string, string> = {
     urgent: 'Urgent',
 };
 
+const statusOptionKeys = ['all_statuses', 'todo', 'in_progress', 'review', 'done', 'backlog'] as const;
+
+const priorityLabelKeys = ['lowest', 'low', 'medium', 'high', 'highest', 'urgent'] as const;
+
 const ALL_FILTERS_VALUE = 'all';
 
-const statusOptions = [
-    { value: ALL_FILTERS_VALUE, label: 'All statuses' },
-    { value: 'todo', label: 'Todo' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'review', label: 'Review' },
-    { value: 'done', label: 'Done' },
-    { value: 'backlog', label: 'Backlog' },
-];
-
 export default function MyTasks({ tasks, projects, filters }: Props) {
-    const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
+    const { t } = useTranslation();
+
+    const statusOptions = [
+        { value: ALL_FILTERS_VALUE, label: t('task_search.all_statuses') },
+        { value: 'todo', label: t('task_search.todo') },
+        { value: 'in_progress', label: t('task_search.in_progress') },
+        { value: 'review', label: t('task_search.review') },
+        { value: 'done', label: t('task_search.done') },
+        { value: 'backlog', label: t('task_search.backlog') },
+    ];
+
+    const priorityLabels: Record<string, string> = {
+        lowest: t('priority_labels.lowest'),
+        low: t('priority_labels.low'),
+        medium: t('priority_labels.medium'),
+        high: t('priority_labels.high'),
+        highest: t('priority_labels.highest'),
+        urgent: t('priority_labels.urgent'),
+    };
     const [drawerWorkspaceSlug, setDrawerWorkspaceSlug] = useState<string>('');
     const [drawerProjectSlug, setDrawerProjectSlug] = useState<string>('');
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -83,12 +97,12 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
 
     return (
         <>
-            <Head title="My Tasks" />
+            <Head title={t('my_tasks.title')} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
-                    title="My Tasks"
-                    description="Tasks assigned to you across all projects."
+                    title={t('my_tasks.title')}
+                    description={t('my_tasks.description')}
                 />
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -99,7 +113,7 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                         onValueChange={(v) => updateFilter('status', v)}
                     >
                         <SelectTrigger className="h-8 w-36">
-                            <SelectValue placeholder="Status" />
+                            <SelectValue placeholder={t('task.status')} />
                         </SelectTrigger>
                         <SelectContent>
                             {statusOptions.map((opt) => (
@@ -115,11 +129,11 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                         onValueChange={(v) => updateFilter('project_id', v)}
                     >
                         <SelectTrigger className="h-8 w-44">
-                            <SelectValue placeholder="All projects" />
+                            <SelectValue placeholder={t('task_search.all_projects')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value={ALL_FILTERS_VALUE}>
-                                All projects
+                                {t('task_search.all_projects')}
                             </SelectItem>
                             {projects.map((p) => (
                                 <SelectItem key={p.id} value={p.id.toString()}>
@@ -134,11 +148,11 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                         onValueChange={(v) => updateFilter('priority_id', v)}
                     >
                         <SelectTrigger className="h-8 w-40">
-                            <SelectValue placeholder="Priority" />
+                            <SelectValue placeholder={t('task.priority')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value={ALL_FILTERS_VALUE}>
-                                All priorities
+                                {t('task_search.all_priorities')}
                             </SelectItem>
                             {Object.entries(priorityLabels).map(
                                 ([key, label]) => (
@@ -154,8 +168,8 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                 {tasks.data.length === 0 ? (
                     <EmptyState
                         icon={CheckCircle2}
-                        title="No tasks assigned"
-                        description="Tasks assigned to you will appear here."
+                        title={t('my_tasks.empty_title')}
+                        description={t('my_tasks.empty_description')}
                         className="py-20"
                     />
                 ) : (
@@ -235,22 +249,22 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                                 <thead>
                                     <tr className="border-b bg-muted/50">
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Task
+                                            {t('my_tasks.table_task')}
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Status
+                                            {t('task.status')}
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Priority
+                                            {t('task.priority')}
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Project
+                                            {t('my_tasks.table_project')}
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Due date
+                                            {t('task.due_date')}
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                            Assignees
+                                            {t('task.assignees')}
                                         </th>
                                     </tr>
                                 </thead>

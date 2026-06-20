@@ -10,7 +10,7 @@ class StoreTaskBulkOperationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('view', $this->project) ?? false;
+        return $this->user()?->can('update', $this->project) ?? false;
     }
 
     /**

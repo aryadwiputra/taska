@@ -6,6 +6,7 @@ use App\Models\ApprovalFlow;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Workspace;
+use App\Support\Rbac;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -50,8 +51,7 @@ class ApprovalFlowController extends Controller
                         'name' => $m->user->name,
                         'avatar' => $m->user->avatar,
                     ]),
-                'roles' => $workspace->roles()
-                    ->pluck('name')
+                'roles' => collect(Rbac::WORKSPACE_ROLES)
                     ->map(fn ($name) => ['value' => $name, 'label' => ucfirst($name)])
                     ->values(),
             ],

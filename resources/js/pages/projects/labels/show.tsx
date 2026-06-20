@@ -93,7 +93,6 @@ export default function LabelShow({
             <Head title={`${label.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
                         title={label.name}
                         backHref={projectSettings({
@@ -130,6 +129,7 @@ export default function LabelShow({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-3xl">
                     <Card>
                         <CardHeader>
                             <CardTitle>Tasks</CardTitle>

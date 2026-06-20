@@ -11,6 +11,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { index as adminWorkspacesIndex } from '@/routes/admin/workspaces';
 
 interface Member {
     id: number;
@@ -44,7 +45,7 @@ export default function AdminWorkspaceShow({ workspace, members }: Props) {
             <PageHeader
                 title={workspace.name}
                 description={workspace.description}
-                backHref="/admin/workspaces"
+                backHref={adminWorkspacesIndex().url}
                 backLabel={t('workspace.back_to_workspaces')}
                 badge={
                     <span className="text-xs text-green-600 dark:text-green-400">

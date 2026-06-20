@@ -3,6 +3,8 @@ import { LayoutDashboard, Users, Building2, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { index as adminUsersIndex } from '@/routes/admin/users';
+import { index as adminWorkspacesIndex } from '@/routes/admin/workspaces';
 
 interface RecentUser {
     id: number;
@@ -43,7 +45,7 @@ export default function AdminDashboard({ stats }: Props) {
                     <CardContent>
                         <p className="text-3xl font-bold">{stats.totalUsers}</p>
                         <Link
-                            href="/admin/users"
+                            href={adminUsersIndex()}
                             className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
                         >
                             {t('admin.view_all')}{' '}
@@ -64,7 +66,7 @@ export default function AdminDashboard({ stats }: Props) {
                             {stats.totalWorkspaces}
                         </p>
                         <Link
-                            href="/admin/workspaces"
+                            href={adminWorkspacesIndex()}
                             className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
                         >
                             {t('admin.view_all')}{' '}

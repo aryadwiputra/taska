@@ -155,7 +155,6 @@ export default function EpicShow({
             <Head title={`${epic.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-3xl">
                     <PageHeader
                         title={epic.name}
                         description={epic.summary}
@@ -196,6 +195,7 @@ export default function EpicShow({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-3xl">
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                         <div
                             className="h-full rounded-full bg-primary transition-all"

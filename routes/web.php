@@ -56,7 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('my-notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('my-notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('my-notifications.read-all');
-    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('my-notifications.destroy');
 
     Route::get('/api/users/search', function (Request $request) {
         $q = $request->query('q', '');
@@ -66,7 +66,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->orWhere('name', 'like', "%{$q}%")
             ->limit(10)
             ->get(['id', 'name', 'email']);
-    })->name('users.search');
+    })->name('users.search')->middleware('throttle:120,1');
 
     Route::get('/workspaces', [WorkspaceController::class, 'index'])->name('workspaces.index');
     Route::get('/workspaces/create', [WorkspaceController::class, 'create'])->name('workspaces.create');
@@ -202,8 +202,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/github/callback', [GitHubAuthController::class, 'callback'])->name('projects.github.callback');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/github', [GitHubAuthController::class, 'destroy'])->name('projects.github.destroy');
 
-        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
-        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/bulk', [TaskBulkOperationController::class, 'store'])->name('projects.tasks.bulk');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store')->middleware('throttle:60,1');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/bulk', [TaskBulkOperationController::class, 'store'])->name('projects.tasks.bulk')->middleware('throttle:30,1');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
         Route::patch('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
@@ -223,18 +223,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/approve', [ApprovalFlowController::class, 'approve'])->name('projects.tasks.approve');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/reject', [ApprovalFlowController::class, 'reject'])->name('projects.tasks.reject');
 
-        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/notification-rules', [NotificationRuleController::class, 'index'])->name('projects.notification-rules.index');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/notification-rules', [NotificationRuleController::class, 'store'])->name('projects.notification-rules.store');
         Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/notification-rules/{rule}', [NotificationRuleController::class, 'update'])->name('projects.notification-rules.update');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/notification-rules/{rule}', [NotificationRuleController::class, 'destroy'])->name('projects.notification-rules.destroy');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/notification-rules/{rule}/toggle', [NotificationRuleController::class, 'toggle'])->name('projects.notification-rules.toggle');
 
-        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments', [TaskCommentController::class, 'store'])->name('projects.tasks.comments.store');
-        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/typing', [CommentTypingController::class, 'ping'])->name('projects.tasks.comments.typing');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments', [TaskCommentController::class, 'store'])->name('projects.tasks.comments.store')->middleware('throttle:60,1');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/typing', [CommentTypingController::class, 'ping'])->name('projects.tasks.comments.typing')->middleware('throttle:30,1');
         Route::patch('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'update'])->name('projects.tasks.comments.update');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'destroy'])->name('projects.tasks.comments.destroy');
 
-        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments', [TaskAttachmentController::class, 'store'])->name('projects.tasks.attachments.store');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments', [TaskAttachmentController::class, 'store'])->name('projects.tasks.attachments.store')->middleware('throttle:20,1');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}/preview', [TaskAttachmentPreviewController::class, 'preview'])->name('projects.tasks.attachments.preview');
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}/download', [TaskAttachmentPreviewController::class, 'download'])->name('projects.tasks.attachments.download');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/attachments/{attachment}', [TaskAttachmentController::class, 'destroy'])->name('projects.tasks.attachments.destroy');

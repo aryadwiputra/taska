@@ -75,12 +75,12 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Dashboard" />
+            <Head title={t('dashboard.title')} />
 
             <div className="flex flex-1 flex-col gap-6 pb-8">
                 <PageHeader
-                    title="Dashboard"
-                    description="Overview of your tasks and projects."
+                    title={t('dashboard.title')}
+                    description={t('dashboard.description')}
                 />
 
                 <SurfaceSection className="p-4 sm:p-6">

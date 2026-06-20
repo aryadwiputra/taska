@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StepInvite } from '@/components/onboarding/step-invite';
 import { StepProfile } from '@/components/onboarding/step-profile';
 import { StepProject } from '@/components/onboarding/step-project';
@@ -13,18 +14,19 @@ interface Props {
     currentWorkspace: { id: number; name: string; slug: string } | null;
 }
 
-const steps = [
-    { id: 1, title: 'Workspace' },
-    { id: 2, title: 'Project', optional: true },
-    { id: 3, title: 'Invite', optional: true },
-    { id: 4, title: 'Profile', optional: true },
-];
-
 export default function OnboardingIndex({
     hasWorkspace,
     hasProject,
     currentWorkspace,
 }: Props) {
+    const { t } = useTranslation();
+
+    const steps = [
+        { id: 1, title: t('onboarding.steps_workspace') },
+        { id: 2, title: t('onboarding.steps_project'), optional: true },
+        { id: 3, title: t('onboarding.steps_invite'), optional: true },
+        { id: 4, title: t('onboarding.steps_profile'), optional: true },
+    ];
     const getInitialStep = () => {
         if (!hasWorkspace) {
             return 1;
@@ -83,7 +85,7 @@ export default function OnboardingIndex({
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     onClick={goToDashboard}
                 >
-                    Skip all and go to dashboard →
+                    {t('onboarding.skip_all_dashboard')}
                 </button>
             </div>
         </div>

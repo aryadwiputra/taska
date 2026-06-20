@@ -187,7 +187,6 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
             <Head title={`${goal.title} — Goals`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
                         title={goal.title}
                         description={goal.description}
@@ -211,6 +210,7 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
                         }
                     />
 
+                <div className="mx-auto w-full max-w-4xl">
                     <div className="mt-6">
                         <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>{t('goal.overall_progress')}</span>

@@ -2,11 +2,15 @@ import { Link, usePage } from '@inertiajs/react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { dashboard } from '@/routes';
+import { dashboard as adminDashboard } from '@/routes/admin';
+import { index as adminUsersIndex } from '@/routes/admin/users';
+import { index as adminWorkspacesIndex } from '@/routes/admin/workspaces';
 
 const navItems = [
-    { href: '/admin', label: 'Dashboard' },
-    { href: '/admin/users', label: 'Users' },
-    { href: '/admin/workspaces', label: 'Workspaces' },
+    { href: adminDashboard().url, label: 'Dashboard' },
+    { href: adminUsersIndex().url, label: 'Users' },
+    { href: adminWorkspacesIndex().url, label: 'Workspaces' },
 ];
 
 export default function AdminLayout({
@@ -20,9 +24,9 @@ export default function AdminLayout({
         <AppShell variant="header">
             <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
                 <SidebarTrigger className="lg:hidden" />
-                <Link
-                    href="/admin"
-                    className="text-sm font-semibold tracking-tight"
+                    <Link
+                        href={adminDashboard()}
+                        className="text-sm font-semibold tracking-tight"
                 >
                     Admin
                 </Link>
@@ -45,7 +49,7 @@ export default function AdminLayout({
                 </nav>
                 <div className="ml-auto">
                     <Link
-                        href="/dashboard"
+                        href={dashboard()}
                         className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                         Back to app

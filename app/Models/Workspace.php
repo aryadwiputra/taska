@@ -71,6 +71,16 @@ class Workspace extends Model
         return $this->hasMany(WorkspaceSetting::class);
     }
 
+    public function integrations(): HasMany
+    {
+        return $this->hasMany(Integration::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
     protected static function booted(): void
     {
         static::created(function (Workspace $workspace) {

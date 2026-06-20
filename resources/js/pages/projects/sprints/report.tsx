@@ -88,7 +88,6 @@ export default function SprintReport({
             <Head title={`Report: ${sprint.name} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                <div className="mx-auto w-full max-w-4xl">
                     <PageHeader
                         title={sprint.name}
                         description={`${formatDate(sprint.start_date)} — ${formatDate(sprint.end_date)}`}
@@ -109,6 +108,7 @@ export default function SprintReport({
                         }
                     />
 
+                <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-6 grid gap-4 sm:grid-cols-4">
                         <SummaryCard
                             label="Tasks"
@@ -289,8 +289,7 @@ function BurndownChart({ data }: { data: BurndownPoint[] }) {
     return (
         <svg
             viewBox={`0 0 ${width} ${height}`}
-            className="w-full max-w-full"
-            style={{ fontFamily: 'monospace' }}
+            className="w-full max-w-full font-mono"
         >
             <line
                 x1={padding.left}
