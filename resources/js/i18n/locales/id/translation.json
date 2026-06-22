@@ -21,6 +21,7 @@
         "deleting": "Menghapus...",
         "creating": "Membuat...",
         "sending": "Mengirim...",
+        "apply": "Terapkan",
         "applying": "Menerapkan...",
         "disconnecting": "Memutuskan...",
         "authenticating": "Mengautentikasi...",
@@ -47,7 +48,18 @@
         "connect": "Hubungkan",
         "disconnect": "Putuskan",
         "regenerate": "Buat ulang",
-        "hide": "Sembunyikan"
+        "hide": "Sembunyikan",
+        "system": "Sistem",
+        "toggle_theme": "Ganti tema",
+        "moving_task": "Memindahkan tugas",
+        "bytes": "{{count}} byte",
+        "bytes_plural": "{{count}} byte",
+        "kilobytes": "{{size}} KB",
+        "megabytes": "{{size}} MB",
+        "not_set": "Belum diatur",
+        "optional": "opsional",
+        "show": "Tampilkan",
+        "apply": "Terapkan"
     },
     "sidebar": {
         "dashboard": "Dasbor",
@@ -119,7 +131,11 @@
     "my_tasks": {
         "title": "Tugas Saya",
         "description": "Tugas yang ditugaskan kepada Anda di semua proyek.",
-        "no_tasks": "Belum ada tugas yang ditugaskan kepada Anda."
+        "no_tasks": "Belum ada tugas yang ditugaskan kepada Anda.",
+        "empty_title": "Tidak ada tugas ditugaskan",
+        "empty_description": "Tugas yang ditugaskan kepada Anda akan muncul di sini.",
+        "table_task": "Tugas",
+        "table_project": "Proyek"
     },
     "widget": {
         "assigned_to_you": "Ditugaskan kepada Anda",
@@ -196,7 +212,27 @@
         "relates_to": "Berhubungan dengan",
         "blocks": "Memblokir",
         "duplicates": "Menduplikasi",
-        "search_code_title_desc": "Cari kode, judul, atau deskripsi..."
+        "search_code_title_desc": "Cari kode, judul, atau deskripsi...",
+        "aria_title": "Judul tugas",
+        "aria_open_full_page": "Buka halaman penuh",
+        "aria_delete_task": "Hapus tugas",
+        "select_type_placeholder": "Pilih tipe",
+        "create_description": "Tambahkan tugas baru ke papan proyek.",
+        "add_assignee": "Tambah penanggung jawab",
+        "add_label": "Tambah label",
+        "add_relation": "Tambah relasi",
+        "comment_button": "Komentar",
+        "delete_button_aria": "Hapus tugas",
+        "git_branch": "Cabang Git",
+        "go_to_project": "Ke Halaman Proyek",
+        "show_title": "{{code}} - {{project}}",
+        "show_title_aria": "Judul tugas",
+        "sub_task_placeholder": "Judul sub-tugas...",
+        "task_deleted_description": "Tugas ini telah dihapus oleh pengguna lain. Anda akan diarahkan ke halaman proyek.",
+        "task_deleted_title": "Tugas Dihapus",
+        "typing_plural": "{{count}} orang sedang mengetik...",
+        "typing_single": "{{name}} sedang mengetik...",
+        "unassigned": "Tidak ditugaskan"
     },
     "task_activity": {
         "created": "membuat tugas ini",
@@ -212,7 +248,12 @@
         "removed_relation": "menghapus relasi",
         "changed_epic": "mengubah epic dari {{from}} ke {{to}}",
         "changed_sprint": "mengubah sprint dari {{from}} ke {{to}}",
-        "updated": "memperbarui"
+        "updated": "memperbarui",
+        "changed": "mengubah",
+        "from": "dari",
+        "to": "ke",
+        "added_comment": "menambahkan komentar",
+        "deleted_item": "menghapus item"
     },
     "task_bulk": {
         "target_column": "Kolom target",
@@ -225,6 +266,14 @@
         "select_column": "Pilih kolom",
         "select_member": "Pilih anggota",
         "select_label": "Pilih label"
+    },
+    "priority_labels": {
+        "lowest": "Terendah",
+        "low": "Rendah",
+        "medium": "Sedang",
+        "high": "Tinggi",
+        "highest": "Tertinggi",
+        "urgent": "Urgent"
     },
     "task_search": {
         "all_statuses": "Semua status",
@@ -243,6 +292,12 @@
         "completed": "Selesai",
         "archived": "Diarsipkan",
         "all_states": "Semua kondisi",
+        "state": "Kondisi",
+        "clear": "Bersihkan",
+        "due_from": "Jatuh tempo dari",
+        "due_to": "Jatuh tempo hingga",
+        "created_from": "Dibuat dari",
+        "created_to": "Dibuat hingga",
         "title": "Pencarian Tugas",
         "description": "Cari tugas di semua proyek yang dapat Anda akses.",
         "result": "hasil",
@@ -270,7 +325,9 @@
         "sprint_label": "Sprint:",
         "all_sprints": "Semua sprint",
         "drop_here": "Jatuhkan di sini",
-        "no_tasks": "Tidak ada tugas"
+        "no_tasks": "Tidak ada tugas",
+        "drop_task_here": "Jatuhkan tugas di sini",
+        "board_title": "{{name}} — Papan"
     },
     "sprint": {
         "create_sprint": "Buat sprint",
@@ -291,7 +348,18 @@
         "start_sprint": "Mulai Sprint",
         "close_sprint": "Tutup Sprint",
         "view_report": "Lihat Laporan",
-        "add_task": "Tambah Tugas"
+        "add_task": "Tambah Tugas",
+        "show_title": "{{sprint}} — {{project}}"
+    },
+    "sprint_report": {
+        "page_title": "Laporan Sprint — {{name}}",
+        "tasks": "Tugas",
+        "completion": "Penyelesaian",
+        "committed_points": "Poin yang dikomit",
+        "goal_label": "Tujuan Sprint",
+        "burndown": "Burndown",
+        "no_burndown_data": "Tidak ada data burndown untuk sprint ini.",
+        "tasks_by_assignee": "Tugas berdasarkan penanggung jawab"
     },
     "epic": {
         "create_epic": "Buat epic",
@@ -305,7 +373,14 @@
         "start_date": "Tanggal mulai",
         "due_date": "Tanggal jatuh tempo",
         "epic_name": "Nama epic",
-        "brief_description": "Deskripsi singkat"
+        "brief_description": "Deskripsi singkat",
+        "show_title": "Epic: {{name}}",
+        "tasks": "Tugas",
+        "tasks_count": "{{count}} tugas",
+        "tasks_count_plural": "{{count}} tugas",
+        "remove_task_confirm": "Hapus tugas ini dari epic?",
+        "no_tasks_title": "Tidak ada tugas di epic ini",
+        "no_tasks_description": "Tambahkan tugas ke epic ini untuk mulai melacak kemajuan."
     },
     "label": {
         "create_label": "Buat label",
@@ -314,7 +389,14 @@
         "edit_description": "Perbarui detail label.",
         "name": "Nama",
         "color": "Warna",
-        "label_name": "Nama label"
+        "label_name": "Nama label",
+        "show_page_title": "Label: {{name}}",
+        "task_count": "{{count}} tugas",
+        "task_count_plural": "{{count}} tugas",
+        "no_tasks_with_label": "Tidak ada tugas dengan label ini"
+    },
+    "tasks": {
+        "title": "Tugas"
     },
     "release": {
         "title": "Rilis",
@@ -328,7 +410,14 @@
         "planned": "Direncanakan",
         "in_progress": "Sedang Dikerjakan",
         "released": "Dirilis",
-        "tasks": "tugas"
+        "tasks": "tugas",
+        "schedule": "Jadwal",
+        "epic": "Epic",
+        "new_release": "Rilis baru",
+        "create_description": "Tambahkan rilis baru untuk melacak kemajuan.",
+        "delete_release": "Hapus rilis ini? Tugas akan terlepas.",
+        "name_placeholder": "contoh: v1.0.0",
+        "description_placeholder": "Apa yang ada di rilis ini..."
     },
     "component": {
         "title": "Komponen",
@@ -337,7 +426,8 @@
         "create_component": "Buat komponen",
         "name": "Nama",
         "description": "Deskripsi",
-        "lead": "Penanggung jawab"
+        "lead": "Penanggung jawab",
+        "edit_component": "Edit komponen"
     },
     "goal": {
         "title": "Tujuan",
@@ -361,7 +451,8 @@
         "delete_key_result": "Hapus hasil kunci ini?",
         "placeholder_title": "contoh, Tingkatkan keterlibatan pengguna",
         "placeholder_description": "Deskripsi opsional...",
-        "placeholder_key_result": "contoh, Tingkatkan pengguna aktif harian"
+        "placeholder_key_result": "contoh, Tingkatkan pengguna aktif harian",
+        "show_title": "{{title}} — Tujuan"
     },
     "cross_project": {
         "timeline": "Garis Waktu Lintas Proyek",
@@ -370,7 +461,9 @@
         "timeline_description": "Tugas dengan tanggal mulai dan jatuh tempo akan muncul di garis waktu.",
         "no_tasks": "Belum ada tugas",
         "timeline_summary": "Tampilan Gantt mencakup {{projectCount}} proyek · {{taskCount}} tugas terjadwal",
-        "board_summary": "Tampilan Kanban mencakup {{projectCount}} proyek · {{taskCount}} tugas"
+        "board_summary": "Tampilan Kanban mencakup {{projectCount}} proyek · {{taskCount}} tugas",
+        "board_title": "Papan Lintas Proyek — {{name}}",
+        "timeline_title": "Garis Waktu Lintas Proyek — {{name}}"
     },
     "settings": {
         "title": "Pengaturan",
@@ -421,7 +514,8 @@
         "timezone": "Zona waktu",
         "language": "Bahasa",
         "save_profile": "Simpan profil",
-        "click_to_upload": "Klik untuk mengunggah avatar (JPG/PNG, maks 2MB)"
+        "click_to_upload": "Klik untuk mengunggah avatar (JPG/PNG, maks 2MB)",
+        "full_name": "Nama lengkap"
     },
     "appearance": {
         "light": "Terang",
@@ -529,7 +623,10 @@
         "steps_project": "Proyek",
         "steps_invite": "Undang",
         "steps_profile": "Profil",
-        "skip_all_dashboard": "Lewati semua dan ke dashboard →"
+        "skip_all_dashboard": "Lewati semua dan ke dashboard →",
+        "avatar_preview_alt": "Pratinjau avatar",
+        "select_timezone": "Pilih zona waktu",
+        "select_language": "Pilih bahasa"
     },
     "members": {
         "invite_member": "Undang anggota",
@@ -545,6 +642,7 @@
         "manager": "Manajer",
         "member": "Anggota",
         "viewer": "Penonton",
+        "owner": "Pemilik",
         "lead": "Pemimpin",
         "developer": "Developer",
         "qa": "QA"
@@ -552,12 +650,103 @@
     "workspace": {
         "select_workspace": "Pilih ruang kerja",
         "create_workspace": "Buat ruang kerja",
-        "settings": "Pengaturan Ruang Kerja"
+        "settings": "Pengaturan Ruang Kerja",
+        "manage_your_workspaces": "Kelola ruang kerja dan tim Anda.",
+        "new_workspace": "Ruang kerja baru",
+        "no_workspaces_yet": "Belum ada ruang kerja",
+        "create_first_workspace": "Buat ruang kerja pertama Anda untuk mulai mengelola proyek dan tugas.",
+        "back_to_workspaces": "Kembali ke ruang kerja",
+        "workspace_name": "Nama ruang kerja",
+        "slug_label": "Slug",
+        "description_label": "Deskripsi",
+        "description_optional": "Deskripsi (opsional)",
+        "workspace_name_placeholder": "Tim Saya",
+        "workspace_slug_placeholder": "tim-saya",
+        "workspace_desc_placeholder": "Deskripsi singkat tentang ruang kerja Anda",
+        "creating": "Membuat...",
+        "goals": "Tujuan",
+        "timeline": "Garis Waktu",
+        "board": "Papan",
+        "no_projects_yet": "Belum ada proyek",
+        "create_first_project": "Buat proyek pertama Anda untuk mulai melacak tugas.",
+        "create_project": "Buat proyek",
+        "new_project": "Proyek baru",
+        "general": "Umum",
+        "general_settings": "Pengaturan umum",
+        "workspace_settings": "Pengaturan ruang kerja",
+        "task_types": "Tipe tugas",
+        "priorities": "Prioritas",
+        "members_tab": "Anggota",
+        "danger_zone": "Zona bahaya",
+        "default_locale": "Lokal default",
+        "default_timezone": "Zona waktu default",
+        "auto_watch_tasks": "Amati otomatis tugas yang saya buat",
+        "add_type": "Tambah tipe",
+        "no_task_types_yet": "Belum ada tipe tugas.",
+        "no_priorities_yet": "Belum ada prioritas.",
+        "add_member": "Tambah anggota",
+        "no_members_yet": "Belum ada anggota.",
+        "invitations": "Undangan",
+        "email_address": "Alamat email",
+        "role_label": "Peran",
+        "send_invite": "Kirim undangan",
+        "invited_by": "Diundang oleh",
+        "no_pending_invitations": "Tidak ada undangan tertunda.",
+        "archive_workspace": "Arsipkan ruang kerja",
+        "archive_description": "Mengarsipkan ruang kerja ini akan menyembunyikannya dari daftar ruang kerja Anda dan mencegah anggota tim mengakses proyek-proyeknya. Anda dapat memulihkannya kapan saja.",
+        "confirm_archive": "Konfirmasi arsip",
+        "restore_workspace": "Pulihkan ruang kerja",
+        "restore_description": "Ruang kerja ini saat ini diarsipkan. Pulihkan untuk membuatnya aktif kembali.",
+        "remove_member_confirm": "Hapus anggota ini dari ruang kerja?",
+        "cancel_invitation_confirm": "Batalkan undangan ini?",
+        "delete_task_type_confirm": "Hapus tipe tugas ini?",
+        "delete_priority_confirm": "Hapus prioritas ini?",
+        "edit": "Edit",
+        "hide_archived": "Sembunyikan arsip",
+        "show_archived": "Tampilkan arsip",
+        "level": "Level",
+        "projects_title": "{{name}} — Proyek",
+        "settings_title": "{{name}} — Pengaturan"
     },
     "admin": {
         "dashboard": "Dasbor Admin",
         "users": "Pengguna",
-        "workspaces": "Ruang Kerja"
+        "workspaces": "Ruang Kerja",
+        "system_overview": "Ringkasan sistem dan pengelolaan.",
+        "total_users": "Total Pengguna",
+        "total_workspaces": "Total Ruang Kerja",
+        "total_projects": "Total Proyek",
+        "view_all": "Lihat semua",
+        "recent_registrations": "Pendaftaran Terbaru",
+        "no_recent_users": "Tidak ada pengguna baru.",
+        "manage_all_users": "Kelola semua pengguna terdaftar.",
+        "create_user": "Buat Pengguna",
+        "edit_user": "Edit Pengguna",
+        "search_by_name_or_email": "Cari berdasarkan nama atau email...",
+        "no_users_matching": "Tidak ada pengguna yang cocok.",
+        "no_users_found": "Tidak ada pengguna ditemukan.",
+        "name": "Nama",
+        "email": "Email",
+        "role": "Peran",
+        "status": "Status",
+        "joined": "Bergabung",
+        "super_admin": "Super Admin",
+        "user": "Pengguna",
+        "deleted": "Dihapus",
+        "active": "Aktif",
+        "new_password_leave_blank": "Kata sandi baru (kosongkan untuk tetap)",
+        "password": "Kata sandi",
+        "workspaces_all": "Ruang Kerja",
+        "all_workspaces": "Semua ruang kerja di seluruh sistem.",
+        "search_workspaces": "Cari ruang kerja...",
+        "no_workspaces_matching": "Tidak ada ruang kerja yang cocok.",
+        "no_workspaces_found": "Tidak ada ruang kerja ditemukan.",
+        "slug": "Slug",
+        "members": "Anggota",
+        "projects": "Proyek",
+        "created": "Dibuat",
+        "archived": "Diarsipkan",
+        "workspace_show_title": "{{name}} — Ruang Kerja"
     },
     "reports": {
         "title": "Laporan",
@@ -573,7 +762,8 @@
         "no_tasks": "Belum ada tugas.",
         "no_assigned_tasks": "Belum ada tugas ditugaskan.",
         "tasks": "Tugas",
-        "failed_to_load": "Gagal memuat laporan."
+        "failed_to_load": "Gagal memuat laporan.",
+        "burndown_label": "Burndown — {{name}}"
     },
     "guide": {
         "tips_title": "Tips",
@@ -751,6 +941,7 @@
     "relation": {
         "relates_to": "Berhubungan dengan",
         "blocks": "Memblokir",
+        "blocked_by": "Diblokir oleh",
         "duplicates": "Menduplikasi"
     },
     "github": {
@@ -969,7 +1160,8 @@
         "action_send_notification": "Kirim notifikasi",
         "action_send_notification_desc": "Teks pesan yang dikirim ke penanggung jawab tugas, atau ke pelapor jika belum ada penanggung jawab.",
         "action_add_comment": "Tambahkan komentar",
-        "action_add_comment_desc": "Komentar yang akan ditambahkan ke tugas oleh Automation Bot."
+        "action_add_comment_desc": "Komentar yang akan ditambahkan ke tugas oleh Automation Bot.",
+        "page_title": "Otomatisasi — {{name}}"
     },
     "sla_page": {
         "title": "Kebijakan SLA",
@@ -992,7 +1184,8 @@
         "response": "Respons:",
         "resolution": "Penyelesaian:",
         "edit_policy_title": "Edit kebijakan",
-        "delete_policy_title": "Hapus kebijakan"
+        "delete_policy_title": "Hapus kebijakan",
+        "page_title": "Kebijakan SLA — {{name}}"
     },
     "approvals_page": {
         "title": "Alur Approval",
@@ -1013,6 +1206,131 @@
         "delete_confirm": "Hapus alur approval ini?",
         "approvals_required": "Butuh {{count}} approval",
         "approvals_required_plural": "Butuh {{count}} approval",
-        "role_prefix": "Role: {{value}}"
+        "role_prefix": "Role: {{value}}",
+        "page_title": "Alur Approval — {{name}}"
+    },
+    "calendar": {
+        "today": "Hari ini",
+        "more": "+{{count}} lagi"
+    },
+    "gantt": {
+        "tasks": "Tugas",
+        "no_tasks": "Tidak ada tugas dengan tanggal untuk ditampilkan di bagan Gantt."
+    },
+    "confirm_dialog": {
+        "cancel": "Batal",
+        "deleting": "Menghapus..."
+    },
+    "alert": {
+        "something_went_wrong": "Terjadi kesalahan."
+    },
+    "attachment": {
+        "download": "Unduh",
+        "download_file": "Unduh file",
+        "preview_not_available": "Pratinjau tidak tersedia untuk jenis file ini."
+    },
+    "activity_log": {
+        "title": "Log aktivitas",
+        "description": "Semua perubahan yang dilakukan pada tugas di proyek ini.",
+        "empty_title": "Belum ada aktivitas",
+        "empty_description": "Aktivitas akan muncul di sini saat tugas dibuat atau diperbarui."
+    },
+    "backlog": {
+        "title": "Backlog",
+        "description": "{{count}} tugas belum ditugaskan ke sprint",
+        "description_plural": "{{count}} tugas belum ditugaskan ke sprint",
+        "empty_title": "Backlog kosong",
+        "empty_description": "Buat tugas untuk menambahkannya ke backlog."
+    },
+    "workload": {
+        "title": "Beban Kerja Tim",
+        "description": "Lihat distribusi tugas dan kapasitas anggota tim.",
+        "empty_title": "Tidak ada anggota tim",
+        "empty_description": "Tambahkan anggota ke proyek ini untuk melihat beban kerja.",
+        "page_title": "Beban Kerja — {{name}}"
+    },
+    "project_show": {
+        "tabs_list": "Daftar",
+        "tabs_files": "Berkas",
+        "select_visible_tasks": "Pilih tugas yang terlihat",
+        "gantt": "Gantt",
+        "calendar": "Kalender",
+        "no_files_yet": "Belum ada berkas",
+        "files_empty_description": "Lampiran yang diunggah ke tugas akan muncul di sini.",
+        "no_project_activity": "Belum ada aktivitas proyek.",
+        "empty_epics": "Belum ada epik. Buat epik pertama Anda untuk mengelompokkan tugas terkait.",
+        "empty_sprints": "Belum ada sprint. Buat sprint pertama Anda untuk merencanakan iterasi.",
+        "empty_labels": "Belum ada label. Buat label pertama Anda untuk mengkategorikan tugas."
+    },
+    "overdue_widget": {
+        "task_past_due": "{{count}} tugas terlambat",
+        "tasks_past_due": "{{count}} tugas terlambat"
+    },
+    "components_page": {
+        "delete_component": "Hapus komponen",
+        "name_placeholder": "Contoh: Frontend, API, Auth",
+        "description_placeholder": "Deskripsi opsional",
+        "lead_placeholder": "Tunjuk penanggung jawab..."
+    },
+    "two_factor_challenge": {
+        "recovery_description": "Konfirmasi akses ke akun Anda dengan memasukkan salah satu kode pemulihan darurat Anda.",
+        "authentication_description": "Masukkan kode autentikasi yang diberikan oleh aplikasi autentikator Anda.",
+        "use_authentication_code": "masuk menggunakan kode autentikasi",
+        "use_recovery_code": "masuk menggunakan kode pemulihan"
+    },
+    "project_settings": {
+        "page_description": "Kelola detail proyek, alur kerja, anggota, dan integrasi.",
+        "project_settings": "Pengaturan proyek",
+        "project_name": "Nama proyek",
+        "default_board": "Papan default",
+        "default_assignee": "Penanggung jawab default",
+        "no_default": "Tidak ada default",
+        "auto_assign_task": "Tugaskan otomatis",
+        "no_members_yet": "Belum ada anggota.",
+        "add_label": "Tambah label",
+        "no_labels_yet": "Belum ada label.",
+        "no_board_found": "Tidak ada papan ditemukan.",
+        "status_key": "Kunci Status",
+        "no_columns_yet": "Belum ada kolom.",
+        "add_epic": "Tambah epik",
+        "no_epics_yet": "Belum ada epik.",
+        "add_sprint": "Tambah sprint",
+        "no_sprints_yet": "Belum ada sprint.",
+        "archive_description": "Mengarsipkan proyek ini akan menyembunyikannya dari daftar proyek Anda dan mencegah anggota tim mengaksesnya. Anda dapat memulihkannya kapan saja.",
+        "archive_project": "Arsipkan proyek",
+        "confirm_archive": "Konfirmasi arsip",
+        "restore_description": "Proyek ini saat ini diarsipkan. Pulihkan untuk membuatnya aktif kembali.",
+        "restore_project": "Pulihkan proyek",
+        "done_column": "Selesai"
+    },
+    "notification_rules": {
+        "delete_confirm": "Hapus aturan notifikasi ini?",
+        "name_placeholder": "Contoh: Notifikasi saat status berubah",
+        "select_event": "Pilih peristiwa...",
+        "value_placeholder": "Nilai"
+    },
+    "board_column": {
+        "column_placeholder": "Sedang Dikerjakan",
+        "status_key_placeholder": "sedang_dikerjakan",
+        "wip_infinity": "∞",
+        "wip_placeholder": "WIP ∞",
+        "no_columns_yet": "Belum ada kolom.",
+        "delete_confirm": "Hapus \"{{name}}\"?"
+    },
+    "automation_field": {
+        "field_placeholder": "Kolom",
+        "operator_placeholder": "Operator",
+        "value_placeholder": "Nilai",
+        "condition_suffix": "",
+        "action_suffix": ""
+    },
+    "workspace_settings": {
+        "task_type_placeholder": "Bug",
+        "priority_placeholder": "Kritis"
+    },
+    "app_header": {
+        "repository": "Repositori",
+        "documentation": "Dokumentasi",
+        "navigation_menu": "Menu navigasi"
     }
 }

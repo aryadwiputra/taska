@@ -21,6 +21,7 @@
         "deleting": "Deleting...",
         "creating": "Creating...",
         "sending": "Sending...",
+        "apply": "Apply",
         "applying": "Applying...",
         "disconnecting": "Disconnecting...",
         "authenticating": "Authenticating...",
@@ -48,7 +49,16 @@
         "disconnect": "Disconnect",
         "regenerate": "Regenerate",
         "hide": "Hide",
-        "optional": "optional"
+        "show": "Show",
+        "optional": "optional",
+        "system": "System",
+        "toggle_theme": "Toggle theme",
+        "moving_task": "Moving task",
+        "bytes": "{{count}} byte",
+        "bytes_plural": "{{count}} bytes",
+        "kilobytes": "{{size}} KB",
+        "megabytes": "{{size}} MB",
+        "not_set": "Not set"
     },
     "sidebar": {
         "dashboard": "Dashboard",
@@ -201,7 +211,27 @@
         "relates_to": "Relates to",
         "blocks": "Blocks",
         "duplicates": "Duplicates",
-        "search_code_title_desc": "Search code, title, or description..."
+        "search_code_title_desc": "Search code, title, or description...",
+        "aria_title": "Task title",
+        "aria_open_full_page": "Open full page",
+        "aria_delete_task": "Delete task",
+        "select_type_placeholder": "Select type",
+        "create_description": "Add a new task to the project board.",
+        "add_assignee": "Add assignee",
+        "add_label": "Add label",
+        "add_relation": "Add relation",
+        "comment_button": "Comment",
+        "delete_button_aria": "Delete task",
+        "git_branch": "Git branch",
+        "go_to_project": "Go to Project",
+        "show_title": "{{code}} - {{project}}",
+        "show_title_aria": "Task title",
+        "sub_task_placeholder": "Sub-task title...",
+        "task_deleted_description": "This task has been deleted by another user. You will be redirected to the project page.",
+        "task_deleted_title": "Task Deleted",
+        "typing_plural": "{{count}} people are typing...",
+        "typing_single": "{{name}} is typing...",
+        "unassigned": "Unassigned"
     },
     "task_activity": {
         "created": "created this task",
@@ -217,7 +247,12 @@
         "removed_relation": "removed relation",
         "changed_epic": "changed epic from {{from}} to {{to}}",
         "changed_sprint": "changed sprint from {{from}} to {{to}}",
-        "updated": "updated"
+        "updated": "updated",
+        "changed": "changed",
+        "from": "from",
+        "to": "to",
+        "added_comment": "added a comment",
+        "deleted_item": "deleted an item"
     },
     "task_bulk": {
         "target_column": "Target column",
@@ -256,6 +291,12 @@
         "completed": "Completed",
         "archived": "Archived",
         "all_states": "All states",
+        "state": "State",
+        "clear": "Clear",
+        "due_from": "Due from",
+        "due_to": "Due to",
+        "created_from": "Created from",
+        "created_to": "Created to",
         "title": "Task Search",
         "description": "Search tasks across projects you can access.",
         "result": "result",
@@ -283,7 +324,58 @@
         "sprint_label": "Sprint:",
         "all_sprints": "All sprints",
         "drop_here": "Drop here",
-        "no_tasks": "No tasks"
+        "no_tasks": "No tasks",
+        "drop_task_here": "Drop task here",
+        "board_title": "{{name}} — Board"
+    },
+    "activity_log": {
+        "title": "Activity log",
+        "description": "All changes made to tasks in this project.",
+        "empty_title": "No activity yet",
+        "empty_description": "Activity will appear here when tasks are created or updated."
+    },
+    "backlog": {
+        "title": "Backlog",
+        "description": "{{count}} task not assigned to any sprint",
+        "description_plural": "{{count}} tasks not assigned to any sprint",
+        "empty_title": "Backlog is empty",
+        "empty_description": "Create tasks to add them to the backlog."
+    },
+    "workload": {
+        "title": "Team Workload",
+        "description": "View task distribution and capacity across team members.",
+        "page_title": "Workload — {{name}}",
+        "empty_title": "No team members",
+        "empty_description": "Add members to this project to view workload."
+    },
+    "project_show": {
+        "tabs_list": "List",
+        "tabs_files": "Files",
+        "select_visible_tasks": "Select visible tasks",
+        "gantt": "Gantt",
+        "calendar": "Calendar",
+        "no_files_yet": "No files yet",
+        "files_empty_description": "Attachments uploaded to tasks will appear here.",
+        "no_project_activity": "No project activity yet.",
+        "empty_epics": "No epics yet. Create your first epic to group related tasks.",
+        "empty_sprints": "No sprints yet. Create your first sprint to plan iterations.",
+        "empty_labels": "No labels yet. Create your first label to categorize tasks."
+    },
+    "overdue_widget": {
+        "task_past_due": "{{count}} task is past due",
+        "tasks_past_due": "{{count}} tasks are past due"
+    },
+    "components_page": {
+        "delete_component": "Delete component",
+        "name_placeholder": "e.g. Frontend, API, Auth",
+        "description_placeholder": "Optional description",
+        "lead_placeholder": "Assign a lead..."
+    },
+    "two_factor_challenge": {
+        "recovery_description": "Please confirm access to your account by entering one of your emergency recovery codes.",
+        "authentication_description": "Enter the authentication code provided by your authenticator application.",
+        "use_authentication_code": "login using an authentication code",
+        "use_recovery_code": "login using a recovery code"
     },
     "sprint": {
         "create_sprint": "Create sprint",
@@ -304,7 +396,18 @@
         "start_sprint": "Start Sprint",
         "close_sprint": "Close Sprint",
         "view_report": "View Report",
-        "add_task": "Add Task"
+        "add_task": "Add Task",
+        "show_title": "{{sprint}} — {{project}}"
+    },
+    "sprint_report": {
+        "page_title": "Sprint Report — {{name}}",
+        "tasks": "Tasks",
+        "completion": "Completion",
+        "committed_points": "Committed points",
+        "goal_label": "Sprint Goal",
+        "burndown": "Burndown",
+        "no_burndown_data": "No burndown data available for this sprint.",
+        "tasks_by_assignee": "Tasks by assignee"
     },
     "epic": {
         "create_epic": "Create epic",
@@ -318,7 +421,14 @@
         "start_date": "Start date",
         "due_date": "Due date",
         "epic_name": "Epic name",
-        "brief_description": "Brief description"
+        "brief_description": "Brief description",
+        "show_title": "Epic: {{name}}",
+        "tasks": "Tasks",
+        "tasks_count": "{{count}} task",
+        "tasks_count_plural": "{{count}} tasks",
+        "remove_task_confirm": "Remove this task from the epic?",
+        "no_tasks_title": "No tasks in this epic",
+        "no_tasks_description": "Add tasks to this epic to start tracking progress."
     },
     "label": {
         "create_label": "Create label",
@@ -327,7 +437,14 @@
         "edit_description": "Update the label details.",
         "name": "Name",
         "color": "Color",
-        "label_name": "Label name"
+        "label_name": "Label name",
+        "show_page_title": "Label: {{name}}",
+        "task_count": "{{count}} task",
+        "task_count_plural": "{{count}} tasks",
+        "no_tasks_with_label": "No tasks with this label"
+    },
+    "tasks": {
+        "title": "Tasks"
     },
     "release": {
         "title": "Releases",
@@ -341,7 +458,14 @@
         "planned": "Planned",
         "in_progress": "In Progress",
         "released": "Released",
-        "tasks": "tasks"
+        "tasks": "tasks",
+        "schedule": "Schedule",
+        "epic": "Epic",
+        "new_release": "New release",
+        "create_description": "Add a new release to track progress.",
+        "delete_release": "Delete this release? Tasks will be unassigned.",
+        "name_placeholder": "e.g. v1.0.0",
+        "description_placeholder": "What's in this release..."
     },
     "component": {
         "title": "Components",
@@ -350,7 +474,8 @@
         "create_component": "Create component",
         "name": "Name",
         "description": "Description",
-        "lead": "Lead"
+        "lead": "Lead",
+        "edit_component": "Edit component"
     },
     "goal": {
         "title": "Goals",
@@ -359,6 +484,7 @@
         "create_first": "Create your first goal to start tracking objectives.",
         "create_goal": "Create Goal",
         "new_goal": "New Goal",
+        "show_title": "{{title}} — Goals",
         "key_results": "Key Results",
         "linked_epics": "Linked Epics",
         "title_label": "Title",
@@ -383,7 +509,9 @@
         "timeline_description": "Tasks with start and due dates will appear on the timeline.",
         "no_tasks": "No tasks",
         "timeline_summary": "Gantt view spanning {{projectCount}} projects · {{taskCount}} scheduled tasks",
-        "board_summary": "Kanban view spanning {{projectCount}} projects · {{taskCount}} tasks"
+        "board_summary": "Kanban view spanning {{projectCount}} projects · {{taskCount}} tasks",
+        "board_title": "Cross-Project Board — {{name}}",
+        "timeline_title": "Cross-Project Timeline — {{name}}"
     },
     "settings": {
         "title": "Settings",
@@ -434,7 +562,8 @@
         "timezone": "Timezone",
         "language": "Language",
         "save_profile": "Save profile",
-        "click_to_upload": "Click to upload avatar (JPG/PNG, max 2MB)"
+        "click_to_upload": "Click to upload avatar (JPG/PNG, max 2MB)",
+        "full_name": "Full name"
     },
     "appearance": {
         "light": "Light",
@@ -575,6 +704,8 @@
         "no_workspaces_yet": "No workspaces yet",
         "create_first_workspace": "Create your first workspace to start managing projects and tasks.",
         "back_to_workspaces": "Back to workspaces",
+        "projects_title": "{{name}} — Projects",
+        "settings_title": "{{name}} — Settings",
         "workspace_name": "Workspace name",
         "slug_label": "Slug",
         "description_label": "Description",
@@ -655,6 +786,7 @@
         "password": "Password",
         "workspaces_all": "Workspaces",
         "all_workspaces": "All workspaces across the system.",
+        "workspace_show_title": "{{name}} — Workspace",
         "search_workspaces": "Search workspaces...",
         "no_workspaces_matching": "No workspaces matching your search.",
         "no_workspaces_found": "No workspaces found.",
@@ -857,6 +989,7 @@
     "relation": {
         "relates_to": "Relates to",
         "blocks": "Blocks",
+        "blocked_by": "Blocked by",
         "duplicates": "Duplicates"
     },
     "github": {
@@ -990,6 +1123,7 @@
     "automation": {
         "title": "Automation Rules",
         "description": "Create rules to automate task management",
+        "page_title": "Automation — {{name}}",
         "new_rule": "New Rule",
         "create_rule": "Create Rule",
         "create_automation_rule": "Create Automation Rule",
@@ -1083,7 +1217,8 @@
         "response": "Response:",
         "resolution": "Resolution:",
         "edit_policy_title": "Edit policy",
-        "delete_policy_title": "Delete policy"
+        "delete_policy_title": "Delete policy",
+        "page_title": "SLA Policies — {{name}}"
     },
     "sprint_page": {
         "sprints": "Sprints",
@@ -1119,7 +1254,8 @@
         "delete_confirm": "Delete this approval flow?",
         "approvals_required": "{{count}} approval required",
         "approvals_required_plural": "{{count}} approvals required",
-        "role_prefix": "Role: {{value}}"
+        "role_prefix": "Role: {{value}}",
+        "page_title": "Approval Flows — {{name}}"
     },
     "calendar": {
         "today": "Today",
@@ -1140,5 +1276,60 @@
         "download": "Download",
         "download_file": "Download file",
         "preview_not_available": "Preview not available for this file type."
+    },
+    "project_settings": {
+        "page_description": "Manage project details, workflow, members, and integrations.",
+        "project_settings": "Project settings",
+        "project_name": "Project name",
+        "default_board": "Default board",
+        "default_assignee": "Default assignee",
+        "no_default": "No default",
+        "auto_assign_task": "Auto-assign task",
+        "no_members_yet": "No members yet.",
+        "add_label": "Add label",
+        "no_labels_yet": "No labels yet.",
+        "no_board_found": "No board found.",
+        "status_key": "Status Key",
+        "no_columns_yet": "No columns yet.",
+        "add_epic": "Add epic",
+        "no_epics_yet": "No epics yet.",
+        "add_sprint": "Add sprint",
+        "no_sprints_yet": "No sprints yet.",
+        "archive_description": "Archiving this project will hide it from your project list and prevent team members from accessing it. You can restore it at any time.",
+        "archive_project": "Archive project",
+        "confirm_archive": "Confirm archive",
+        "restore_description": "This project is currently archived. Restore it to make it active again.",
+        "restore_project": "Restore project",
+        "done_column": "Done"
+    },
+    "notification_rules": {
+        "delete_confirm": "Delete this notification rule?",
+        "name_placeholder": "e.g., Notify on status change",
+        "select_event": "Select event...",
+        "value_placeholder": "Value"
+    },
+    "board_column": {
+        "column_placeholder": "In Progress",
+        "status_key_placeholder": "in_progress",
+        "wip_infinity": "∞",
+        "wip_placeholder": "WIP ∞",
+        "no_columns_yet": "No columns yet.",
+        "delete_confirm": "Delete \"{{name}}\"?"
+    },
+    "automation_field": {
+        "field_placeholder": "Field",
+        "operator_placeholder": "Operator",
+        "value_placeholder": "Value",
+        "condition_suffix": "",
+        "action_suffix": ""
+    },
+    "workspace_settings": {
+        "task_type_placeholder": "Bug",
+        "priority_placeholder": "Critical"
+    },
+    "app_header": {
+        "repository": "Repository",
+        "documentation": "Documentation",
+        "navigation_menu": "Navigation menu"
     }
 }
