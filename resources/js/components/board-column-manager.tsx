@@ -170,7 +170,7 @@ export function BoardColumnManager({
     };
 
     const deleteColumn = (column: ColumnData) => {
-        if (!confirm(`Delete "${column.name}"?`)) {
+        if (!confirm(t('board_column.delete_confirm', { name: column.name }))) {
             return;
         }
 
@@ -339,7 +339,9 @@ export function BoardColumnManager({
                                                                 e.target.value,
                                                             )
                                                         }
-                                                        placeholder="∞"
+                                                        placeholder={t(
+                                                            'board_column.wip_infinity',
+                                                        )}
                                                         className="h-8 w-16 text-sm"
                                                     />
                                                 </div>
@@ -395,7 +397,7 @@ export function BoardColumnManager({
                                                 <button
                                                     type="button"
                                                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                    title="Edit column"
+                                                    title={t('common.edit')}
                                                     onClick={() =>
                                                         startEditing(column)
                                                     }
@@ -417,7 +419,7 @@ export function BoardColumnManager({
                                                 <button
                                                     type="button"
                                                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                                    title="Delete column"
+                                                    title={t('common.delete')}
                                                     onClick={() =>
                                                         deleteColumn(column)
                                                     }
@@ -444,7 +446,7 @@ export function BoardColumnManager({
                         </div>
                     ) : (
                         <p className="text-sm text-muted-foreground">
-                            No columns yet.
+                            {t('board_column.no_columns_yet')}
                         </p>
                     )}
 
@@ -528,7 +530,9 @@ export function BoardColumnManager({
                                     onChange={(e) =>
                                         setNewWipLimit(e.target.value)
                                     }
-                                    placeholder="WIP ∞"
+                                    placeholder={t(
+                                        'board_column.wip_placeholder',
+                                    )}
                                     className="h-8 w-20 text-sm"
                                 />
                             </div>

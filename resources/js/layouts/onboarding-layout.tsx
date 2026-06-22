@@ -1,13 +1,15 @@
-import { Head } from '@inertiajs/react';
-import { Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLogo from '@/components/app-logo';
 import { dashboard } from '@/routes';
 
 export default function OnboardingLayout({ children }: PropsWithChildren) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Get Started" />
+            <Head title={t('onboarding.get_started')} />
             <div className="flex min-h-svh flex-col items-center justify-center bg-muted/30 p-6">
                 <Link
                     href={dashboard()}

@@ -358,7 +358,7 @@ export function TaskBulkDialog({
                         disabled={!canSubmit || processing}
                         onClick={submit}
                     >
-                        {processing ? t('common.applying') : 'Apply'}
+                        {processing ? t('common.applying') : t('common.apply')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -57,7 +58,11 @@ export function StepProject({
             } else if (response.status === 422) {
                 const data = await response.json();
                 setErrors(data.errors ?? {});
+            } else {
+                toast.error(t('error.something_went_wrong'));
             }
+        } catch {
+            toast.error(t('error.something_went_wrong'));
         } finally {
             setProcessing(false);
         }

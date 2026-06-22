@@ -25,7 +25,7 @@ export function ConfirmDialog({
     onOpenChange,
     title,
     description,
-    confirmText = 'Delete',
+    confirmText,
     variant = 'destructive',
     onConfirm,
     processing = false,
@@ -54,7 +54,7 @@ export function ConfirmDialog({
                     >
                         {processing
                             ? t('confirm_dialog.deleting')
-                            : confirmText}
+                            : (confirmText ?? t('common.delete'))}
                     </Button>
                 </DialogFooter>
             </DialogContent>

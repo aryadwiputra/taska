@@ -1,4 +1,5 @@
 import { CalendarClock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -17,17 +18,19 @@ const priorityIndicator: Record<number, string> = {
 };
 
 export function UpcomingDeadlinesWidget({ deadlines }: Props) {
+    const { t } = useTranslation();
+
     return (
         <Card className="min-h-full">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                    Upcoming deadlines
+                    {t('widget.upcoming_deadlines')}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 {deadlines.length === 0 ? (
                     <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
-                        No upcoming deadlines this week.
+                        {t('widget.no_upcoming_deadlines')}
                     </p>
                 ) : (
                     <div className="flex flex-col gap-3">
@@ -56,7 +59,7 @@ export function UpcomingDeadlinesWidget({ deadlines }: Props) {
                                 </div>
                                 <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
                                 <span className="shrink-0 text-xs text-muted-foreground">
-                                    {formatRelativeDate(item.due_date)}
+                                    {formatRelativeDate(item.due_date, t)}
                                 </span>
                             </div>
                         ))}
@@ -67,22 +70,25 @@ export function UpcomingDeadlinesWidget({ deadlines }: Props) {
     );
 }
 
-function formatRelativeDate(date: string): string {
+function formatRelativeDate(
+    date: string,
+    translate: (key: string, options?: Record<string, unknown>) => string,
+): string {
     const now = new Date();
     const due = new Date(date);
     const diffMs = due.getTime() - now.getTime();
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays <= 0) {
-        return 'Today';
+        return translate('common.today');
     }
 
     if (diffDays === 1) {
-        return 'Tomorrow';
+        return translate('common.tomorrow');
     }
 
     if (diffDays <= 7) {
-        return `in ${diffDays} days`;
+        return translate('common.in_days', { count: diffDays });
     }
 
     return due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

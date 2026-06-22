@@ -147,7 +147,7 @@ export function NotificationRulesTab({
     };
 
     const handleDelete = (ruleId: number) => {
-        if (!confirm('Delete this notification rule?')) {
+        if (!confirm(t('notification_rules.delete_confirm'))) {
             return;
         }
 
@@ -215,7 +215,9 @@ export function NotificationRulesTab({
                                 <Input
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="e.g., Notify on status change"
+                                    placeholder={t(
+                                        'notification_rules.name_placeholder',
+                                    )}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -225,7 +227,11 @@ export function NotificationRulesTab({
                                     onValueChange={setEventType}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select event..." />
+                                        <SelectValue
+                                            placeholder={t(
+                                                'notification_rules.select_event',
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {EVENT_TYPES.map((et) => (
@@ -322,7 +328,9 @@ export function NotificationRulesTab({
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="Value"
+                                            placeholder={t(
+                                                'notification_rules.value_placeholder',
+                                            )}
                                             className="flex-1"
                                         />
                                         <Button

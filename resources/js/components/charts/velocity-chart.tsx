@@ -1,5 +1,7 @@
 'use no memo';
 
+import { useTranslation } from 'react-i18next';
+
 interface VelocitySprint {
     name: string;
     committed: number | null;
@@ -12,6 +14,8 @@ interface Props {
 }
 
 export function VelocityChart({ sprints, avgVelocity }: Props) {
+    const { t } = useTranslation();
+
     if (sprints.length === 0) {
         return null;
     }
@@ -105,7 +109,7 @@ export function VelocityChart({ sprints, avgVelocity }: Props) {
                         className="fill-muted-foreground"
                         fontSize={9}
                     >
-                        Avg
+                        {t('reports.avg_velocity', { value: avgVelocity })}
                     </text>
                 </>
             )}
@@ -158,7 +162,7 @@ export function VelocityChart({ sprints, avgVelocity }: Props) {
                 className="fill-muted-foreground"
                 fontSize={9}
             >
-                Story Points
+                {t('task.story_points')}
             </text>
         </svg>
     );

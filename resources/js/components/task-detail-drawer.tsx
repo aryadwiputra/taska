@@ -966,7 +966,7 @@ export function TaskDetailDrawer({
                                                 patchTask({ title: task.title })
                                             }
                                             className="mt-1 h-auto border-0 bg-transparent px-0 py-0 text-lg font-semibold shadow-none focus-visible:ring-0"
-                                            aria-label="Task title"
+                                            aria-label={t('task.aria_title')}
                                         />
                                     </div>
                                     <div className="flex shrink-0 gap-1">
@@ -993,7 +993,9 @@ export function TaskDetailDrawer({
                                                     );
                                                 }
                                             }}
-                                            aria-label="Open full page"
+                                            aria-label={t(
+                                                'task.aria_open_full_page',
+                                            )}
                                         >
                                             <ExternalLink className="size-5" />
                                         </Button>
@@ -1003,7 +1005,9 @@ export function TaskDetailDrawer({
                                             size="icon"
                                             className="text-muted-foreground hover:text-destructive"
                                             onClick={handleDeleteTask}
-                                            aria-label="Delete task"
+                                            aria-label={t(
+                                                'task.aria_delete_task',
+                                            )}
                                         >
                                             <Trash2 className="size-5" />
                                         </Button>

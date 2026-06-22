@@ -1,4 +1,5 @@
 import { Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { DashboardActivity } from '@/types/dashboard';
@@ -8,11 +9,13 @@ interface Props {
 }
 
 export function RecentActivityWidget({ activities }: Props) {
+    const { t } = useTranslation();
+
     return (
         <Card className="min-h-full">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                    Recent activity
+                    {t('widget.recent_activity')}
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -20,8 +23,7 @@ export function RecentActivityWidget({ activities }: Props) {
                     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed bg-muted/30 px-3 py-8">
                         <Activity className="size-8 text-muted-foreground/50" />
                         <p className="text-center text-sm text-muted-foreground">
-                            No recent activity yet. Start collaborating on tasks
-                            to see updates here.
+                            {t('widget.no_recent_activity')}
                         </p>
                     </div>
                 ) : (

@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { Button } from '@/components/ui/button';
 import {
@@ -96,7 +97,11 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
 
             if (response.ok) {
                 onDone();
+            } else {
+                toast.error(t('error.something_went_wrong'));
             }
+        } catch {
+            toast.error(t('error.something_went_wrong'));
         } finally {
             setProcessing(false);
         }
@@ -125,7 +130,7 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                             {avatarPreview ? (
                                 <img
                                     src={avatarPreview}
-                                    alt="Avatar preview"
+                                    alt={t('onboarding.avatar_preview_alt')}
                                     className="size-full object-cover"
                                 />
                             ) : (
@@ -154,7 +159,11 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                             name="timezone"
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select timezone" />
+                                <SelectValue
+                                    placeholder={t(
+                                        'onboarding.select_timezone',
+                                    )}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {timezones.map((tz) => (
@@ -175,7 +184,11 @@ export function StepProfile({ onSkip, onDone }: StepProfileProps) {
                             name="locale"
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select language" />
+                                <SelectValue
+                                    placeholder={t(
+                                        'onboarding.select_language',
+                                    )}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {locales.map((loc) => (

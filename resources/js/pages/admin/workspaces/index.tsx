@@ -162,7 +162,9 @@ export default function AdminWorkspacesIndex({ workspaces, filters }: Props) {
                                         </TableCell>
                                         <TableCell>
                                             <Link
-                                                href={adminWorkspaceShow(ws.slug)}
+                                                href={adminWorkspaceShow(
+                                                    ws.slug,
+                                                )}
                                                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                                             >
                                                 {t('common.view')}

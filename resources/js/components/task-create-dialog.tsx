@@ -123,7 +123,7 @@ export function TaskCreateDialog({
                 <DialogHeader>
                     <DialogTitle>{t('task.create_task')}</DialogTitle>
                     <DialogDescription>
-                        Add a new task to the project board.
+                        {t('task.create_description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -150,7 +150,11 @@ export function TaskCreateDialog({
                             onValueChange={setTaskTypeId}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
+                                <SelectValue
+                                    placeholder={t(
+                                        'task.select_type_placeholder',
+                                    )}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {taskTypes.map((taskType) => (

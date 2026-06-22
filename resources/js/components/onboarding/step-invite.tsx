@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -55,25 +56,39 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
     const sendInvites = async () => {
         setSending(true);
 
-        for (const invite of invites) {
-            await fetch(invitationStore.url({ workspace: workspaceSlug }), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-XSRF-TOKEN': decodeURIComponent(
-                        document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
-                    ),
-                },
-                body: JSON.stringify({
-                    email: invite.email,
-                    role: invite.role,
-                }),
-            });
-        }
+        try {
+            for (const invite of invites) {
+                const response = await fetch(
+                    invitationStore.url({ workspace: workspaceSlug }),
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-XSRF-TOKEN': decodeURIComponent(
+                                document.cookie.match(
+                                    /XSRF-TOKEN=([^;]+)/,
+                                )?.[1] ?? '',
+                            ),
+                        },
+                        body: JSON.stringify({
+                            email: invite.email,
+                            role: invite.role,
+                        }),
+                    },
+                );
 
-        setSending(false);
-        onDone();
+                if (!response.ok) {
+                    throw new Error('Failed to send invite');
+                }
+            }
+
+            onDone();
+        } catch {
+            toast.error(t('error.something_went_wrong'));
+        } finally {
+            setSending(false);
+        }
     };
 
     return (

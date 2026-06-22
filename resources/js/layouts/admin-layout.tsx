@@ -24,9 +24,9 @@ export default function AdminLayout({
         <AppShell variant="header">
             <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
                 <SidebarTrigger className="lg:hidden" />
-                    <Link
-                        href={adminDashboard()}
-                        className="text-sm font-semibold tracking-tight"
+                <Link
+                    href={adminDashboard()}
+                    className="text-sm font-semibold tracking-tight"
                 >
                     Admin
                 </Link>

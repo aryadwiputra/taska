@@ -1,4 +1,5 @@
 import { AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,16 +9,20 @@ interface Props {
 }
 
 export function OverdueTasksWidget({ count }: Props) {
+    const { t } = useTranslation();
+
     return (
         <Card className="min-h-full">
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                    {t('widget.overdue')}
+                </CardTitle>
                 {count > 0 && <Badge variant="destructive">{count}</Badge>}
             </CardHeader>
             <CardContent>
                 {count === 0 ? (
                     <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-6 text-center text-sm text-muted-foreground">
-                        Nothing overdue. Great job.
+                        {t('widget.nothing_overdue')}
                     </p>
                 ) : (
                     <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-3">
@@ -26,7 +31,12 @@ export function OverdueTasksWidget({ count }: Props) {
                             <span className="font-semibold text-destructive">
                                 {count}
                             </span>{' '}
-                            {count === 1 ? 'task is' : 'tasks are'} past due
+                            {t(
+                                count === 1
+                                    ? 'overdue_widget.task_past_due'
+                                    : 'overdue_widget.tasks_past_due',
+                                { count },
+                            )}
                         </p>
                     </div>
                 )}

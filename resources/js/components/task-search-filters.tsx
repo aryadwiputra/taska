@@ -159,7 +159,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                 <Button type="submit">{t('common.search')}</Button>
                 <Button type="button" variant="outline" onClick={clearFilters}>
                     <X className="size-4" />
-                    Clear
+                    {t('task_search.clear')}
                 </Button>
             </form>
 
@@ -169,7 +169,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onValueChange={(value) => updateFilter('state', value)}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="State" />
+                        <SelectValue placeholder={t('task_search.state')} />
                     </SelectTrigger>
                     <SelectContent>
                         {stateOptions.map((option) => (
@@ -189,7 +189,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     }
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Workspace" />
+                        <SelectValue
+                            placeholder={t('task_search.all_workspaces')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -211,7 +213,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onValueChange={(value) => updateFilter('project_id', value)}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Project" />
+                        <SelectValue
+                            placeholder={t('task_search.all_projects')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -233,7 +237,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onValueChange={(value) => updateFilter('status', value)}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Status" />
+                        <SelectValue
+                            placeholder={t('task_search.all_statuses')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         {statusOptions.map((option) => (
@@ -253,7 +259,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     }
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Priority" />
+                        <SelectValue
+                            placeholder={t('task_search.all_priorities')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -275,7 +283,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onValueChange={(value) => updateFilter('label_id', value)}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Label" />
+                        <SelectValue
+                            placeholder={t('task_search.all_labels')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -299,7 +309,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     }
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Assignee" />
+                        <SelectValue
+                            placeholder={t('task_search.any_assignee')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -323,7 +335,9 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     }
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Reporter" />
+                        <SelectValue
+                            placeholder={t('task_search.any_reporter')}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL_FILTERS_VALUE}>
@@ -346,7 +360,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onChange={(event) =>
                         updateFilter('due_from', event.target.value)
                     }
-                    aria-label="Due from"
+                    aria-label={t('task_search.due_from')}
                 />
                 <Input
                     type="date"
@@ -354,7 +368,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onChange={(event) =>
                         updateFilter('due_to', event.target.value)
                     }
-                    aria-label="Due to"
+                    aria-label={t('task_search.due_to')}
                 />
                 <Input
                     type="date"
@@ -362,7 +376,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onChange={(event) =>
                         updateFilter('created_from', event.target.value)
                     }
-                    aria-label="Created from"
+                    aria-label={t('task_search.created_from')}
                 />
                 <Input
                     type="date"
@@ -370,7 +384,7 @@ export function TaskSearchFilters({ filters, options }: Props) {
                     onChange={(event) =>
                         updateFilter('created_to', event.target.value)
                     }
-                    aria-label="Created to"
+                    aria-label={t('task_search.created_to')}
                 />
             </div>
         </div>
