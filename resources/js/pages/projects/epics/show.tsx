@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { CalendarDays, Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -104,7 +105,20 @@ export default function EpicShow({
     epicTasks,
     availableTasks,
 }: Props) {
+    const { t, i18n } = useTranslation();
     const [addTaskId, setAddTaskId] = useState<string>('none');
+
+    const formatDate = (date: string | null): string => {
+        if (!date) {
+            return t('common.not_set');
+        }
+
+        return new Date(date).toLocaleDateString(i18n.language, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -114,7 +128,7 @@ export default function EpicShow({
         totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
     const handleRemoveTask = (taskId: number) => {
-        if (!confirm('Remove this task from the epic?')) {
+        if (!confirm(t('epic.remove_task_confirm'))) {
             return;
         }
 
@@ -152,48 +166,56 @@ export default function EpicShow({
 
     return (
         <>
-            <Head title={`${epic.name} — ${project.name}`} />
+            <Head
+                title={t('epic.show_title', {
+                    epicName: epic.name,
+                    projectName: project.name,
+                })}
+            />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={epic.name}
-                        description={epic.summary}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        leading={
-                            <div
-                                className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
-                                style={{
-                                    backgroundColor: epic.color ?? '#64748B',
-                                }}
-                            >
-                                {epic.name.charAt(0).toUpperCase()}
-                            </div>
-                        }
-                        badge={
-                            <>
-                                <Badge variant="outline">{epic.status}</Badge>
-                                <Badge variant="secondary">
-                                    {completedTasks}/{totalTasks} tasks
-                                </Badge>
-                            </>
-                        }
-                        actions={
-                            <Link
-                                href={projectSettings({
-                                    workspace: workspace.slug,
-                                    project: project.slug,
+                <PageHeader
+                    title={epic.name}
+                    description={epic.summary}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    leading={
+                        <div
+                            className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
+                            style={{
+                                backgroundColor: epic.color ?? '#64748B',
+                            }}
+                        >
+                            {epic.name.charAt(0).toUpperCase()}
+                        </div>
+                    }
+                    badge={
+                        <>
+                            <Badge variant="outline">{epic.status}</Badge>
+                            <Badge variant="secondary">
+                                {t('epic.tasks_count', {
+                                    completed: completedTasks,
+                                    total: totalTasks,
                                 })}
-                            >
-                                <Button variant="outline" size="sm">
-                                    Edit epic
-                                </Button>
-                            </Link>
-                        }
-                    />
+                            </Badge>
+                        </>
+                    }
+                    actions={
+                        <Link
+                            href={projectSettings({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
+                        >
+                            <Button variant="outline" size="sm">
+                                {t('epic.edit_epic')}
+                            </Button>
+                        </Link>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-3xl">
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
@@ -215,7 +237,7 @@ export default function EpicShow({
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between gap-4">
-                            <CardTitle>Tasks</CardTitle>
+                            <CardTitle>{t('epic.tasks')}</CardTitle>
                             {availableTasks.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <Select
@@ -223,11 +245,17 @@ export default function EpicShow({
                                         onValueChange={setAddTaskId}
                                     >
                                         <SelectTrigger className="h-8 w-56 text-xs">
-                                            <SelectValue placeholder="Add existing task..." />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'epic.add_existing_task_placeholder',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">
-                                                Add existing task...
+                                                {t(
+                                                    'epic.add_existing_task_placeholder',
+                                                )}
                                             </SelectItem>
                                             {availableTasks.map((task) => (
                                                 <SelectItem
@@ -247,7 +275,7 @@ export default function EpicShow({
                                         onClick={handleAddTask}
                                     >
                                         <Plus className="size-3" />
-                                        <span>Add</span>
+                                        <span>{t('common.add')}</span>
                                     </Button>
                                 </div>
                             )}
@@ -323,7 +351,9 @@ export default function EpicShow({
                                                     )}
                                                     {task.due_date && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            Due{' '}
+                                                            {t(
+                                                                'epic.due_date_prefix',
+                                                            )}{' '}
                                                             {formatDate(
                                                                 task.due_date,
                                                             )}
@@ -348,8 +378,8 @@ export default function EpicShow({
                             ) : (
                                 <EmptyState
                                     icon={Check}
-                                    title="No tasks in this epic"
-                                    description="Add tasks to start tracking progress."
+                                    title={t('epic.no_tasks_title')}
+                                    description={t('epic.no_tasks_description')}
                                     className="border-0 bg-transparent py-12"
                                 />
                             )}
@@ -368,16 +398,4 @@ export default function EpicShow({
             />
         </>
     );
-}
-
-function formatDate(date: string | null): string {
-    if (!date) {
-        return 'Not set';
-    }
-
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
 }

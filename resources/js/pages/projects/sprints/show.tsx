@@ -237,132 +237,132 @@ export default function SprintShow({
 
     return (
         <>
-            <Head title={`${sprint.name} — ${project.name}`} />
+            <Head title={t('sprint.show_title', { sprint: sprint.name, project: project.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={sprint.name}
-                        description={sprint.goal}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        badge={
-                            <>
-                                <Badge
-                                    variant="outline"
-                                    className={cn(
-                                        sprintStatusColor[sprint.status] ?? '',
-                                    )}
-                                >
-                                    {sprint.status}
-                                </Badge>
+                <PageHeader
+                    title={sprint.name}
+                    description={sprint.goal}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    badge={
+                        <>
+                            <Badge
+                                variant="outline"
+                                className={cn(
+                                    sprintStatusColor[sprint.status] ?? '',
+                                )}
+                            >
+                                {sprint.status}
+                            </Badge>
+                            <Badge variant="secondary">
+                                {completedTasks}/{totalTasks} tasks
+                            </Badge>
+                            {totalPoints > 0 && (
                                 <Badge variant="secondary">
-                                    {completedTasks}/{totalTasks} tasks
+                                    {completedPoints}/{totalPoints} pts
                                 </Badge>
-                                {totalPoints > 0 && (
-                                    <Badge variant="secondary">
-                                        {completedPoints}/{totalPoints} pts
-                                    </Badge>
-                                )}
-                            </>
-                        }
-                        actions={
-                            <>
-                                <FeatureGuide content={sprintGuide} />
-                                {sprint.status === 'planned' && (
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        onClick={() =>
-                                            router.post(
-                                                sprintStart({
-                                                    workspace: workspace.slug,
-                                                    project: project.slug,
-                                                    sprint: sprint.id,
-                                                }),
-                                                {},
-                                                { preserveScroll: true },
-                                            )
-                                        }
-                                    >
-                                        <Play className="size-3" />
-                                        {t('sprint_page.start_sprint')}
-                                    </Button>
-                                )}
-                                {sprint.status === 'active' && (
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        onClick={() => {
-                                            if (
-                                                !confirm(
-                                                    t(
-                                                        'sprint_page.complete_confirm',
-                                                    ),
-                                                )
-                                            ) {
-                                                return;
-                                            }
-
-                                            router.post(
-                                                sprintClose({
-                                                    workspace: workspace.slug,
-                                                    project: project.slug,
-                                                    sprint: sprint.id,
-                                                }),
-                                                {},
-                                                { preserveScroll: true },
-                                            );
-                                        }}
-                                    >
-                                        <Check className="size-3" />
-                                        {t('sprint_page.complete_sprint')}
-                                    </Button>
-                                )}
-                                {sprint.status === 'completed' && (
-                                    <Link
-                                        href={sprintReport({
-                                            workspace: workspace.slug,
-                                            project: project.slug,
-                                            sprint: sprint.id,
-                                        })}
-                                    >
-                                        <Button variant="outline" size="sm">
-                                            <SquareChartGantt className="size-3" />
-                                            {t('sprint_page.view_report')}
-                                        </Button>
-                                    </Link>
-                                )}
-                                <Link
-                                    href={projectBoard.url(
-                                        {
-                                            workspace: workspace.slug,
-                                            project: project.slug,
-                                        },
-                                        {
-                                            query: { sprint_id: sprint.id },
-                                        },
-                                    )}
+                            )}
+                        </>
+                    }
+                    actions={
+                        <>
+                            <FeatureGuide content={sprintGuide} />
+                            {sprint.status === 'planned' && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() =>
+                                        router.post(
+                                            sprintStart({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                                sprint: sprint.id,
+                                            }),
+                                            {},
+                                            { preserveScroll: true },
+                                        )
+                                    }
                                 >
-                                    <Button variant="outline" size="sm">
-                                        {t('sprint_page.open_board')}
-                                    </Button>
-                                </Link>
+                                    <Play className="size-3" />
+                                    {t('sprint_page.start_sprint')}
+                                </Button>
+                            )}
+                            {sprint.status === 'active' && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => {
+                                        if (
+                                            !confirm(
+                                                t(
+                                                    'sprint_page.complete_confirm',
+                                                ),
+                                            )
+                                        ) {
+                                            return;
+                                        }
+
+                                        router.post(
+                                            sprintClose({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                                sprint: sprint.id,
+                                            }),
+                                            {},
+                                            { preserveScroll: true },
+                                        );
+                                    }}
+                                >
+                                    <Check className="size-3" />
+                                    {t('sprint_page.complete_sprint')}
+                                </Button>
+                            )}
+                            {sprint.status === 'completed' && (
                                 <Link
-                                    href={projectSettings({
+                                    href={sprintReport({
                                         workspace: workspace.slug,
                                         project: project.slug,
+                                        sprint: sprint.id,
                                     })}
                                 >
                                     <Button variant="outline" size="sm">
-                                        {t('sprint_page.edit_sprint')}
+                                        <SquareChartGantt className="size-3" />
+                                        {t('sprint_page.view_report')}
                                     </Button>
                                 </Link>
-                            </>
-                        }
-                    />
+                            )}
+                            <Link
+                                href={projectBoard.url(
+                                    {
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    },
+                                    {
+                                        query: { sprint_id: sprint.id },
+                                    },
+                                )}
+                            >
+                                <Button variant="outline" size="sm">
+                                    {t('sprint_page.open_board')}
+                                </Button>
+                            </Link>
+                            <Link
+                                href={projectSettings({
+                                    workspace: workspace.slug,
+                                    project: project.slug,
+                                })}
+                            >
+                                <Button variant="outline" size="sm">
+                                    {t('sprint_page.edit_sprint')}
+                                </Button>
+                            </Link>
+                        </>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-3xl">
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">

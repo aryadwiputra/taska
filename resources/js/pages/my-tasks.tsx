@@ -40,19 +40,6 @@ interface Props {
     };
 }
 
-const priorityLabels: Record<string, string> = {
-    lowest: 'Lowest',
-    low: 'Low',
-    medium: 'Medium',
-    high: 'High',
-    highest: 'Highest',
-    urgent: 'Urgent',
-};
-
-const statusOptionKeys = ['all_statuses', 'todo', 'in_progress', 'review', 'done', 'backlog'] as const;
-
-const priorityLabelKeys = ['lowest', 'low', 'medium', 'high', 'highest', 'urgent'] as const;
-
 const ALL_FILTERS_VALUE = 'all';
 
 export default function MyTasks({ tasks, projects, filters }: Props) {
@@ -75,6 +62,7 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
         highest: t('priority_labels.highest'),
         urgent: t('priority_labels.urgent'),
     };
+    const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerWorkspaceSlug, setDrawerWorkspaceSlug] = useState<string>('');
     const [drawerProjectSlug, setDrawerProjectSlug] = useState<string>('');
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -129,7 +117,9 @@ export default function MyTasks({ tasks, projects, filters }: Props) {
                         onValueChange={(v) => updateFilter('project_id', v)}
                     >
                         <SelectTrigger className="h-8 w-44">
-                            <SelectValue placeholder={t('task_search.all_projects')} />
+                            <SelectValue
+                                placeholder={t('task_search.all_projects')}
+                            />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value={ALL_FILTERS_VALUE}>

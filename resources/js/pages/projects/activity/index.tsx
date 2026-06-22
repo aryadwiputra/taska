@@ -158,15 +158,15 @@ export default function ActivityIndex({
             <Head title={`${t('task.activity')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title="Activity log"
-                        description="All changes made to tasks in this project."
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                    />
+                <PageHeader
+                    title={t('activity_log.title')}
+                    description={t('activity_log.description')}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                />
 
                 <div className="mx-auto w-full max-w-2xl">
                     <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -290,8 +290,10 @@ export default function ActivityIndex({
                             ) : (
                                 <EmptyState
                                     icon={Activity}
-                                    title="No activity yet"
-                                    description="Activity will appear here when tasks are created or updated."
+                                    title={t('activity_log.empty_title')}
+                                    description={t(
+                                        'activity_log.empty_description',
+                                    )}
                                     className="border-0 bg-transparent py-12"
                                 />
                             )}

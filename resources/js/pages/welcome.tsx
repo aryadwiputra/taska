@@ -81,7 +81,7 @@ export default function Welcome() {
                         <Link
                             href={dashboard()}
                             className="flex min-w-0 items-center gap-2"
-                            aria-label="Qeerja"
+                            aria-label={t('welcome.title')}
                         >
                             <AppLogo />
                         </Link>

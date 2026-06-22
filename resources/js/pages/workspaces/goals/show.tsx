@@ -184,31 +184,31 @@ export default function GoalShow({ workspace, goal: initialGoal }: Props) {
 
     return (
         <>
-            <Head title={`${goal.title} — Goals`} />
+            <Head title={t('goal.show_title', { title: goal.title })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={goal.title}
-                        description={goal.description}
-                        backHref={`/workspaces/${workspace.slug}/goals`}
-                        backLabel={t('goal.title')}
-                        badge={
-                            <Badge className={statusColors[goal.status]}>
-                                {goal.status}
-                            </Badge>
-                        }
-                        actions={
-                            goal.target_date && (
-                                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Calendar className="size-4" />
-                                    {t('goal.target')}{' '}
-                                    {new Date(
-                                        goal.target_date,
-                                    ).toLocaleDateString()}
-                                </span>
-                            )
-                        }
-                    />
+                <PageHeader
+                    title={goal.title}
+                    description={goal.description}
+                    backHref={`/workspaces/${workspace.slug}/goals`}
+                    backLabel={t('goal.title')}
+                    badge={
+                        <Badge className={statusColors[goal.status]}>
+                            {goal.status}
+                        </Badge>
+                    }
+                    actions={
+                        goal.target_date && (
+                            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Calendar className="size-4" />
+                                {t('goal.target')}{' '}
+                                {new Date(
+                                    goal.target_date,
+                                ).toLocaleDateString()}
+                            </span>
+                        )
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-4xl">
                     <div className="mt-6">

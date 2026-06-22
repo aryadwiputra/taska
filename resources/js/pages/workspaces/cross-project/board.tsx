@@ -94,18 +94,18 @@ export default function CrossProjectBoard({
 
     return (
         <>
-            <Head title={`Cross-Project Board — ${workspace.name}`} />
+            <Head title={t('cross_project.board_title', { name: workspace.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={t('cross_project.board')}
-                        description={t('cross_project.board_summary', {
-                            projectCount: projects.length,
-                            taskCount: tasks.length,
-                        })}
-                        backHref={workspaceShow({ workspace: workspace.slug })}
-                        backLabel={workspace.name}
-                    />
+                <PageHeader
+                    title={t('cross_project.board')}
+                    description={t('cross_project.board_summary', {
+                        projectCount: projects.length,
+                        taskCount: tasks.length,
+                    })}
+                    backHref={workspaceShow({ workspace: workspace.slug })}
+                    backLabel={workspace.name}
+                />
 
                 <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-4 flex flex-wrap gap-2">

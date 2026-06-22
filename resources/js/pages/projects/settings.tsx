@@ -397,12 +397,12 @@ export default function ProjectSettings({
 
     return (
         <>
-            <Head title={`${project.name} — Settings`} />
+            <Head title={`${project.name} — ${t('settings.title')}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
                     title={t('settings.title')}
-                    description="Manage project details, workflow, members, and integrations."
+                    description={t('project_settings.page_description')}
                     backHref={projectShow({
                         workspace: workspace.slug,
                         project: project.slug,
@@ -448,7 +448,9 @@ export default function ProjectSettings({
                         <TabsContent value="general">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>General settings</CardTitle>
+                                    <CardTitle>
+                                        {t('workspace.general_settings')}
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <Form
@@ -467,7 +469,9 @@ export default function ProjectSettings({
                                             <>
                                                 <div className="flex flex-col gap-2">
                                                     <Label htmlFor="name">
-                                                        Project name
+                                                        {t(
+                                                            'project_settings.project_name',
+                                                        )}
                                                     </Label>
                                                     <Input
                                                         id="name"
@@ -554,7 +558,9 @@ export default function ProjectSettings({
 
                                                 {wasSuccessful && (
                                                     <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                                                        Settings saved.
+                                                        {t(
+                                                            'settings.settings_saved',
+                                                        )}
                                                     </p>
                                                 )}
 
@@ -564,7 +570,9 @@ export default function ProjectSettings({
                                                 >
                                                     {processing
                                                         ? t('common.saving')
-                                                        : 'Save changes'}
+                                                        : t(
+                                                              'settings.save_changes',
+                                                          )}
                                                 </Button>
                                             </>
                                         )}
@@ -576,7 +584,9 @@ export default function ProjectSettings({
                         <TabsContent value="settings">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Project settings</CardTitle>
+                                    <CardTitle>
+                                        {t('project_settings.project_settings')}
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <Form
@@ -595,7 +605,9 @@ export default function ProjectSettings({
                                                         className="flex items-center gap-2"
                                                     >
                                                         <LayoutGrid className="size-4" />
-                                                        Default board
+                                                        {t(
+                                                            'project_settings.default_board',
+                                                        )}
                                                     </Label>
                                                     <Select
                                                         name="default_board_id"
@@ -637,7 +649,9 @@ export default function ProjectSettings({
                                                         className="flex items-center gap-2"
                                                     >
                                                         <UserPlus className="size-4" />
-                                                        Default assignee
+                                                        {t(
+                                                            'project_settings.default_assignee',
+                                                        )}
                                                     </Label>
                                                     <Select
                                                         name="default_assignee_id"
@@ -651,7 +665,9 @@ export default function ProjectSettings({
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="none">
-                                                                No default
+                                                                {t(
+                                                                    'project_settings.no_default',
+                                                                )}
                                                             </SelectItem>
                                                             {members.map(
                                                                 (member) => (
@@ -680,7 +696,9 @@ export default function ProjectSettings({
                                                     >
                                                         <Bell className="size-4" />
                                                         <span>
-                                                            Auto-assign task
+                                                            {t(
+                                                                'project_settings.auto_assign_task',
+                                                            )}
                                                             reporter as assignee
                                                         </span>
                                                     </Label>
@@ -702,7 +720,9 @@ export default function ProjectSettings({
 
                                                 {wasSuccessful && (
                                                     <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                                                        Settings saved.
+                                                        {t(
+                                                            'settings.settings_saved',
+                                                        )}
                                                     </p>
                                                 )}
 
@@ -713,7 +733,9 @@ export default function ProjectSettings({
                                                 >
                                                     {processing
                                                         ? t('common.saving')
-                                                        : 'Save changes'}
+                                                        : t(
+                                                              'settings.save_changes',
+                                                          )}
                                                 </Button>
                                             </>
                                         )}
@@ -725,14 +747,16 @@ export default function ProjectSettings({
                         <TabsContent value="members">
                             <Card>
                                 <CardHeader className="flex flex-row items-center justify-between">
-                                    <CardTitle>Members</CardTitle>
+                                    <CardTitle>
+                                        {t('settings.members')}
+                                    </CardTitle>
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setAddMemberOpen(true)}
                                     >
                                         <Plus className="size-3.5" />
-                                        <span>Add member</span>
+                                        <span>{t('members.add_member')}</span>
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
@@ -809,7 +833,9 @@ export default function ProjectSettings({
                                         ))}
                                         {members.length === 0 && (
                                             <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                                No members yet.
+                                                {t(
+                                                    'project_settings.no_members_yet',
+                                                )}
                                             </p>
                                         )}
                                     </div>
@@ -827,7 +853,7 @@ export default function ProjectSettings({
                         <TabsContent value="labels">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Labels</CardTitle>
+                                    <CardTitle>{t('task.labels')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
@@ -848,7 +874,9 @@ export default function ProjectSettings({
                                                     <Input
                                                         id="label-name"
                                                         name="name"
-                                                        placeholder="Bug"
+                                                        placeholder={t(
+                                                            'label.label_name',
+                                                        )}
                                                         data-invalid={
                                                             !!errors.name
                                                         }
@@ -880,7 +908,11 @@ export default function ProjectSettings({
                                                         disabled={processing}
                                                     >
                                                         <Plus className="size-4" />
-                                                        <span>Add label</span>
+                                                        <span>
+                                                            {t(
+                                                                'project_settings.add_label',
+                                                            )}
+                                                        </span>
                                                     </Button>
                                                 </div>
                                             </>
@@ -1030,7 +1062,9 @@ export default function ProjectSettings({
                                         })}
                                         {labels.length === 0 && (
                                             <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                                No labels yet.
+                                                {t(
+                                                    'project_settings.no_labels_yet',
+                                                )}
                                             </p>
                                         )}
                                     </div>
@@ -1041,12 +1075,14 @@ export default function ProjectSettings({
                         <TabsContent value="board">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Columns</CardTitle>
+                                    <CardTitle>{t('board.columns')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     {boards.length === 0 && (
                                         <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                            No board found.
+                                            {t(
+                                                'project_settings.no_board_found',
+                                            )}
                                         </p>
                                     )}
                                     {boards.map((board) => (
@@ -1080,7 +1116,9 @@ export default function ProjectSettings({
                                                             <Input
                                                                 id={`col-name-${board.id}`}
                                                                 name="name"
-                                                                placeholder="In Progress"
+                                                                placeholder={t(
+                                                                    'board_column.column_placeholder',
+                                                                )}
                                                                 data-invalid={
                                                                     !!errors.name
                                                                 }
@@ -1097,12 +1135,16 @@ export default function ProjectSettings({
                                                             <Label
                                                                 htmlFor={`col-status-${board.id}`}
                                                             >
-                                                                Status Key
+                                                                {t(
+                                                                    'project_settings.status_key',
+                                                                )}
                                                             </Label>
                                                             <Input
                                                                 id={`col-status-${board.id}`}
                                                                 name="status_key"
-                                                                placeholder="in_progress"
+                                                                placeholder={t(
+                                                                    'board_column.status_key_placeholder',
+                                                                )}
                                                                 data-invalid={
                                                                     !!errors.status_key
                                                                 }
@@ -1124,7 +1166,9 @@ export default function ProjectSettings({
                                                             >
                                                                 <Plus className="size-4" />
                                                                 <span>
-                                                                    Add column
+                                                                    {t(
+                                                                        'board.add_column',
+                                                                    )}
                                                                 </span>
                                                             </Button>
                                                         </div>
@@ -1211,7 +1255,9 @@ export default function ProjectSettings({
                                                                                     )
                                                                                 }
                                                                             />
-                                                                            Done
+                                                                            {t(
+                                                                                'project_settings.done_column',
+                                                                            )}
                                                                         </label>
                                                                         <Button
                                                                             size="sm"
@@ -1260,7 +1306,9 @@ export default function ProjectSettings({
                                                                                 variant="secondary"
                                                                                 className="text-[10px]"
                                                                             >
-                                                                                Done
+                                                                                {t(
+                                                                                    'project_settings.done_column',
+                                                                                )}
                                                                             </Badge>
                                                                         )}
                                                                         <Button
@@ -1295,7 +1343,9 @@ export default function ProjectSettings({
                                                     })}
                                                 {board.columns.length === 0 && (
                                                     <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                                        No columns yet.
+                                                        {t(
+                                                            'board_column.no_columns_yet',
+                                                        )}
                                                     </p>
                                                 )}
                                             </div>
@@ -1308,7 +1358,7 @@ export default function ProjectSettings({
                         <TabsContent value="epics">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Epics</CardTitle>
+                                    <CardTitle>{t('settings.epics')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
@@ -1330,7 +1380,9 @@ export default function ProjectSettings({
                                                         <Input
                                                             id="epic-name"
                                                             name="name"
-                                                            placeholder="Launch checklist"
+                                                            placeholder={t(
+                                                                'epic.epic_name',
+                                                            )}
                                                             data-invalid={
                                                                 !!errors.name
                                                             }
@@ -1364,7 +1416,9 @@ export default function ProjectSettings({
                                                     <Input
                                                         id="epic-summary"
                                                         name="summary"
-                                                        placeholder="Describe the initiative"
+                                                        placeholder={t(
+                                                            'epic.brief_description',
+                                                        )}
                                                     />
                                                 </div>
                                                 <div className="grid gap-3 sm:grid-cols-3">
@@ -1419,7 +1473,11 @@ export default function ProjectSettings({
                                                     className="w-fit"
                                                 >
                                                     <Plus className="size-4" />
-                                                    <span>Add epic</span>
+                                                    <span>
+                                                        {t(
+                                                            'project_settings.add_epic',
+                                                        )}
+                                                    </span>
                                                 </Button>
                                             </>
                                         )}
@@ -1524,7 +1582,9 @@ export default function ProjectSettings({
                                                                         },
                                                                     )
                                                                 }
-                                                                placeholder="Summary"
+                                                                placeholder={t(
+                                                                    'epic.summary',
+                                                                )}
                                                             />
                                                             <div className="grid gap-3 sm:grid-cols-2">
                                                                 <Input
@@ -1680,7 +1740,9 @@ export default function ProjectSettings({
                                         })}
                                         {epics.length === 0 && (
                                             <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                                No epics yet.
+                                                {t(
+                                                    'project_settings.no_epics_yet',
+                                                )}
                                             </p>
                                         )}
                                     </div>
@@ -1691,7 +1753,9 @@ export default function ProjectSettings({
                         <TabsContent value="sprints">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Sprints</CardTitle>
+                                    <CardTitle>
+                                        {t('settings.sprints')}
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-6">
                                     <Form
@@ -1712,7 +1776,9 @@ export default function ProjectSettings({
                                                     <Input
                                                         id="sprint-name"
                                                         name="name"
-                                                        placeholder="Sprint 1"
+                                                        placeholder={t(
+                                                            'sprint.sprint_name',
+                                                        )}
                                                         data-invalid={
                                                             !!errors.name
                                                         }
@@ -1733,7 +1799,9 @@ export default function ProjectSettings({
                                                     <Input
                                                         id="sprint-goal"
                                                         name="goal"
-                                                        placeholder="What should this sprint achieve?"
+                                                        placeholder={t(
+                                                            'sprint.sprint_goal',
+                                                        )}
                                                     />
                                                 </div>
                                                 <div className="grid gap-3 sm:grid-cols-3">
@@ -1791,7 +1859,11 @@ export default function ProjectSettings({
                                                     className="w-fit"
                                                 >
                                                     <Plus className="size-4" />
-                                                    <span>Add sprint</span>
+                                                    <span>
+                                                        {t(
+                                                            'project_settings.add_sprint',
+                                                        )}
+                                                    </span>
                                                 </Button>
                                             </>
                                         )}
@@ -1878,7 +1950,9 @@ export default function ProjectSettings({
                                                                         },
                                                                     )
                                                                 }
-                                                                placeholder="Goal"
+                                                                placeholder={t(
+                                                                    'sprint.goal',
+                                                                )}
                                                             />
                                                             <div className="grid gap-3 sm:grid-cols-2">
                                                                 <Input
@@ -2028,7 +2102,9 @@ export default function ProjectSettings({
                                         })}
                                         {sprints.length === 0 && (
                                             <p className="rounded-lg border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-                                                No sprints yet.
+                                                {t(
+                                                    'project_settings.no_sprints_yet',
+                                                )}
                                             </p>
                                         )}
                                     </div>
@@ -2064,9 +2140,9 @@ export default function ProjectSettings({
                                     {!isArchived ? (
                                         <>
                                             <p className="text-sm text-muted-foreground">
-                                                Archiving this project will hide
-                                                it from the project list. You
-                                                can restore it at any time.
+                                                {t(
+                                                    'project_settings.archive_description',
+                                                )}
                                             </p>
                                             <Button
                                                 variant="destructive"
@@ -2074,7 +2150,9 @@ export default function ProjectSettings({
                                                     setDeleteConfirmOpen(true)
                                                 }
                                             >
-                                                Archive project
+                                                {t(
+                                                    'project_settings.archive_project',
+                                                )}
                                             </Button>
                                             {deleteConfirmOpen && (
                                                 <div className="flex items-center gap-2">
@@ -2110,7 +2188,9 @@ export default function ProjectSettings({
                                                             variant="destructive"
                                                             size="sm"
                                                         >
-                                                            Confirm archive
+                                                            {t(
+                                                                'project_settings.confirm_archive',
+                                                            )}
                                                         </Button>
                                                     </form>
                                                     <Button
@@ -2130,9 +2210,9 @@ export default function ProjectSettings({
                                     ) : (
                                         <>
                                             <p className="text-sm text-muted-foreground">
-                                                This project is currently
-                                                archived. Restore it to make it
-                                                active again.
+                                                {t(
+                                                    'project_settings.restore_description',
+                                                )}
                                             </p>
                                             <form
                                                 action={projectRestore.url({
@@ -2153,7 +2233,9 @@ export default function ProjectSettings({
                                                     }
                                                 />
                                                 <Button type="submit">
-                                                    Restore project
+                                                    {t(
+                                                        'project_settings.restore_project',
+                                                    )}
                                                 </Button>
                                             </form>
                                         </>

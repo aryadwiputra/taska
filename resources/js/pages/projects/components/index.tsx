@@ -130,21 +130,21 @@ export default function ComponentsIndex({
             <Head title={`${t('component.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={t('component.title')}
-                        description="Categorize tasks by UI or backend components."
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        actions={
-                            <Button size="sm" onClick={openCreate}>
-                                <Plus className="size-3" />
-                                {t('component.create_component')}
-                            </Button>
-                        }
-                    />
+                <PageHeader
+                    title={t('component.title')}
+                    description="Categorize tasks by UI or backend components."
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    actions={
+                        <Button size="sm" onClick={openCreate}>
+                            <Plus className="size-3" />
+                            {t('component.create_component')}
+                        </Button>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-3xl">
                     {components.length > 0 ? (
@@ -189,7 +189,9 @@ export default function ComponentsIndex({
                                         <button
                                             type="button"
                                             className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                            title="Delete component"
+                                            title={t(
+                                                'components_page.delete_component',
+                                            )}
                                             onClick={() =>
                                                 setDeleting(component)
                                             }
@@ -234,7 +236,9 @@ export default function ComponentsIndex({
                                 id="component-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="e.g. Frontend, API, Auth"
+                                placeholder={t(
+                                    'components_page.name_placeholder',
+                                )}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -245,14 +249,20 @@ export default function ComponentsIndex({
                                 id="component-desc"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Optional description"
+                                placeholder={t(
+                                    'components_page.description_placeholder',
+                                )}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label>{t('component.lead')}</Label>
                             <Select value={leadId} onValueChange={setLeadId}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Assign a lead..." />
+                                    <SelectValue
+                                        placeholder={t(
+                                            'components_page.lead_placeholder',
+                                        )}
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="none">
@@ -291,13 +301,13 @@ export default function ComponentsIndex({
                         setDeleting(null);
                     }
                 }}
-                title="Delete component"
+                title={t('components_page.delete_component')}
                 description={
                     deleting
                         ? `Are you sure you want to delete "${deleting.name}"? Tasks will not be deleted, but they will be unlinked from this component.`
                         : ''
                 }
-                confirmText="Delete component"
+                confirmText={t('components_page.delete_component')}
                 onConfirm={() => {
                     if (!deleting) {
                         return;

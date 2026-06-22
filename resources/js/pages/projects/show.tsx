@@ -543,7 +543,7 @@ export default function ProjectShow({
                                     }}
                                     onBlur={() => setEditingCell(null)}
                                 >
-                                    <option value="">None</option>
+                                    <option value="">{t('common.none')}</option>
                                     {priorities.map((p) => (
                                         <option key={p.id} value={p.id}>
                                             {p.name}
@@ -839,9 +839,15 @@ export default function ProjectShow({
                             <LayoutGrid className="size-4" />
                             <span>{t('board.board')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="list">List</TabsTrigger>
-                        <TabsTrigger value="epics">Epics</TabsTrigger>
-                        <TabsTrigger value="sprints">Sprints</TabsTrigger>
+                        <TabsTrigger value="list">
+                            {t('project_show.tabs_list')}
+                        </TabsTrigger>
+                        <TabsTrigger value="epics">
+                            {t('settings.epics')}
+                        </TabsTrigger>
+                        <TabsTrigger value="sprints">
+                            {t('settings.sprints')}
+                        </TabsTrigger>
                         <TabsTrigger
                             value="backlog"
                             onClick={() =>
@@ -884,7 +890,9 @@ export default function ProjectShow({
                         >
                             {t('component.title')}
                         </TabsTrigger>
-                        <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                        <TabsTrigger value="timeline">
+                            {t('workspace.timeline')}
+                        </TabsTrigger>
                         <TabsTrigger
                             value="workload"
                             onClick={() =>
@@ -898,13 +906,13 @@ export default function ProjectShow({
                         >
                             Workload
                         </TabsTrigger>
-                        <TabsTrigger value="files">Files</TabsTrigger>
+                        <TabsTrigger value="files">
+                            {t('project_show.tabs_files')}
+                        </TabsTrigger>
                         <TabsTrigger value="reports">
                             {t('reports.title')}
                         </TabsTrigger>
-                        <TabsTrigger value="activity">
-                            {t('task.activity')}
-                        </TabsTrigger>
+                        <TabsTrigger value="activity">Activity</TabsTrigger>
                         <TabsTrigger
                             value="automation"
                             onClick={() =>
@@ -923,7 +931,7 @@ export default function ProjectShow({
                     <TabsContent value="list">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between gap-4">
-                                <CardTitle>Tasks</CardTitle>
+                                <CardTitle>{t('reports.tasks')}</CardTitle>
                                 <div className="flex items-center gap-2">
                                     <SavedFilterDropdown
                                         workspaceSlug={workspace.slug}
@@ -985,7 +993,9 @@ export default function ProjectShow({
                                                                 checked={
                                                                     allVisibleSelected
                                                                 }
-                                                                aria-label="Select visible tasks"
+                                                                aria-label={t(
+                                                                    'project_show.select_visible_tasks',
+                                                                )}
                                                                 onCheckedChange={
                                                                     toggleVisibleSelection
                                                                 }
@@ -1214,7 +1224,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                        title="Edit epic"
+                                                        title={t(
+                                                            'epic.edit_epic',
+                                                        )}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             setEditingEpic(
@@ -1242,7 +1254,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                                        title="Delete epic"
+                                                        title={t(
+                                                            'common.delete',
+                                                        )}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             setDeletingEpic(
@@ -1270,8 +1284,7 @@ export default function ProjectShow({
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No epics yet. Create your first epic to
-                                        group related tasks.
+                                        {t('project_show.empty_epics')}
                                     </p>
                                 )}
                             </CardContent>
@@ -1358,7 +1371,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                        title="Edit sprint"
+                                                        title={t(
+                                                            'sprint.edit_sprint',
+                                                        )}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             setEditingSprint(
@@ -1386,7 +1401,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                                        title="Delete sprint"
+                                                        title={t(
+                                                            'common.delete',
+                                                        )}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             setDeletingSprint(
@@ -1414,8 +1431,7 @@ export default function ProjectShow({
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No sprints yet. Create your first sprint
-                                        to plan a time-boxed iteration.
+                                        {t('project_show.empty_sprints')}
                                     </p>
                                 )}
                             </CardContent>
@@ -1502,7 +1518,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                        title="Edit label"
+                                                        title={t(
+                                                            'label.edit_label',
+                                                        )}
                                                         onClick={() => {
                                                             setEditingLabel(
                                                                 label,
@@ -1529,7 +1547,9 @@ export default function ProjectShow({
                                                     <button
                                                         type="button"
                                                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                                        title="Delete label"
+                                                        title={t(
+                                                            'common.delete',
+                                                        )}
                                                         onClick={() =>
                                                             setDeletingLabel(
                                                                 label,
@@ -1556,8 +1576,7 @@ export default function ProjectShow({
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No labels yet. Create your first label
-                                        to categorize tasks.
+                                        {t('project_show.empty_labels')}
                                     </p>
                                 )}
                             </CardContent>
@@ -1583,7 +1602,7 @@ export default function ProjectShow({
                                         onClick={() => setTimelineView('gantt')}
                                     >
                                         <BarChart3 className="size-4" />
-                                        <span>Gantt</span>
+                                        <span>{t('project_show.gantt')}</span>
                                     </Button>
                                     <Button
                                         type="button"
@@ -1598,7 +1617,9 @@ export default function ProjectShow({
                                         }
                                     >
                                         <CalendarIcon className="size-4" />
-                                        <span>Calendar</span>
+                                        <span>
+                                            {t('project_show.calendar')}
+                                        </span>
                                     </Button>
                                 </div>
                             </CardHeader>
@@ -1672,11 +1693,12 @@ export default function ProjectShow({
                                         <Upload className="size-8 text-muted-foreground" />
                                         <div>
                                             <p className="text-sm font-medium">
-                                                No files yet
+                                                {t('project_show.no_files_yet')}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                Attachments uploaded to tasks
-                                                will appear here.
+                                                {t(
+                                                    'project_show.files_empty_description',
+                                                )}
                                             </p>
                                         </div>
                                     </div>
@@ -1690,7 +1712,7 @@ export default function ProjectShow({
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
                                     <ActivityIcon className="size-5" />
-                                    Activity
+                                    {t('task.activity')}
                                 </CardTitle>
                                 <Link
                                     href={activityIndex({
@@ -1741,7 +1763,7 @@ export default function ProjectShow({
                                     </div>
                                 ) : (
                                     <p className="py-12 text-center text-sm text-muted-foreground">
-                                        No project activity yet.
+                                        {t('project_show.no_project_activity')}
                                     </p>
                                 )}
                             </CardContent>
@@ -1784,13 +1806,13 @@ export default function ProjectShow({
                             setDeletingEpic(null);
                         }
                     }}
-                    title="Delete epic"
+                    title={t('common.delete')}
                     description={
                         deletingEpic
                             ? `Are you sure you want to delete "${deletingEpic.name}"? Tasks in this epic will not be deleted, but they will be unlinked.`
                             : ''
                     }
-                    confirmText="Delete epic"
+                    confirmText={t('common.delete')}
                     onConfirm={() => {
                         if (!deletingEpic) {
                             return;
@@ -1816,13 +1838,13 @@ export default function ProjectShow({
                             setDeletingSprint(null);
                         }
                     }}
-                    title="Delete sprint"
+                    title={t('common.delete')}
                     description={
                         deletingSprint
                             ? `Are you sure you want to delete "${deletingSprint.name}"? Tasks in this sprint will not be deleted, but they will be unlinked.`
                             : ''
                     }
-                    confirmText="Delete sprint"
+                    confirmText={t('common.delete')}
                     onConfirm={() => {
                         if (!deletingSprint) {
                             return;
@@ -1862,13 +1884,13 @@ export default function ProjectShow({
                             setDeletingLabel(null);
                         }
                     }}
-                    title="Delete label"
+                    title={t('common.delete')}
                     description={
                         deletingLabel
                             ? `Are you sure you want to delete "${deletingLabel.name}"? Tasks will not be deleted, but they will lose this label.`
                             : ''
                     }
-                    confirmText="Delete label"
+                    confirmText={t('common.delete')}
                     onConfirm={() => {
                         if (!deletingLabel) {
                             return;

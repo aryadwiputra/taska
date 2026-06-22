@@ -5,6 +5,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
 import { Eye, EyeOff, Paperclip, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AttachmentPreviewDialog } from '@/components/attachment-preview-dialog';
 import { BranchInfo } from '@/components/git-info';
 import { MentionInput } from '@/components/mention-autocomplete';
@@ -247,10 +248,10 @@ const priorityColors: Record<string, string> = {
 };
 
 const relationLabels: Record<string, string> = {
-    relates_to: 'Relates to',
-    blocks: 'Blocks',
-    blocked_by: 'Blocked by',
-    duplicates: 'Duplicates',
+    relates_to: 'task.relates_to',
+    blocks: 'task.blocks',
+    blocked_by: 'task.blocked_by',
+    duplicates: 'task.duplicates',
 };
 
 export default function TaskShow({
@@ -263,6 +264,7 @@ export default function TaskShow({
     options: initialOptions,
     has_github_integration,
 }: Props) {
+    const { t, i18n } = useTranslation();
     const { user } = usePage().props.auth as { user: { id: number } };
     const projectId = initialTask.project_id;
 
@@ -352,7 +354,7 @@ export default function TaskShow({
     };
 
     const handleDeleteTask = () => {
-        if (!confirm('Delete this task? This cannot be undone.')) {
+        if (!confirm(t('task.delete_task'))) {
             return;
         }
 
@@ -538,7 +540,7 @@ export default function TaskShow({
     };
 
     const handleDeleteComment = (commentId: number) => {
-        if (!confirm('Delete this comment?')) {
+        if (!confirm(t('task.delete_comment'))) {
             return;
         }
 
@@ -574,7 +576,7 @@ export default function TaskShow({
     };
 
     const handleDeleteAttachment = (attachmentId: number) => {
-        if (!confirm('Delete this attachment?')) {
+        if (!confirm(t('task.delete_attachment'))) {
             return;
         }
 
@@ -642,22 +644,24 @@ export default function TaskShow({
 
     const formatFileSize = (bytes: number) => {
         if (bytes < 1024) {
-            return `${bytes} B`;
+            return t('common.bytes', { count: bytes });
         }
 
         if (bytes < 1024 * 1024) {
-            return `${(bytes / 1024).toFixed(1)} KB`;
+            return t('common.kilobytes', { size: (bytes / 1024).toFixed(1) });
         }
 
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return t('common.megabytes', {
+            size: (bytes / (1024 * 1024)).toFixed(1),
+        });
     };
 
     const formatDate = (date: string | null) => {
         if (!date) {
-            return '—';
+            return t('common.none');
         }
 
-        return new Date(date).toLocaleDateString('en-US', {
+        return new Date(date).toLocaleDateString(i18n.language, {
             month: 'short',
             day: 'numeric',
             year: 'numeric',
@@ -666,7 +670,7 @@ export default function TaskShow({
 
     const formatActivityValue = (value: string | null) => {
         if (!value) {
-            return '—';
+            return t('common.none');
         }
 
         try {
@@ -800,7 +804,12 @@ export default function TaskShow({
 
     return (
         <>
-            <Head title={`${task.code} — ${project.name}`} />
+            <Head
+                title={t('task.show_title', {
+                    code: task.code,
+                    project: project.name,
+                })}
+            />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
@@ -832,7 +841,7 @@ export default function TaskShow({
                                             patchTask({ title: task.title })
                                         }
                                         className="mt-1 h-auto border-0 bg-transparent px-0 py-0 text-lg font-semibold shadow-none focus-visible:ring-0"
-                                        aria-label="Task title"
+                                        aria-label={t('task.show_title_aria')}
                                     />
                                 </div>
                                 <Button
@@ -841,7 +850,7 @@ export default function TaskShow({
                                     size="icon"
                                     className="shrink-0 text-muted-foreground hover:text-destructive"
                                     onClick={handleDeleteTask}
-                                    aria-label="Delete task"
+                                    aria-label={t('task.delete_button_aria')}
                                 >
                                     <Trash2 className="size-5" />
                                 </Button>
@@ -920,8 +929,8 @@ export default function TaskShow({
                                     )}
                                     <span>
                                         {isWatchedByCurrentUser()
-                                            ? 'Watching'
-                                            : 'Watch'}
+                                            ? t('task.watching')
+                                            : t('task.watch')}
                                     </span>
                                     {task.watcher_count > 0 && (
                                         <span className="ml-0.5 text-muted-foreground">
@@ -934,7 +943,7 @@ export default function TaskShow({
 
                         <div>
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Description
+                                {t('task.description')}
                             </Label>
                             <textarea
                                 value={task.description ?? ''}
@@ -948,14 +957,16 @@ export default function TaskShow({
                                         description: task.description ?? '',
                                     })
                                 }
-                                placeholder="Add a description..."
+                                placeholder={t(
+                                    'task.add_description_placeholder',
+                                )}
                                 className="mt-2 min-h-28 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                             />
                         </div>
 
                         <div>
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Sub-tasks
+                                {t('task.sub_tasks')}
                             </Label>
                             <div className="mt-2 flex flex-col gap-1">
                                 {task.children.length > 0 ? (
@@ -1009,7 +1020,7 @@ export default function TaskShow({
                                     ))
                                 ) : (
                                     <p className="text-sm text-muted-foreground">
-                                        No sub-tasks
+                                        {t('task.no_sub_tasks')}
                                     </p>
                                 )}
                                 <SubtaskForm onAdd={handleAddSubtask} />
@@ -1018,7 +1029,7 @@ export default function TaskShow({
 
                         <div>
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Attachments
+                                {t('task.attachments')}
                             </Label>
                             <div className="mt-2 flex flex-col gap-2">
                                 {attachments.map((attachment) => (
@@ -1128,8 +1139,8 @@ export default function TaskShow({
                                         }
                                         className="gap-1.5"
                                     >
-                                        <Upload className="size-3.5" /> Upload
-                                        file
+                                        <Upload className="size-3.5" />{' '}
+                                        {t('common.upload')}
                                     </Button>
                                 </div>
                             </div>
@@ -1137,7 +1148,7 @@ export default function TaskShow({
 
                         <div>
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Relations
+                                {t('task.relations')}
                             </Label>
                             <div className="mt-2 flex flex-col gap-1">
                                 {task.relations.length > 0 ? (
@@ -1147,9 +1158,11 @@ export default function TaskShow({
                                             className="flex items-center gap-3 rounded-md border px-3 py-2"
                                         >
                                             <span className="text-xs text-muted-foreground">
-                                                {relationLabels[
-                                                    relation.type
-                                                ] ?? relation.type}
+                                                {t(
+                                                    relationLabels[
+                                                        relation.type
+                                                    ] ?? relation.type,
+                                                )}
                                             </span>
                                             <Link
                                                 href={taskShow.url({
@@ -1182,7 +1195,7 @@ export default function TaskShow({
                                     ))
                                 ) : (
                                     <p className="text-sm text-muted-foreground">
-                                        No relations
+                                        {t('task.no_relations')}
                                     </p>
                                 )}
                                 <RelationForm
@@ -1195,7 +1208,7 @@ export default function TaskShow({
 
                         <div>
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Comments ({comments.length})
+                                {t('task.comments', { count: comments.length })}
                             </Label>
                             <div className="mt-2 flex flex-col gap-4">
                                 <form
@@ -1206,7 +1219,9 @@ export default function TaskShow({
                                         <MentionInput
                                             value={commentBody}
                                             onChange={handleCommentInputChange}
-                                            placeholder="Write a comment..."
+                                            placeholder={t(
+                                                'task.write_comment',
+                                            )}
                                             members={options.assignees}
                                         />
                                     </div>
@@ -1215,15 +1230,19 @@ export default function TaskShow({
                                         size="sm"
                                         disabled={!commentBody.trim()}
                                     >
-                                        Comment
+                                        {t('task.comment_button')}
                                     </Button>
                                 </form>
 
                                 {typingUsers.length > 0 && (
                                     <p className="text-xs text-muted-foreground italic">
                                         {typingUsers.length === 1
-                                            ? `${typingUsers[0].name} is typing...`
-                                            : `${typingUsers.length} people are typing...`}
+                                            ? t('task.typing_single', {
+                                                  name: typingUsers[0].name,
+                                              })
+                                            : t('task.typing_plural', {
+                                                  count: typingUsers.length,
+                                              })}
                                     </p>
                                 )}
 
@@ -1244,7 +1263,7 @@ export default function TaskShow({
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Status
+                                    {t('task.status')}
                                 </Label>
                                 <Select
                                     value={String(task.board_column.id)}
@@ -1278,7 +1297,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Task type
+                                    {t('task.type')}
                                 </Label>
                                 <Select
                                     value={String(task.task_type.id)}
@@ -1302,7 +1321,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Priority
+                                    {t('task.priority')}
                                 </Label>
                                 <Select
                                     value={
@@ -1317,7 +1336,7 @@ export default function TaskShow({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">
-                                            None
+                                            {t('common.none')}
                                         </SelectItem>
                                         {options.priorities.map((p) => (
                                             <SelectItem
@@ -1344,7 +1363,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Story points
+                                    {t('task.story_points')}
                                 </Label>
                                 <Input
                                     type="number"
@@ -1363,13 +1382,13 @@ export default function TaskShow({
                                             story_points: task.story_points,
                                         })
                                     }
-                                    placeholder="—"
+                                    placeholder={t('common.none')}
                                 />
                             </div>
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Sprint
+                                    {t('task.sprint')}
                                 </Label>
                                 <Select
                                     value={
@@ -1384,7 +1403,7 @@ export default function TaskShow({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">
-                                            None
+                                            {t('common.none')}
                                         </SelectItem>
                                         {options.sprints.map((s) => (
                                             <SelectItem
@@ -1400,7 +1419,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Epic
+                                    {t('task.epic')}
                                 </Label>
                                 <Select
                                     value={
@@ -1415,7 +1434,7 @@ export default function TaskShow({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">
-                                            None
+                                            {t('common.none')}
                                         </SelectItem>
                                         {options.epics.map((e) => (
                                             <SelectItem
@@ -1431,7 +1450,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Parent task
+                                    {t('task.parent_task')}
                                 </Label>
                                 <Select
                                     value={
@@ -1446,7 +1465,7 @@ export default function TaskShow({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">
-                                            None
+                                            {t('common.none')}
                                         </SelectItem>
                                         {options.available_parent_tasks.map(
                                             (t) => (
@@ -1464,7 +1483,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Start date
+                                    {t('task.start_date')}
                                 </Label>
                                 <Input
                                     type="date"
@@ -1484,7 +1503,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Due date
+                                    {t('task.due_date')}
                                 </Label>
                                 <Input
                                     type="date"
@@ -1502,7 +1521,7 @@ export default function TaskShow({
 
                             <div className="flex flex-col gap-2">
                                 <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                    Reporter
+                                    {t('task.reporter')}
                                 </Label>
                                 {task.reporter ? (
                                     <div className="flex items-center gap-2">
@@ -1526,7 +1545,7 @@ export default function TaskShow({
                                     </div>
                                 ) : (
                                     <span className="text-sm text-muted-foreground">
-                                        —
+                                        {t('common.none')}
                                     </span>
                                 )}
                             </div>
@@ -1534,7 +1553,7 @@ export default function TaskShow({
                             {has_github_integration && (
                                 <div className="flex flex-col gap-2">
                                     <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                        Git Branch
+                                        {t('task.git_branch')}
                                     </Label>
                                     <BranchInfo
                                         task={task}
@@ -1548,7 +1567,7 @@ export default function TaskShow({
 
                         <div className="flex flex-col gap-2">
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Assignees
+                                {t('task.assignees')}
                             </Label>
                             <div className="flex flex-wrap gap-1">
                                 {task.assignees.map((assignee) => (
@@ -1601,7 +1620,9 @@ export default function TaskShow({
                             >
                                 <SelectTrigger className="h-8">
                                     <Plus className="mr-1 size-3" />
-                                    <SelectValue placeholder="Add assignee" />
+                                    <SelectValue
+                                        placeholder={t('task.add_assignee')}
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {options.assignees
@@ -1625,7 +1646,7 @@ export default function TaskShow({
 
                         <div className="flex flex-col gap-2">
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Labels
+                                {t('task.labels')}
                             </Label>
                             <div className="flex flex-wrap gap-1">
                                 {task.labels.map((label) => (
@@ -1675,7 +1696,9 @@ export default function TaskShow({
                             >
                                 <SelectTrigger className="h-8">
                                     <Plus className="mr-1 size-3" />
-                                    <SelectValue placeholder="Add label" />
+                                    <SelectValue
+                                        placeholder={t('task.add_label')}
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {options.labels
@@ -1699,7 +1722,7 @@ export default function TaskShow({
 
                         <div className="flex flex-col gap-2">
                             <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                                Created
+                                {t('task.created')}
                             </Label>
                             <span className="text-sm">
                                 {formatDate(task.created_at)}
@@ -1710,7 +1733,7 @@ export default function TaskShow({
 
                 <div className="mx-auto w-full max-w-6xl">
                     <Label className="text-xs tracking-wider text-muted-foreground uppercase">
-                        Activity
+                        {t('task.activity')}
                     </Label>
                     <div className="mt-2 flex flex-col gap-3">
                         {activities.map((activity) => (
@@ -1732,25 +1755,26 @@ export default function TaskShow({
                                 <div className="min-w-0 flex-1">
                                     <p>
                                         <span className="font-medium">
-                                            {activity.user?.name ?? 'System'}
+                                            {activity.user?.name ??
+                                                t('common.system')}
                                         </span>{' '}
                                         {activity.action === 'created' &&
-                                            'created this task'}
+                                            t('task_activity.created')}
                                         {activity.action === 'updated' && (
                                             <>
                                                 <span className="text-muted-foreground">
-                                                    changed
+                                                    {t('task_activity.changed')}
                                                 </span>{' '}
                                                 <span className="font-medium">
                                                     {activity.field_name}
                                                 </span>{' '}
-                                                from{' '}
+                                                {t('task_activity.from')}{' '}
                                                 <span className="text-muted-foreground">
                                                     {formatActivityValue(
                                                         activity.old_value,
                                                     )}
                                                 </span>{' '}
-                                                to{' '}
+                                                {t('task_activity.to')}{' '}
                                                 <span className="text-muted-foreground">
                                                     {formatActivityValue(
                                                         activity.new_value,
@@ -1759,9 +1783,9 @@ export default function TaskShow({
                                             </>
                                         )}
                                         {activity.action === 'commented' &&
-                                            'added a comment'}
+                                            t('task_activity.added_comment')}
                                         {activity.action === 'deleted' &&
-                                            'deleted an item'}
+                                            t('task_activity.deleted_item')}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         {formatDate(activity.created_at)}
@@ -1800,10 +1824,11 @@ export default function TaskShow({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Task Deleted</DialogTitle>
+                        <DialogTitle>
+                            {t('task.task_deleted_title')}
+                        </DialogTitle>
                         <DialogDescription>
-                            This task has been deleted by another user. You
-                            will be redirected to the project page.
+                            {t('task.task_deleted_description')}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end">
@@ -1817,7 +1842,7 @@ export default function TaskShow({
                                 )
                             }
                         >
-                            Go to Project
+                            {t('task.go_to_project')}
                         </Button>
                     </div>
                 </DialogContent>
@@ -1827,6 +1852,7 @@ export default function TaskShow({
 }
 
 function SubtaskForm({ onAdd }: { onAdd: (title: string) => void }) {
+    const { t } = useTranslation();
     const [title, setTitle] = useState('');
     const [open, setOpen] = useState(false);
 
@@ -1851,7 +1877,7 @@ function SubtaskForm({ onAdd }: { onAdd: (title: string) => void }) {
                 className="justify-start gap-1.5 text-muted-foreground"
                 onClick={() => setOpen(true)}
             >
-                <Plus className="size-3.5" /> Add sub-task
+                <Plus className="size-3.5" /> {t('task.add_sub_task')}
             </Button>
         );
     }
@@ -1861,7 +1887,7 @@ function SubtaskForm({ onAdd }: { onAdd: (title: string) => void }) {
             <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Sub-task title..."
+                placeholder={t('task.sub_task_placeholder')}
                 autoFocus
                 onKeyDown={(e) => {
                     if (e.key === 'Escape') {
@@ -1870,7 +1896,7 @@ function SubtaskForm({ onAdd }: { onAdd: (title: string) => void }) {
                 }}
             />
             <Button type="submit" size="sm" disabled={!title.trim()}>
-                Add
+                {t('common.add')}
             </Button>
             <Button
                 type="button"
@@ -1878,7 +1904,7 @@ function SubtaskForm({ onAdd }: { onAdd: (title: string) => void }) {
                 size="sm"
                 onClick={() => setOpen(false)}
             >
-                Cancel
+                {t('common.cancel')}
             </Button>
         </form>
     );
@@ -1893,6 +1919,7 @@ function RelationForm({
     onAdd: (type: string, relatedTaskId: number) => void;
     currentTaskId: number;
 }) {
+    const { t } = useTranslation();
     const [type, setType] = useState('relates_to');
     const [taskId, setTaskId] = useState('');
     const [open, setOpen] = useState(false);
@@ -1918,7 +1945,7 @@ function RelationForm({
                 className="justify-start gap-1.5 text-muted-foreground"
                 onClick={() => setOpen(true)}
             >
-                <Plus className="size-3.5" /> Add relation
+                <Plus className="size-3.5" /> {t('task.add_relation')}
             </Button>
         );
     }
@@ -1930,15 +1957,23 @@ function RelationForm({
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="relates_to">Relates to</SelectItem>
-                    <SelectItem value="blocks">Blocks</SelectItem>
-                    <SelectItem value="blocked_by">Blocked by</SelectItem>
-                    <SelectItem value="duplicates">Duplicates</SelectItem>
+                    <SelectItem value="relates_to">
+                        {t('relation.relates_to')}
+                    </SelectItem>
+                    <SelectItem value="blocks">
+                        {t('relation.blocks')}
+                    </SelectItem>
+                    <SelectItem value="blocked_by">
+                        {t('relation.blocked_by')}
+                    </SelectItem>
+                    <SelectItem value="duplicates">
+                        {t('relation.duplicates')}
+                    </SelectItem>
                 </SelectContent>
             </Select>
             <Select value={taskId} onValueChange={setTaskId}>
                 <SelectTrigger className="h-8">
-                    <SelectValue placeholder="Select task..." />
+                    <SelectValue placeholder={t('task.select_task')} />
                 </SelectTrigger>
                 <SelectContent>
                     {projectTasks
@@ -1952,7 +1987,7 @@ function RelationForm({
             </Select>
             <div className="flex gap-2">
                 <Button type="submit" size="sm" disabled={!taskId}>
-                    Add
+                    {t('common.add')}
                 </Button>
                 <Button
                     type="button"
@@ -1960,7 +1995,7 @@ function RelationForm({
                     size="sm"
                     onClick={() => setOpen(false)}
                 >
-                    Cancel
+                    {t('common.cancel')}
                 </Button>
             </div>
         </form>

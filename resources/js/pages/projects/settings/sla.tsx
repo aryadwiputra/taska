@@ -183,31 +183,31 @@ export default function SlaSettings({
 
     return (
         <>
-            <Head title={`SLA Policies — ${project.name}`} />
+            <Head title={t('sla_page.page_title', { name: project.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={t('sla_page.title')}
-                        description={t('sla_page.description')}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        actions={
-                            <>
-                                <FeatureGuide content={slaGuide} />
-                                <Button
-                                    size="sm"
-                                    onClick={openCreate}
-                                    disabled={availableTypes.length === 0}
-                                >
-                                    <Plus className="size-3" />
-                                    {t('sla_page.add_policy')}
-                                </Button>
-                            </>
-                        }
-                    />
+                <PageHeader
+                    title={t('sla_page.title')}
+                    description={t('sla_page.description')}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    actions={
+                        <>
+                            <FeatureGuide content={slaGuide} />
+                            <Button
+                                size="sm"
+                                onClick={openCreate}
+                                disabled={availableTypes.length === 0}
+                            >
+                                <Plus className="size-3" />
+                                {t('sla_page.add_policy')}
+                            </Button>
+                        </>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-3xl">
                     {policies.length > 0 ? (
@@ -263,7 +263,9 @@ export default function SlaSettings({
                                         <button
                                             type="button"
                                             className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                            title="Edit policy"
+                                            title={t(
+                                                'sla_page.edit_policy_title',
+                                            )}
                                             onClick={() => openEdit(policy)}
                                         >
                                             <svg
@@ -283,7 +285,9 @@ export default function SlaSettings({
                                         <button
                                             type="button"
                                             className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                            title="Delete policy"
+                                            title={t(
+                                                'sla_page.delete_policy_title',
+                                            )}
                                             onClick={() => setDeleting(policy)}
                                         >
                                             <Trash2 className="size-3.5" />

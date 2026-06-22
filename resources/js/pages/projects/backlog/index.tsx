@@ -421,19 +421,25 @@ export default function BacklogIndex({
 
     return (
         <>
-            <Head title={`Backlog — ${project.name}`} />
+            <Head title={`${t('guide.backlog.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title="Backlog"
-                        description={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} not assigned to any sprint`}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        actions={<FeatureGuide content={backlogGuide} />}
-                    />
+                <PageHeader
+                    title={t('guide.backlog.title')}
+                    description={
+                        tasks.length === 1
+                            ? t('backlog.description', { count: tasks.length })
+                            : t('backlog.description_plural', {
+                                  count: tasks.length,
+                              })
+                    }
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    actions={<FeatureGuide content={backlogGuide} />}
+                />
 
                 <div className="mx-auto w-full max-w-4xl">
                     {sprints.length > 0 && (
@@ -551,8 +557,8 @@ export default function BacklogIndex({
                             ) : (
                                 <EmptyState
                                     icon={Layers}
-                                    title="Backlog is empty"
-                                    description="Create tasks to add them to the backlog."
+                                    title={t('backlog.empty_title')}
+                                    description={t('backlog.empty_description')}
                                     className="bg-muted/30 py-12"
                                 />
                             )}

@@ -111,18 +111,18 @@ export default function WorkloadPage({
 
     return (
         <>
-            <Head title={`Workload — ${project.name}`} />
+            <Head title={t('workload.page_title', { name: project.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title="Team Workload"
-                        description="View task distribution and capacity across team members."
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                    />
+                <PageHeader
+                    title={t('workload.title')}
+                    description={t('workload.description')}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                />
 
                 <div className="mx-auto w-full max-w-4xl">
                     {sprints.length > 0 && (
@@ -280,8 +280,8 @@ export default function WorkloadPage({
                     ) : (
                         <EmptyState
                             icon={Users}
-                            title="No team members"
-                            description="Add members to this project to view workload."
+                            title={t('workload.empty_title')}
+                            description={t('workload.empty_description')}
                         />
                     )}
                 </div>

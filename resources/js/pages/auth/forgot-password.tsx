@@ -63,7 +63,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 </Form>
 
                 <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
+                    <span>{t('auth.or_return_to')}</span>
                     <TextLink href={login()}>{t('auth.login')}</TextLink>
                 </div>
             </div>

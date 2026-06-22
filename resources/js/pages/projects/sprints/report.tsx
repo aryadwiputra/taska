@@ -1,6 +1,7 @@
 'use no memo';
 
 import { Head } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -76,6 +77,20 @@ export default function SprintReport({
     byStatus,
     byAssignee,
 }: Props) {
+    const { t, i18n } = useTranslation();
+
+    const formatDate = (date: string | null): string => {
+        if (!date) {
+            return t('common.not_set');
+        }
+
+        return new Date(date).toLocaleDateString(i18n.language, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
+
     const percent =
         sprint.tasks_count === 0
             ? 0
@@ -85,38 +100,46 @@ export default function SprintReport({
 
     return (
         <>
-            <Head title={`Report: ${sprint.name} — ${project.name}`} />
+            <Head
+                title={t('sprint_report.page_title', {
+                    sprintName: sprint.name,
+                    projectName: project.name,
+                })}
+            />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={sprint.name}
-                        description={`${formatDate(sprint.start_date)} — ${formatDate(sprint.end_date)}`}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        badge={
-                            <Badge
-                                variant="outline"
-                                className={cn(
-                                    sprintStatusColor[sprint.status] ?? '',
-                                )}
-                            >
-                                {sprint.status}
-                            </Badge>
-                        }
-                    />
+                <PageHeader
+                    title={sprint.name}
+                    description={`${formatDate(sprint.start_date)} — ${formatDate(sprint.end_date)}`}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    badge={
+                        <Badge
+                            variant="outline"
+                            className={cn(
+                                sprintStatusColor[sprint.status] ?? '',
+                            )}
+                        >
+                            {t(`sprint.${sprint.status}`, sprint.status)}
+                        </Badge>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-6 grid gap-4 sm:grid-cols-4">
                         <SummaryCard
-                            label="Tasks"
+                            label={t('sprint_report.tasks')}
                             value={`${sprint.completed_tasks_count}/${sprint.tasks_count}`}
                         />
-                        <SummaryCard label="Completion" value={`${percent}%`} />
                         <SummaryCard
-                            label="Story Points"
+                            label={t('sprint_report.completion')}
+                            value={`${percent}%`}
+                        />
+                        <SummaryCard
+                            label={t('task.story_points')}
                             value={
                                 sprint.total_points > 0
                                     ? `${sprint.completed_points}/${sprint.total_points}`
@@ -124,28 +147,32 @@ export default function SprintReport({
                             }
                         />
                         <SummaryCard
-                            label="Committed Points"
+                            label={t('sprint_report.committed_points')}
                             value={sprint.committed_points ?? '—'}
                         />
                     </div>
 
                     {sprint.goal && (
                         <p className="mb-6 text-sm text-muted-foreground">
-                            Goal: {sprint.goal}
+                            {t('sprint_report.goal_label', {
+                                goal: sprint.goal,
+                            })}
                         </p>
                     )}
 
                     <div className="grid gap-6 lg:grid-cols-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Burndown</CardTitle>
+                                <CardTitle>
+                                    {t('sprint_report.burndown')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {burndown.data.length > 0 ? (
                                     <BurndownChart data={burndown.data} />
                                 ) : (
                                     <p className="py-8 text-center text-sm text-muted-foreground">
-                                        No burndown data available.
+                                        {t('sprint_report.no_burndown_data')}
                                     </p>
                                 )}
                             </CardContent>
@@ -153,7 +180,9 @@ export default function SprintReport({
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tasks by Status</CardTitle>
+                                <CardTitle>
+                                    {t('reports.tasks_by_status')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {byStatus.length > 0 ? (
@@ -164,9 +193,12 @@ export default function SprintReport({
                                                 className="flex items-center justify-between"
                                             >
                                                 <span className="text-sm capitalize">
-                                                    {item.key.replace(
-                                                        /_/g,
-                                                        ' ',
+                                                    {t(
+                                                        `task_search.${item.key}`,
+                                                        item.key.replace(
+                                                            /_/g,
+                                                            ' ',
+                                                        ),
                                                     )}
                                                 </span>
                                                 <Badge variant="secondary">
@@ -177,7 +209,7 @@ export default function SprintReport({
                                     </div>
                                 ) : (
                                     <p className="py-8 text-center text-sm text-muted-foreground">
-                                        No tasks in this sprint.
+                                        {t('sprint_page.no_tasks')}
                                     </p>
                                 )}
                             </CardContent>
@@ -185,7 +217,9 @@ export default function SprintReport({
 
                         <Card className="lg:col-span-2">
                             <CardHeader>
-                                <CardTitle>Tasks by Assignee</CardTitle>
+                                <CardTitle>
+                                    {t('sprint_report.tasks_by_assignee')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {byAssignee.length > 0 ? (
@@ -200,12 +234,18 @@ export default function SprintReport({
                                             >
                                                 <span className="text-sm">
                                                     {item.user?.name ??
-                                                        'Unassigned'}
+                                                        t('task.unassigned')}
                                                 </span>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-xs text-muted-foreground">
-                                                        {item.completed}/
-                                                        {item.total} completed
+                                                        {t(
+                                                            'sprint_report.completed_suffix',
+                                                            {
+                                                                completed:
+                                                                    item.completed,
+                                                                total: item.total,
+                                                            },
+                                                        )}
                                                     </span>
                                                     <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
                                                         <div
@@ -230,7 +270,7 @@ export default function SprintReport({
                                     </div>
                                 ) : (
                                     <p className="py-8 text-center text-sm text-muted-foreground">
-                                        No tasks in this sprint.
+                                        {t('sprint_page.no_tasks')}
                                     </p>
                                 )}
                             </CardContent>
@@ -370,16 +410,4 @@ function BurndownChart({ data }: { data: BurndownPoint[] }) {
                 })}
         </svg>
     );
-}
-
-function formatDate(date: string | null): string {
-    if (!date) {
-        return 'Not set';
-    }
-
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
 }

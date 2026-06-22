@@ -550,19 +550,16 @@ function BoardClient({
         changes: Record<string, unknown>;
     }
 
-    const handleTaskFieldUpdated = useCallback(
-        (e: TaskFieldUpdatedEvent) => {
-            setColumns((prev) =>
-                prev.map((col) => ({
-                    ...col,
-                    tasks: col.tasks.map((t) =>
-                        t.id === e.taskId ? { ...t, ...e.changes } : t,
-                    ),
-                })),
-            );
-        },
-        [],
-    );
+    const handleTaskFieldUpdated = useCallback((e: TaskFieldUpdatedEvent) => {
+        setColumns((prev) =>
+            prev.map((col) => ({
+                ...col,
+                tasks: col.tasks.map((t) =>
+                    t.id === e.taskId ? { ...t, ...e.changes } : t,
+                ),
+            })),
+        );
+    }, []);
 
     useEcho(
         `private-project.${project.id}`,
@@ -839,7 +836,7 @@ function BoardClient({
 
     return (
         <>
-            <Head title={`${project.name} — Board`} />
+            <Head title={t('board.board_title', { name: project.name })} />
 
             <div
                 className="mx-auto flex h-full w-full max-w-[1600px] flex-1 flex-col overflow-hidden"

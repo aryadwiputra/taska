@@ -173,7 +173,7 @@ export default function ReleasesIndex({
     };
 
     const handleDelete = (releaseId: number) => {
-        if (!confirm('Delete this release? Tasks will be unassigned.')) {
+        if (!confirm(t('release.delete_release'))) {
             return;
         }
 
@@ -244,24 +244,21 @@ export default function ReleasesIndex({
             <Head title={`${t('release.title')} — ${project.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={t('release.title')}
-                        description={`${releases.length} release${releases.length !== 1 ? 's' : ''}`}
-                        backHref={projectShow({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel={project.name}
-                        actions={
-                            <Button
-                                size="sm"
-                                onClick={() => setCreateOpen(true)}
-                            >
-                                <Plus className="mr-1.5 size-3.5" />
-                                New release
-                            </Button>
-                        }
-                    />
+                <PageHeader
+                    title={t('release.title')}
+                    description={`${releases.length} release${releases.length !== 1 ? 's' : ''}`}
+                    backHref={projectShow({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={project.name}
+                    actions={
+                        <Button size="sm" onClick={() => setCreateOpen(true)}>
+                            <Plus className="mr-1.5 size-3.5" />
+                            {t('release.new_release')}
+                        </Button>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-4xl">
                     {releases.length > 0 ? (
@@ -324,7 +321,7 @@ export default function ReleasesIndex({
                                                             release.completed_tasks_count
                                                         }
                                                         /{release.tasks_count}{' '}
-                                                        tasks
+                                                        {t('release.tasks')}
                                                     </span>
                                                 </div>
                                                 {release.tasks_count > 0 && (
@@ -349,7 +346,9 @@ export default function ReleasesIndex({
                                                                 release.id,
                                                             )
                                                         }
-                                                        title="Mark as released"
+                                                        title={t(
+                                                            'release.released',
+                                                        )}
                                                     >
                                                         <Rocket className="size-3.5" />
                                                     </Button>
@@ -360,7 +359,7 @@ export default function ReleasesIndex({
                                                     onClick={() =>
                                                         handleDelete(release.id)
                                                     }
-                                                    title="Delete release"
+                                                    title={t('common.delete')}
                                                     className="text-muted-foreground hover:text-destructive"
                                                 >
                                                     <Trash2 className="size-3.5" />
@@ -374,8 +373,8 @@ export default function ReleasesIndex({
                     ) : (
                         <EmptyState
                             icon={Rocket}
-                            title="No releases yet"
-                            description="Create a release to start tracking."
+                            title={t('release.no_releases')}
+                            description={t('release.create_first')}
                             action={
                                 <Button
                                     variant="outline"
@@ -383,7 +382,7 @@ export default function ReleasesIndex({
                                     onClick={() => setCreateOpen(true)}
                                 >
                                     <Plus className="mr-1.5 size-3.5" />
-                                    New release
+                                    {t('release.new_release')}
                                 </Button>
                             }
                         />
@@ -394,26 +393,28 @@ export default function ReleasesIndex({
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Create release</DialogTitle>
+                        <DialogTitle>{t('release.create_release')}</DialogTitle>
                         <DialogDescription>
-                            Add a new release to track progress.
+                            {t('release.create_description')}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="release-name">Name</Label>
+                            <Label htmlFor="release-name">
+                                {t('release.name')}
+                            </Label>
                             <Input
                                 id="release-name"
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
-                                placeholder="e.g. v1.0.0"
+                                placeholder={t('release.name_placeholder')}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="release-desc">
-                                Description{' '}
+                                {t('release.description')}{' '}
                                 <span className="text-muted-foreground">
-                                    (optional)
+                                    ({t('common.optional')})
                                 </span>
                             </Label>
                             <textarea
@@ -422,16 +423,18 @@ export default function ReleasesIndex({
                                 onChange={(
                                     e: React.ChangeEvent<HTMLTextAreaElement>,
                                 ) => setNewDescription(e.target.value)}
-                                placeholder="What's in this release..."
+                                placeholder={t(
+                                    'release.description_placeholder',
+                                )}
                                 rows={3}
                                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="release-date">
-                                Target date{' '}
+                                {t('release.target_date')}{' '}
                                 <span className="text-muted-foreground">
-                                    (optional)
+                                    ({t('common.optional')})
                                 </span>
                             </Label>
                             <Input
@@ -447,13 +450,13 @@ export default function ReleasesIndex({
                             variant="outline"
                             onClick={() => setCreateOpen(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button
                             onClick={handleCreate}
                             disabled={!newName.trim() || creating}
                         >
-                            Create
+                            {t('common.create')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

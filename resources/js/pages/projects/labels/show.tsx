@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Hash } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { TaskDetailDrawer } from '@/components/task-detail-drawer';
@@ -85,54 +86,74 @@ export default function LabelShow({
     label,
     labelTasks,
 }: Props) {
+    const { t, i18n } = useTranslation();
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
+    const formatDate = (date: string | null): string => {
+        if (!date) {
+            return t('common.not_set');
+        }
+
+        return new Date(date).toLocaleDateString(i18n.language, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
+
     return (
         <>
-            <Head title={`${label.name} — ${project.name}`} />
+            <Head
+                title={t('labels.show_page_title', {
+                    labelName: label.name,
+                    projectName: project.name,
+                })}
+            />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
-                    <PageHeader
-                        title={label.name}
-                        backHref={projectSettings({
-                            workspace: workspace.slug,
-                            project: project.slug,
-                        })}
-                        backLabel="Settings"
-                        leading={
-                            <div
-                                className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
-                                style={{
-                                    backgroundColor: label.color ?? '#64748B',
-                                }}
-                            >
-                                <Hash className="size-6" />
-                            </div>
-                        }
-                        badge={
-                            <Badge variant="secondary">
-                                {label.tasks_count} tasks
-                            </Badge>
-                        }
-                        actions={
-                            <Link
-                                href={projectSettings({
-                                    workspace: workspace.slug,
-                                    project: project.slug,
-                                })}
-                            >
-                                <Button variant="outline" size="sm">
-                                    Edit label
-                                </Button>
-                            </Link>
-                        }
-                    />
+                <PageHeader
+                    title={label.name}
+                    backHref={projectSettings({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    })}
+                    backLabel={t('settings.title')}
+                    leading={
+                        <div
+                            className="flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-white"
+                            style={{
+                                backgroundColor: label.color ?? '#64748B',
+                            }}
+                        >
+                            <Hash className="size-6" />
+                        </div>
+                    }
+                    badge={
+                        <Badge variant="secondary">
+                            {t('labels.task_count', {
+                                count: label.tasks_count,
+                            })}
+                        </Badge>
+                    }
+                    actions={
+                        <Link
+                            href={projectSettings({
+                                workspace: workspace.slug,
+                                project: project.slug,
+                            })}
+                        >
+                            <Button variant="outline" size="sm">
+                                {t('label.edit_label')}
+                            </Button>
+                        </Link>
+                    }
+                />
 
                 <div className="mx-auto w-full max-w-3xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Tasks</CardTitle>
+                            <CardTitle>{t('tasks.title')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {labelTasks.length > 0 ? (
@@ -203,7 +224,9 @@ export default function LabelShow({
                                                     )}
                                                     {task.due_date && (
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            Due{' '}
+                                                            {t(
+                                                                'labels.due_prefix',
+                                                            )}{' '}
                                                             {formatDate(
                                                                 task.due_date,
                                                             )}
@@ -217,8 +240,10 @@ export default function LabelShow({
                             ) : (
                                 <EmptyState
                                     icon={Hash}
-                                    title="No tasks with this label"
-                                    description="Assign this label to tasks via the task drawer."
+                                    title={t('labels.no_tasks_with_label')}
+                                    description={t(
+                                        'labels.no_tasks_description',
+                                    )}
                                     className="border-0 bg-transparent py-12"
                                 />
                             )}
@@ -237,16 +262,4 @@ export default function LabelShow({
             />
         </>
     );
-}
-
-function formatDate(date: string | null): string {
-    if (!date) {
-        return 'Not set';
-    }
-
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
 }

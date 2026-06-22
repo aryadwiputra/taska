@@ -36,7 +36,7 @@ export default function Register({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">{t('auth.name')}</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -45,7 +45,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder={t('auth.full_name')}
                                 />
                                 <InputError
                                     message={errors.name}
@@ -108,12 +108,12 @@ export default function Register({ passwordRules }: Props) {
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                {t('auth.create_account')}
                             </Button>
                         </div>
 
                         <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
+                            {t('auth.already_have_account')}{' '}
                             <TextLink href={login()} tabIndex={6}>
                                 {t('auth.login')}
                             </TextLink>

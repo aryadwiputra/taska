@@ -354,7 +354,7 @@ export default function AutomationIndex({
 
     return (
         <>
-            <Head title={`Automation — ${project.name}`} />
+            <Head title={t('automation.page_title', { name: project.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
@@ -492,7 +492,11 @@ export default function AutomationIndex({
                                                                 }}
                                                             >
                                                                 <SelectTrigger className="w-40">
-                                                                    <SelectValue placeholder="Field" />
+                                                                    <SelectValue
+                                                                        placeholder={t(
+                                                                            'automation_field.field_placeholder',
+                                                                        )}
+                                                                    />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
                                                                     {options.condition_fields.map(
@@ -539,7 +543,11 @@ export default function AutomationIndex({
                                                                 }}
                                                             >
                                                                 <SelectTrigger className="w-36">
-                                                                    <SelectValue placeholder="Operator" />
+                                                                    <SelectValue
+                                                                        placeholder={t(
+                                                                            'automation_field.operator_placeholder',
+                                                                        )}
+                                                                    />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
                                                                     {options.condition_operators.map(
@@ -584,7 +592,9 @@ export default function AutomationIndex({
                                                                             updated,
                                                                     });
                                                                 }}
-                                                                placeholder="Value"
+                                                                placeholder={t(
+                                                                    'automation_field.value_placeholder',
+                                                                )}
                                                                 className="flex-1"
                                                             />
 

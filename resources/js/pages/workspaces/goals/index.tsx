@@ -99,7 +99,7 @@ export default function GoalsIndex({ workspace, goals: initialGoals }: Props) {
 
     return (
         <>
-            <Head title={`Goals — ${workspace.name}`} />
+            <Head title={`${t('goal.title')} — ${workspace.name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader

@@ -211,7 +211,9 @@ export default function NotificationsIndex({
                                 }}
                             >
                                 <CheckCheck className="size-4" />
-                                <span>{t('notification.mark_all_read_short')}</span>
+                                <span>
+                                    {t('notification.mark_all_read_short')}
+                                </span>
                             </Button>
                         )
                     }
@@ -229,7 +231,13 @@ export default function NotificationsIndex({
                         {groups.map(([label, items]) => (
                             <div key={label}>
                                 <h2 className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    {label === 'Today' ? t('common.today') : label === 'Yesterday' ? t('notification.group_yesterday') : label === 'This Week' ? t('notification.group_this_week') : t('notification.group_older')}
+                                    {label === 'Today'
+                                        ? t('common.today')
+                                        : label === 'Yesterday'
+                                          ? t('notification.group_yesterday')
+                                          : label === 'This Week'
+                                            ? t('notification.group_this_week')
+                                            : t('notification.group_older')}
                                 </h2>
                                 <div className="overflow-hidden rounded-lg border">
                                     {items.map((notification) => {
@@ -295,11 +303,13 @@ export default function NotificationsIndex({
                                                     )}
                                                     <div className="mt-1 flex items-center gap-3">
                                                         <span className="text-xs text-muted-foreground">
-                                                            {t(typeI18nKeys[
-                                                                notification
-                                                                    .type
-                                                            ] ??
-                                                                notification.type)}
+                                                            {t(
+                                                                typeI18nKeys[
+                                                                    notification
+                                                                        .type
+                                                                ] ??
+                                                                    notification.type,
+                                                            )}
                                                         </span>
                                                         <span className="text-xs text-muted-foreground">
                                                             {formatTimeAgo(
@@ -360,9 +370,11 @@ export default function NotificationsIndex({
                                                                         },
                                                                     );
                                                                 }}
-                                                             >
-                                                                 {t('notification.mark_read')}
-                                                             </button>
+                                                            >
+                                                                {t(
+                                                                    'notification.mark_read',
+                                                                )}
+                                                            </button>
                                                         )}
                                                         <button
                                                             type="button"
@@ -370,7 +382,9 @@ export default function NotificationsIndex({
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 router.delete(
-                                                                     notificationDestroy(notification.id),
+                                                                    notificationDestroy(
+                                                                        notification.id,
+                                                                    ),
                                                                     {
                                                                         preserveScroll: true,
                                                                         onSuccess:

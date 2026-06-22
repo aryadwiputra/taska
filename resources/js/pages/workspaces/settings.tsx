@@ -274,7 +274,7 @@ export default function WorkspaceSettings({
 
     return (
         <>
-            <Head title={`${workspace.name} — Settings`} />
+            <Head title={t('workspace.settings_title', { name: workspace.name })} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto">
                 <PageHeader
@@ -609,7 +609,9 @@ export default function WorkspaceSettings({
                                                     <Input
                                                         id="task-type-name"
                                                         name="name"
-                                                        placeholder="Bug"
+                                                        placeholder={t(
+                                                            'workspace_settings.task_type_placeholder',
+                                                        )}
                                                         data-invalid={
                                                             !!errors.name
                                                         }
@@ -812,7 +814,9 @@ export default function WorkspaceSettings({
                                                     <Input
                                                         id="priority-name"
                                                         name="name"
-                                                        placeholder="Critical"
+                                                        placeholder={t(
+                                                            'workspace_settings.priority_placeholder',
+                                                        )}
                                                         data-invalid={
                                                             !!errors.name
                                                         }

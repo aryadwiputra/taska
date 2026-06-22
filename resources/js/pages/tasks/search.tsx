@@ -44,7 +44,9 @@ export default function TaskSearch({ tasks, filters, options }: Props) {
                     badge={
                         <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                             {tasks.total}{' '}
-                            {tasks.total === 1 ? t('task_search.result') : t('task_search.results')}
+                            {tasks.total === 1
+                                ? t('task_search.result')
+                                : t('task_search.results')}
                         </span>
                     }
                 />
