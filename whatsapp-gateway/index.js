@@ -3,18 +3,44 @@ import { startServer } from './src/server.js';
 import { createClient } from './src/client.js';
 
 const PORT = parseInt(process.env.GATEWAY_PORT || '3001', 10);
-const client = createClient();
 
-client.on('ready', () => {
-    console.log('[gateway] client ready');
-});
+let client;
+let restartTimer = null;
 
-client.on('disconnected', (reason) => {
-    console.warn('[gateway] disconnected:', reason);
-});
+function start() {
+    client = createClient();
 
-client.on('auth_failure', (msg) => {
-    console.error('[gateway] auth failure:', msg);
-});
+    client.on('ready', () => {
+        console.log('[gateway] client ready');
+    });
 
-startServer(client, PORT);
+    client.on('disconnected', (reason) => {
+        console.warn('[gateway] disconnected:', reason);
+
+        if (restartTimer) {
+            clearTimeout(restartTimer);
+        }
+
+        restartTimer = setTimeout(() => {
+            console.log('[gateway] reconnecting...');
+            start();
+        }, 5000);
+    });
+
+    client.on('auth_failure', (msg) => {
+        console.error('[gateway] auth failure:', msg);
+
+        if (restartTimer) {
+            clearTimeout(restartTimer);
+        }
+
+        restartTimer = setTimeout(() => {
+            console.log('[gateway] reconnecting after auth failure...');
+            start();
+        }, 10000);
+    });
+
+    startServer(client, PORT);
+}
+
+start();

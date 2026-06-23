@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -9,15 +10,29 @@ class WhatsAppGatewayService
 {
     protected string $baseUrl;
 
+    protected string $apiToken;
+
     public function __construct()
     {
         $this->baseUrl = config('whatsapp.gateway_url', 'http://localhost:3001');
+        $this->apiToken = config('whatsapp.api_token', '');
+    }
+
+    protected function withAuth(): PendingRequest
+    {
+        $request = Http::timeout(5);
+
+        if ($this->apiToken) {
+            $request->withHeaders(['Authorization' => "Bearer {$this->apiToken}"]);
+        }
+
+        return $request;
     }
 
     public function status(): array
     {
         try {
-            $response = Http::timeout(5)->get("{$this->baseUrl}/status");
+            $response = $this->withAuth()->get("{$this->baseUrl}/status");
 
             return $response->json() ?? ['ready' => false, 'qr' => null];
         } catch (\Throwable $e) {
@@ -30,7 +45,7 @@ class WhatsAppGatewayService
     public function send(string $phone, string $message): bool
     {
         try {
-            $response = Http::timeout(10)->post("{$this->baseUrl}/send", [
+            $response = $this->withAuth()->timeout(10)->post("{$this->baseUrl}/send", [
                 'phone' => $phone,
                 'message' => $message,
             ]);
@@ -56,7 +71,7 @@ class WhatsAppGatewayService
     public function disconnect(): bool
     {
         try {
-            Http::timeout(10)->delete("{$this->baseUrl}/session");
+            $this->withAuth()->timeout(10)->delete("{$this->baseUrl}/session");
 
             return true;
         } catch (\Throwable $e) {
