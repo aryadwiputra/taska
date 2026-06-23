@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('event_type', 100);
             $table->json('conditions')->nullable();
-            $table->json('channels')->default('["in_app"]');
+            $table->json('channels')->nullable();
             $table->boolean('enabled')->default(true);
             $table->timestamps();
 
