@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
+import { useSocketEvent } from '@/hooks/use-socket';
 import {
     flexRender,
     getCoreRowModel,
@@ -277,9 +277,9 @@ export default function ProjectShow({
         setLocalTasks(tasks);
     }, [tasks]);
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.task.field.updated',
+    useSocketEvent(
+        `project.${project.id}`,
+        'task.field.updated',
         (e: { task_id: number; changes: Record<string, unknown> }) => {
             setLocalTasks((prev) =>
                 prev.map((t) =>
@@ -290,9 +290,9 @@ export default function ProjectShow({
         [project.id],
     );
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.activity.logged',
+    useSocketEvent(
+        `project.${project.id}`,
+        'activity.logged',
         (e: { action: string; task_id: number }) => {
             if (e.action === 'created') {
                 router.reload({ only: ['tasks'] });

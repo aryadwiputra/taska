@@ -1,15 +1,13 @@
 <?php
 
-use App\Events\TaskAssigned;
-use App\Events\TaskCommented;
-use App\Events\TaskUpdated;
 use App\Models\User;
 use App\Services\MentionNotificationService;
 use App\Services\NotificationService;
 use App\Services\WorkspaceRoleService;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 
-test('notifyAssigned dispatches TaskAssigned event', function () {
+test('notifyAssigned broadcasts via realtime gateway', function () {
+    Http::fake();
     $assigner = User::factory()->create();
     $assignee = User::factory()->create();
     $workspace = createWorkspaceMember($assigner, 'manager');
@@ -26,19 +24,21 @@ test('notifyAssigned dispatches TaskAssigned event', function () {
     ]);
     $task = createTaskForProject($project, $assigner);
 
-    Event::fake();
     $service = app(NotificationService::class);
     $service->notifyAssigned($task, $assignee, $assigner);
 
-    Event::assertDispatched(TaskAssigned::class, function ($event) use ($assignee, $task) {
-        return $event->userId === $assignee->id
-            && $event->type === 'task.assigned'
-            && $event->taskCode === $task->code
-            && $event->taskId === $task->id;
+    Http::assertSent(function ($request) use ($assignee, $task) {
+        $body = $request->data();
+        return str_contains($request->url(), '/broadcast')
+            && ($body['channel'] ?? '') === "user.{$assignee->id}"
+            && ($body['event'] ?? '') === 'notification'
+            && ($body['data']['type'] ?? '') === 'task.assigned'
+            && ($body['data']['task_code'] ?? '') === $task->code;
     });
 });
 
-test('notifyComment dispatches TaskCommented event', function () {
+test('notifyComment broadcasts via realtime gateway', function () {
+    Http::fake();
     $commenter = User::factory()->create();
     $assignee = User::factory()->create();
     $workspace = createWorkspaceMember($commenter, 'manager');
@@ -60,19 +60,19 @@ test('notifyComment dispatches TaskCommented event', function () {
         'body' => 'Test comment',
     ]);
 
-    Event::fake();
     $service = app(NotificationService::class);
     $service->notifyComment($task, $commenter, $comment);
 
-    Event::assertDispatched(TaskCommented::class, function ($event) use ($assignee, $task) {
-        return $event->userId === $assignee->id
-            && $event->type === 'task.commented'
-            && $event->taskCode === $task->code
-            && $event->taskId === $task->id;
+    Http::assertSent(function ($request) use ($assignee, $task) {
+        $body = $request->data();
+        return str_contains($request->url(), '/broadcast')
+            && ($body['channel'] ?? '') === "user.{$assignee->id}"
+            && ($body['event'] ?? '') === 'notification';
     });
 });
 
-test('notifyWatchers dispatches TaskUpdated event', function () {
+test('notifyWatchers broadcasts via realtime gateway', function () {
+    Http::fake();
     $actor = User::factory()->create();
     $watcher = User::factory()->create();
     $workspace = createWorkspaceMember($actor, 'manager');
@@ -90,19 +90,20 @@ test('notifyWatchers dispatches TaskUpdated event', function () {
     $task = createTaskForProject($project, $actor);
     $task->watchers()->attach($watcher);
 
-    Event::fake();
     $service = app(NotificationService::class);
     $service->notifyWatchers($task, $actor, collect([$watcher]));
 
-    Event::assertDispatched(TaskUpdated::class, function ($event) use ($watcher, $task) {
-        return $event->userId === $watcher->id
-            && $event->type === 'task.updated'
-            && $event->taskCode === $task->code
-            && $event->taskId === $task->id;
+    Http::assertSent(function ($request) use ($watcher, $task) {
+        $body = $request->data();
+        return str_contains($request->url(), '/broadcast')
+            && ($body['channel'] ?? '') === "user.{$watcher->id}"
+            && ($body['event'] ?? '') === 'notification'
+            && ($body['data']['task_code'] ?? '') === $task->code;
     });
 });
 
-test('mention dispatches TaskUpdated event', function () {
+test('mention broadcasts via realtime gateway', function () {
+    Http::fake();
     $commenter = User::factory()->create();
     $mentioned = User::factory()->create();
     $workspace = createWorkspaceMember($commenter, 'manager');
@@ -123,14 +124,14 @@ test('mention dispatches TaskUpdated event', function () {
         'body' => 'Hello @'.$mentioned->name,
     ]);
 
-    Event::fake();
     $service = app(MentionNotificationService::class);
     $service->notify($comment, $task, $commenter, collect([$mentioned]));
 
-    Event::assertDispatched(TaskUpdated::class, function ($event) use ($mentioned, $task) {
-        return $event->userId === $mentioned->id
-            && $event->type === 'task.mentioned'
-            && $event->taskCode === $task->code
-            && $event->taskId === $task->id;
+    Http::assertSent(function ($request) use ($mentioned, $task) {
+        $body = $request->data();
+        return str_contains($request->url(), '/broadcast')
+            && ($body['channel'] ?? '') === "user.{$mentioned->id}"
+            && ($body['event'] ?? '') === 'notification'
+            && ($body['data']['task_code'] ?? '') === $task->code;
     });
 });

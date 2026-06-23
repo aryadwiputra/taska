@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\TaskUpdated;
 use App\Jobs\SendWhatsAppNotification;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
@@ -42,16 +41,15 @@ class MentionNotificationService
                     ],
                 ]);
 
-                TaskUpdated::dispatch(
-                    $user->id,
-                    'task.mentioned',
-                    'You were mentioned',
-                    sprintf('%s mentioned you in %s.', $commenter->name, $task->code),
-                    $task->code,
-                    $task->project->slug,
-                    $notification->id,
-                    $task->id,
-                );
+                app(RealtimeGatewayService::class)->broadcast("user.{$user->id}", 'notification', [
+                    'type' => 'task.mentioned',
+                    'title' => 'You were mentioned',
+                    'body' => sprintf('%s mentioned you in %s.', $commenter->name, $task->code),
+                    'task_code' => $task->code,
+                    'project_slug' => $task->project->slug,
+                    'notification_id' => $notification->id,
+                    'task_id' => $task->id,
+                ]);
             }
 
             if (NotificationPreference::isEmailEnabled($user, 'task.mentioned')) {

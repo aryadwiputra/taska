@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TasksReordered;
 use App\Http\Requests\ReorderBoardTasksRequest;
 use App\Models\Board;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Workspace;
+use App\Services\RealtimeGatewayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -195,7 +195,7 @@ class BoardTaskReorderController extends Controller
         });
 
         // Broadcast to other clients
-        TasksReordered::dispatch($project->id, $updatedColumns->toArray());
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'tasks.reordered', ['columns' => $updatedColumns->toArray()]);
 
         return response()->json([
             'columns' => $updatedColumns,

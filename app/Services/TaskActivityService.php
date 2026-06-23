@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\ActivityLogged;
 use App\Models\ActivityLog;
 use App\Models\BoardColumn;
 use App\Models\Epic;
@@ -161,19 +160,18 @@ class TaskActivityService
             ],
         ]);
 
-        ActivityLogged::dispatch(
-            $task->project_id,
-            $task->id,
-            $task->code,
-            $action,
-            $fieldName,
-            $oldValue,
-            $newValue,
-            $user->id,
-            $user->name,
-            $taskActivity->created_at->toISOString(),
-            $taskActivity->id,
-        );
+        app(RealtimeGatewayService::class)->broadcast("project.{$task->project_id}", 'activity.logged', [
+            'task_id' => $task->id,
+            'task_code' => $task->code,
+            'action' => $action,
+            'field_name' => $fieldName,
+            'old_value' => $oldValue,
+            'new_value' => $newValue,
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'timestamp' => $taskActivity->created_at->toISOString(),
+            'activity_id' => $taskActivity->id,
+        ]);
     }
 
     /**

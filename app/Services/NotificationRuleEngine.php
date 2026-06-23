@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\TaskUpdated;
 use App\Models\Notification;
 use App\Models\NotificationRule;
 use App\Models\Task;
@@ -87,16 +86,15 @@ class NotificationRuleEngine
 
             $task->loadMissing('project');
 
-            TaskUpdated::dispatch(
-                $user->id,
-                'rule_triggered',
-                $rule->name,
-                "Rule \"{$rule->name}\" triggered for task {$task->code}.",
-                $task->code,
-                $task->project->slug,
-                (string) $notification->id,
-                $task->id,
-            );
+            app(RealtimeGatewayService::class)->broadcast("user.{$user->id}", 'notification', [
+                'type' => 'rule_triggered',
+                'title' => $rule->name,
+                'body' => "Rule \"{$rule->name}\" triggered for task {$task->code}.",
+                'task_code' => $task->code,
+                'project_slug' => $task->project->slug,
+                'notification_id' => (string) $notification->id,
+                'task_id' => $task->id,
+            ]);
         }
 
         if (in_array('email', $channels)) {

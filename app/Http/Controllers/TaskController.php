@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TaskCreated;
-use App\Events\TaskDeleted;
-use App\Events\TaskFieldUpdated;
-use App\Events\TaskMoved;
 use App\Http\Requests\MoveTaskColumnRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -17,6 +13,7 @@ use App\Models\TaskApproval;
 use App\Models\Workspace;
 use App\Services\AutomationEngine;
 use App\Services\NotificationService;
+use App\Services\RealtimeGatewayService;
 use App\Services\TaskActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -264,7 +261,12 @@ class TaskController extends Controller
             $task->sprints()->attach($validated['sprint_ids']);
         }
 
-        TaskCreated::dispatch($project->id, $task->id);
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.created', [
+            'projectId' => $project->id,
+            'taskId' => $task->id,
+        ]);
+
+        app(AutomationEngine::class)->handleTaskEvent($task->refresh(), 'task.created');
 
         $activity->created($task, $request->user());
         $activity->updated(
@@ -372,7 +374,10 @@ class TaskController extends Controller
         }
 
         if ($fieldChanges !== []) {
-            TaskFieldUpdated::dispatch($project->id, $task->id, $fieldChanges);
+            app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.field.updated', [
+                'task_id' => $task->id,
+                'changes' => $fieldChanges,
+            ]);
         }
 
         if (array_key_exists('board_column_id', $fieldChanges)) {
@@ -386,14 +391,13 @@ class TaskController extends Controller
             $task->updateQuietly(['position' => $maxPosition + 1000]);
             $task->refresh();
 
-            TaskMoved::dispatch(
-                task: $task,
-                fromColumnId: $oldColumnId,
-                toColumnId: $toColumn->id,
-                position: $task->position,
-                status: $toColumn->status_key,
-                projectId: $project->id,
-            );
+            app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.moved', [
+                'task_id' => $task->id,
+                'from_column_id' => $oldColumnId,
+                'to_column_id' => $toColumn->id,
+                'position' => $task->position,
+                'status' => $toColumn->status_key,
+            ]);
         }
 
         if (array_key_exists('assignee_ids', $validated)) {
@@ -417,7 +421,10 @@ class TaskController extends Controller
 
         $activity->deleted($task, request()->user());
 
-        TaskDeleted::dispatch($project->id, $task->id);
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.deleted', [
+            'projectId' => $project->id,
+            'taskId' => $task->id,
+        ]);
 
         $task->delete();
 
@@ -541,14 +548,13 @@ class TaskController extends Controller
             ]);
         }
 
-        TaskMoved::dispatch(
-            task: $task,
-            fromColumnId: $oldColumnId,
-            toColumnId: $targetColumn->id,
-            position: $task->position,
-            status: $targetColumn->status_key,
-            projectId: $project->id,
-        );
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.moved', [
+            'task_id' => $task->id,
+            'from_column_id' => $oldColumnId,
+            'to_column_id' => $targetColumn->id,
+            'position' => $task->position,
+            'status' => $targetColumn->status_key,
+        ]);
 
         return back(303);
     }

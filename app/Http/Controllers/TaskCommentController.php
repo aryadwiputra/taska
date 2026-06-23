@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\CommentCreated;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Project;
@@ -12,6 +11,7 @@ use App\Models\User;
 use App\Models\Workspace;
 use App\Services\MentionNotificationService;
 use App\Services\MentionParser;
+use App\Services\RealtimeGatewayService;
 use App\Services\TaskActivityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -33,12 +33,7 @@ class TaskCommentController extends Controller
 
         $activity->commented($task, $request->user(), $comment);
 
-        CommentCreated::dispatch(
-            $project->id,
-            $task->id,
-            $comment->id,
-            $comment->body,
-        );
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'comment.created', ['task_id' => $task->id, 'commentId' => $comment->id, 'body' => $comment->body]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Comment added.']);
 

@@ -2,10 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Events\CommentCreated;
 use App\Models\Project;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Services\RealtimeGatewayService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -134,7 +134,7 @@ class ProcessGitHubWebhookJob implements ShouldQueue
                 'body' => $body,
             ]);
 
-            CommentCreated::dispatch($this->projectId, $task->id, $comment->id, $comment->body);
+            app(RealtimeGatewayService::class)->broadcast("project.{$this->projectId}", 'comment.created', ['task_id' => $task->id, 'commentId' => $comment->id, 'body' => $comment->body]);
 
             TaskActivity::create([
                 'task_id' => $task->id,
@@ -162,7 +162,7 @@ class ProcessGitHubWebhookJob implements ShouldQueue
             'body' => $body,
         ]);
 
-        CommentCreated::dispatch($this->projectId, $task->id, $comment->id, $comment->body);
+        app(RealtimeGatewayService::class)->broadcast("project.{$this->projectId}", 'comment.created', ['task_id' => $task->id, 'commentId' => $comment->id, 'body' => $comment->body]);
     }
 
     protected function logActivity($task, string $sender, string $repository, string $shortSha): void

@@ -115,6 +115,7 @@ export default [
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
             'whatsapp-gateway/**',
+            'realtime-gateway/**',
         ],
     },
     prettier,

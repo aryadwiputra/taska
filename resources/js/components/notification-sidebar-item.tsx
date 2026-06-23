@@ -1,9 +1,9 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
 import { Bell } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useSocketEvent } from '@/hooks/use-socket';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { index as notificationsIndex } from '@/routes/my-notifications';
 import type { Auth } from '@/types/auth';
@@ -29,9 +29,9 @@ export function NotificationSidebarItem() {
 
     const [unreadCount, setUnreadCount] = useState(initialUnread);
 
-    useEcho(
-        userId ? `private-user.${userId}` : '',
-        '.notification',
+    useSocketEvent(
+        userId ? `user.${userId}` : null,
+        'notification',
         (e: NotificationEvent) => {
             setUnreadCount((prev) => prev + 1);
 

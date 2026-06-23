@@ -1,10 +1,9 @@
 <?php
 
-use App\Events\TasksReordered;
 use App\Models\Priority;
 use App\Models\TaskType;
 use App\Models\User;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 
 function createBoardTask($project, $reporter, $column, int $position, string $title)
 {
@@ -29,7 +28,7 @@ function createBoardTask($project, $reporter, $column, int $position, string $ti
 }
 
 test('project managers can batch reorder board tasks within a column', function () {
-    Event::fake([TasksReordered::class]);
+    Http::fake();
 
     $manager = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');
@@ -55,11 +54,11 @@ test('project managers can batch reorder board tasks within a column', function 
         ->and($taskA->refresh()->position)->toBe('2000.000000')
         ->and($taskB->refresh()->position)->toBe('3000.000000');
 
-    Event::assertDispatched(TasksReordered::class);
+    Http::assertSent(fn ($r) => str_contains($r->url(), '/broadcast') && $r['event'] === 'tasks.reordered');
 });
 
 test('project managers can batch move board tasks across columns', function () {
-    Event::fake([TasksReordered::class]);
+    Http::fake();
 
     $manager = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');
@@ -91,11 +90,11 @@ test('project managers can batch move board tasks across columns', function () {
         ->and($taskB->position)->toBe('1000.000000')
         ->and($taskC->position)->toBe('2000.000000');
 
-    Event::assertDispatched(TasksReordered::class);
+    Http::assertSent(fn ($r) => str_contains($r->url(), '/broadcast') && $r['event'] === 'tasks.reordered');
 });
 
 test('project managers can move the only task out of a column', function () {
-    Event::fake([TasksReordered::class]);
+    Http::fake();
 
     $manager = User::factory()->create();
     $workspace = createWorkspaceMember($manager, 'manager');
@@ -124,5 +123,5 @@ test('project managers can move the only task out of a column', function () {
         ->and($task->status)->toBe($done->status_key)
         ->and($task->position)->toBe('1000.000000');
 
-    Event::assertDispatched(TasksReordered::class);
+    Http::assertSent(fn ($r) => str_contains($r->url(), '/broadcast') && $r['event'] === 'tasks.reordered');
 });

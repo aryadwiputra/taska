@@ -2,7 +2,7 @@
 
 import type { RequestPayload } from '@inertiajs/core';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
+import { useSocketEvent } from '@/hooks/use-socket';
 import { Eye, EyeOff, Paperclip, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -692,9 +692,9 @@ export default function TaskShow({
         }
     };
 
-    useEcho(
-        `private-project.${projectId}`,
-        '.comment.created',
+    useSocketEvent(
+        `project.${projectId}`,
+        'comment.created',
         (e: { task_id: number }) => {
             if (e.task_id !== task.id || !user) {
                 return;
@@ -705,9 +705,9 @@ export default function TaskShow({
         [projectId, task.id, user],
     );
 
-    useEcho(
-        `private-project.${projectId}`,
-        '.task.field.updated',
+    useSocketEvent(
+        `project.${projectId}`,
+        'task.field.updated',
         (e: { task_id: number; changes: Record<string, unknown> }) => {
             if (e.task_id !== task.id) {
                 return;
@@ -718,9 +718,9 @@ export default function TaskShow({
         [projectId, task.id],
     );
 
-    useEcho(
-        `private-project.${projectId}`,
-        '.activity.logged',
+    useSocketEvent(
+        `project.${projectId}`,
+        'activity.logged',
         (e: {
             task_id: number;
             id: number;
@@ -754,9 +754,9 @@ export default function TaskShow({
         [projectId, task.id],
     );
 
-    useEcho(
-        `private-project.${projectId}`,
-        '.task.deleted',
+    useSocketEvent(
+        `project.${projectId}`,
+        'task.deleted',
         (e: { taskId: number }) => {
             if (e.taskId !== task.id) {
                 return;
@@ -767,9 +767,9 @@ export default function TaskShow({
         [projectId, task.id],
     );
 
-    useEcho(
-        `private-project.${projectId}`,
-        '.comment.typing',
+    useSocketEvent(
+        `project.${projectId}`,
+        'comment.typing',
         (e: { task_id: number; user_id: number; user_name: string }) => {
             if (e.task_id !== task.id || e.user_id === user?.id) {
                 return;

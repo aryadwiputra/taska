@@ -1,6 +1,6 @@
 import type { RequestPayload } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
+import { useSocketEvent } from '@/hooks/use-socket';
 import {
     Activity,
     ChevronRight,
@@ -425,9 +425,9 @@ export function TaskDetailDrawer({
         setTask((current) => (current ? { ...current, ...partial } : current));
     };
 
-    useEcho(
-        projectId ? `private-project.${projectId}` : '',
-        '.comment.created',
+    useSocketEvent(
+        projectId ? `project.${projectId}` : '',
+        'comment.created',
         (e: { task_id: number; comment_id: number; body: string }) => {
             if (e.task_id !== taskId || !user) {
                 return;
@@ -438,9 +438,9 @@ export function TaskDetailDrawer({
         [projectId, taskId, user],
     );
 
-    useEcho(
-        projectId ? `private-project.${projectId}` : '',
-        '.task.field.updated',
+    useSocketEvent(
+        projectId ? `project.${projectId}` : '',
+        'task.field.updated',
         (e: { task_id: number; changes: Record<string, unknown> }) => {
             if (e.task_id !== taskId) {
                 return;
@@ -457,9 +457,9 @@ export function TaskDetailDrawer({
         [projectId, taskId],
     );
 
-    useEcho(
-        projectId ? `private-project.${projectId}` : '',
-        '.activity.logged',
+    useSocketEvent(
+        projectId ? `project.${projectId}` : '',
+        'activity.logged',
         (e: {
             task_id: number;
             id: number;
@@ -490,9 +490,9 @@ export function TaskDetailDrawer({
         [projectId, taskId],
     );
 
-    useEcho(
-        projectId ? `private-project.${projectId}` : '',
-        '.comment.typing',
+    useSocketEvent(
+        projectId ? `project.${projectId}` : '',
+        'comment.typing',
         (e: { task_id: number; user_id: number; user_name: string }) => {
             if (e.task_id !== taskId || e.user_id === user?.id) {
                 return;

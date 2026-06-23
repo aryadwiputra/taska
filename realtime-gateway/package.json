@@ -1,0 +1,12 @@
+{
+    "name": "qeerja-realtime-gateway",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node --watch index.js"
+    },
+    "dependencies": {
+        "express": "^5.1.0",
+        "socket.io": "^4.8.1"
+    }
+}

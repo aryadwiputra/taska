@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\TaskUpdated;
 use App\Models\AutomationRule;
 use App\Models\BoardColumn;
 use App\Models\Label;
@@ -172,16 +171,15 @@ class AutomationEngine
                     'data' => ['task_id' => $task->id, 'task_code' => $task->code],
                 ]);
 
-                TaskUpdated::dispatch(
-                    $recipient->id,
-                    'automation',
-                    'Automation Rule Triggered',
-                    $value,
-                    $task->code,
-                    $task->project->slug,
-                    (string) $notification->id,
-                    $task->id,
-                );
+                app(RealtimeGatewayService::class)->broadcast("user.{$recipient->id}", 'notification', [
+                    'type' => 'automation',
+                    'title' => 'Automation Rule Triggered',
+                    'body' => $value,
+                    'task_code' => $task->code,
+                    'project_slug' => $task->project->slug,
+                    'notification_id' => (string) $notification->id,
+                    'task_id' => $task->id,
+                ]);
             }
         }
     }

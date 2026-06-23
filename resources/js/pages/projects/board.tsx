@@ -16,7 +16,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { Head, router, usePage } from '@inertiajs/react';
-import { useEcho, useEchoPresence } from '@laravel/echo-react';
+import { useSocketEvent, useSocketPresence } from '@/hooks/use-socket';
 import { GripVertical, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -157,14 +157,7 @@ function parseTaskId(id: string | number): number | null {
     return null;
 }
 
-function getInitials(name: string): string {
-    return name
-        .split(' ')
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-}
+
 
 const AVATAR_COLORS = [
     'bg-blue-500',
@@ -182,13 +175,13 @@ function getAvatarColor(userId: number): string {
 }
 
 function PresenceAvatars({
-    users,
+    userIds,
     currentUserId,
 }: {
-    users: Array<{ id: number; name: string }>;
+    userIds: number[];
     currentUserId: number;
 }) {
-    const others = users.filter((u) => u.id !== currentUserId);
+    const others = userIds.filter((id) => id !== currentUserId);
     const visible = others.slice(0, 5);
     const remainder = others.length - visible.length;
 
@@ -200,17 +193,14 @@ function PresenceAvatars({
         <div className="flex items-center gap-1.5">
             <Users className="size-3.5 text-muted-foreground" />
             <div className="flex -space-x-1.5">
-                {visible.map((user) => (
+                {visible.map((id) => (
                     <div
-                        key={user.id}
-                        title={user.name}
+                        key={id}
                         className={cn(
                             'flex size-6 items-center justify-center rounded-full border-2 border-background text-[10px] font-medium text-white',
-                            getAvatarColor(user.id),
+                            getAvatarColor(id),
                         )}
-                    >
-                        {getInitials(user.name)}
-                    </div>
+                    />
                 ))}
                 {remainder > 0 && (
                     <div className="flex size-6 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium text-muted-foreground">
@@ -301,47 +291,7 @@ function BoardClient({
         errorTimerRef.current = setTimeout(() => setErrorMessage(null), 5000);
     };
 
-    const [presenceUsers, setPresenceUsers] = useState<
-        Array<{ id: number; name: string }>
-    >([]);
-
-    const presence = useEchoPresence(`board.${project.id}`, [], () => {}, []);
-
-    useEffect(() => {
-        const ch = presence.channel();
-
-        if (!ch) {
-            return;
-        }
-
-        const hereHandler = (users: Array<{ id: number; name: string }>) => {
-            setPresenceUsers(users);
-        };
-
-        const joiningHandler = (user: { id: number; name: string }) => {
-            setPresenceUsers((prev) => {
-                if (prev.some((u) => u.id === user.id)) {
-                    return prev;
-                }
-
-                return [...prev, user];
-            });
-        };
-
-        const leavingHandler = (user: { id: number; name: string }) => {
-            setPresenceUsers((prev) => prev.filter((u) => u.id !== user.id));
-        };
-
-        ch.here(hereHandler);
-        ch.joining(joiningHandler);
-        ch.leaving(leavingHandler);
-
-        return () => {
-            ch.here(() => {});
-            ch.joining(() => {});
-            ch.leaving(() => {});
-        };
-    }, [presence]);
+    const { onlineUsers } = useSocketPresence(`board.${project.id}`);
 
     const shortcuts = useMemo(
         () => [
@@ -517,7 +467,7 @@ function BoardClient({
         [activeTask],
     );
 
-    useEcho(`private-project.${project.id}`, '.task.moved', handleTaskMoved, [
+    useSocketEvent(`project.${project.id}`, 'task.moved', handleTaskMoved, [
         activeTask,
     ]);
 
@@ -538,9 +488,9 @@ function BoardClient({
         );
     }, []);
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.task.created',
+    useSocketEvent(
+        `project.${project.id}`,
+        'task.created',
         handleTaskCreated,
         [],
     );
@@ -561,9 +511,9 @@ function BoardClient({
         );
     }, []);
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.task.field.updated',
+    useSocketEvent(
+        `project.${project.id}`,
+        'task.field.updated',
         handleTaskFieldUpdated,
         [],
     );
@@ -581,9 +531,9 @@ function BoardClient({
         );
     }, []);
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.task.deleted',
+    useSocketEvent(
+        `project.${project.id}`,
+        'task.deleted',
         handleTaskDeleted,
         [],
     );
@@ -603,9 +553,9 @@ function BoardClient({
         [activeTask],
     );
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.tasks.reordered',
+    useSocketEvent(
+        `project.${project.id}`,
+        'tasks.reordered',
         handleTasksReordered,
         [activeTask],
     );
@@ -638,9 +588,9 @@ function BoardClient({
         [activeColumn],
     );
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.columns.reordered',
+    useSocketEvent(
+        `project.${project.id}`,
+        'columns.reordered',
         handleColumnsReordered,
         [activeColumn],
     );
@@ -981,7 +931,7 @@ function BoardClient({
                             )}
 
                             <PresenceAvatars
-                                users={presenceUsers}
+                                userIds={onlineUsers}
                                 currentUserId={
                                     (
                                         usePage().props.auth as {

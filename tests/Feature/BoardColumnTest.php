@@ -1,10 +1,9 @@
 <?php
 
-use App\Events\ColumnsReordered;
 use App\Models\Board;
 use App\Models\BoardColumn;
 use App\Models\User;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 
 test('project managers can add columns to a board', function () {
     $manager = User::factory()->create();
@@ -196,7 +195,7 @@ test('project managers can reorder columns', function () {
     $col1 = $board->columns()->create(['name' => 'First', 'status_key' => 'first', 'position' => 0]);
     $col2 = $board->columns()->create(['name' => 'Second', 'status_key' => 'second', 'position' => 1]);
 
-    Event::fake();
+    Http::fake();
 
     $this->actingAs($manager)
         ->withSession(['current_workspace_id' => $workspace->id])
@@ -211,12 +210,13 @@ test('project managers can reorder columns', function () {
     expect($col2->refresh()->position)->toBe(0)
         ->and($col1->refresh()->position)->toBe(1);
 
-    Event::assertDispatched(ColumnsReordered::class, function ($event) use ($project, $col1, $col2) {
-        return $event->projectId === $project->id
-            && count($event->columns) === 2
-            && $event->columns[0]['id'] === $col2->id
-            && $event->columns[0]['position'] === 0
-            && $event->columns[1]['id'] === $col1->id
-            && $event->columns[1]['position'] === 1;
+    Http::assertSent(function ($request) use ($project, $col1, $col2) {
+        return str_contains($request->url(), '/broadcast')
+            && $request['event'] === 'columns.reordered'
+            && $request['channel'] === "project.{$project->id}"
+            && $request['data']['columns'][0]['id'] === $col2->id
+            && $request['data']['columns'][0]['position'] === 0
+            && $request['data']['columns'][1]['id'] === $col1->id
+            && $request['data']['columns'][1]['position'] === 1;
     });
 });

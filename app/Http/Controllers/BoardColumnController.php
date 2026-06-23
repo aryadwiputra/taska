@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ColumnsReordered;
 use App\Http\Requests\ReorderBoardColumnsRequest;
 use App\Http\Requests\StoreBoardColumnRequest;
 use App\Http\Requests\UpdateBoardColumnRequest;
@@ -10,6 +9,7 @@ use App\Models\Board;
 use App\Models\BoardColumn;
 use App\Models\Project;
 use App\Models\Workspace;
+use App\Services\RealtimeGatewayService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -81,7 +81,7 @@ class BoardColumnController extends Controller
             }
         });
 
-        ColumnsReordered::dispatch($project->id, $validated['columns']);
+        app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'columns.reordered', ['columns' => $validated['columns']]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Columns reordered.']);
 

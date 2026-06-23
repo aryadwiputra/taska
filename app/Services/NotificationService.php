@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\TaskAssigned;
-use App\Events\TaskCommented;
-use App\Events\TaskUpdated;
 use App\Jobs\SendWhatsAppNotification;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
@@ -33,16 +30,15 @@ class NotificationService
                 $task->code,
             ), $task);
 
-            TaskAssigned::dispatch(
-                $assignee->id,
-                'task.assigned',
-                'Task assigned',
-                sprintf('%s assigned you to %s.', $assignedBy->name, $task->code),
-                $task->code,
-                $projectSlug,
-                $notification?->id,
-                $task->id,
-            );
+            app(RealtimeGatewayService::class)->broadcast("user.{$assignee->id}", 'notification', [
+                'type' => 'task.assigned',
+                'title' => 'Task assigned',
+                'body' => sprintf('%s assigned you to %s.', $assignedBy->name, $task->code),
+                'task_code' => $task->code,
+                'project_slug' => $projectSlug,
+                'notification_id' => $notification?->id,
+                'task_id' => $task->id,
+            ]);
         }
 
         if (NotificationPreference::isEmailEnabled($assignee, 'task.assigned')) {
@@ -87,16 +83,15 @@ class NotificationService
                     $task->code,
                 ), $task);
 
-                TaskUpdated::dispatch(
-                    $watcher->id,
-                    'task.updated',
-                    'Task updated',
-                    sprintf('%s updated %s.', $actor->name, $task->code),
-                    $task->code,
-                    $projectSlug,
-                    $notification?->id,
-                    $task->id,
-                );
+                app(RealtimeGatewayService::class)->broadcast("user.{$watcher->id}", 'notification', [
+                    'type' => 'task.updated',
+                    'title' => 'Task updated',
+                    'body' => sprintf('%s updated %s.', $actor->name, $task->code),
+                    'task_code' => $task->code,
+                    'project_slug' => $projectSlug,
+                    'notification_id' => $notification?->id,
+                    'task_id' => $task->id,
+                ]);
             }
         }
     }
@@ -120,16 +115,15 @@ class NotificationService
                     $task->code,
                 ), $task, ['comment_id' => $comment->id]);
 
-                TaskCommented::dispatch(
-                    $recipient->id,
-                    'task.commented',
-                    'New comment',
-                    sprintf('%s commented on %s.', $commenter->name, $task->code),
-                    $task->code,
-                    $projectSlug,
-                    $notification?->id,
-                    $task->id,
-                );
+                app(RealtimeGatewayService::class)->broadcast("user.{$recipient->id}", 'notification', [
+                    'type' => 'task.commented',
+                    'title' => 'New comment',
+                    'body' => sprintf('%s commented on %s.', $commenter->name, $task->code),
+                    'task_code' => $task->code,
+                    'project_slug' => $projectSlug,
+                    'notification_id' => $notification?->id,
+                    'task_id' => $task->id,
+                ]);
             }
 
             if (NotificationPreference::isEmailEnabled($recipient, 'task.commented')) {

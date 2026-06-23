@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
+import { useSocketEvent } from '@/hooks/use-socket';
 import { Activity } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -95,9 +95,9 @@ export default function ActivityIndex({
         setActivities(initialActivities);
     }, [initialActivities]);
 
-    useEcho(
-        `private-project.${project.id}`,
-        '.activity.logged',
+    useSocketEvent(
+        `project.${project.id}`,
+        'activity.logged',
         (e: {
             id: number;
             action: string;

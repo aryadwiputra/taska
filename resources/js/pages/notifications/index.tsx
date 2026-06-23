@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
+import { useSocketEvent } from '@/hooks/use-socket';
 import {
     AtSign,
     Bell,
@@ -129,9 +129,9 @@ export default function NotificationsIndex({
     const [notifications, setNotifications] = useState(initialNotifications);
     const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
 
-    useEcho(
-        userId ? `private-user.${userId}` : '',
-        '.notification',
+    useSocketEvent(
+        userId ? `user.${userId}` : null,
+        'notification',
         (e: StreamedNotification) => {
             if (!e.notification_id) {
                 return;
