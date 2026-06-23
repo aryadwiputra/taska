@@ -50,6 +50,7 @@ test(sprint): add burndown chart calculation tests
 - **JavaScript/TypeScript**: Run `npm run lint` and `npm run format` before committing.
 - **TypeScript**: Run `npm run types:check` — strict mode is enabled.
 - **Tests**: Write tests for new functionality using Pest syntax.
+- **WhatsApp Gateway**: Code lives in `whatsapp-gateway/`. Run `npm run format` and `npm run lint:check` inside that directory before committing.
 
 ## Internationalization
 

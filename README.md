@@ -44,6 +44,7 @@
 - **GitHub Integration** — Link commits and PRs to tasks.
 - **Two-Factor Authentication** — TOTP and passkeys (WebAuthn).
 - **i18n** — English and Indonesian (Bahasa Indonesia) language support.
+- **WhatsApp Gateway** — Broadcast notifications (task assigned, mentioned) via WhatsApp Web using a standalone Node.js gateway.
 
 ## Tech Stack
 
@@ -53,6 +54,7 @@
 | Frontend | React 19, Inertia 3 |
 | Styling | Tailwind CSS 4, shadcn/ui |
 | Realtime | Laravel Reverb, Laravel Echo |
+| WhatsApp | whatsapp-web.js (standalone Node.js gateway) |
 | Database | SQLite (dev), MySQL (production) |
 | Queue | Database driver |
 | Auth | Laravel Fortify (register, login, 2FA, passkeys) |
@@ -73,9 +75,12 @@
 git clone git@github.com:aryadwiputra/qeerja.git
 cd qeerja
 
-# Install dependencies
+# Install PHP dependencies
 composer install
+
+# Install Node.js dependencies (frontend + WhatsApp gateway)
 npm install
+cd whatsapp-gateway && npm install && cd ..
 
 # Set up environment
 cp .env.example .env
@@ -93,6 +98,33 @@ composer run dev
 ```
 
 Open `http://localhost:8000` in your browser.
+
+## WhatsApp Gateway
+
+Qeerja includes a standalone Node.js service for sending WhatsApp notifications using `whatsapp-web.js`.
+
+### Setup
+
+```bash
+# Navigate to the gateway directory (already installed above)
+cd whatsapp-gateway
+
+# Copy environment
+cp .env.example .env
+
+# Start the gateway (generates a QR code)
+npm start
+```
+
+### Usage
+
+1. Open **Workspace Settings → WhatsApp** and click **Connect WhatsApp**.
+2. Scan the QR code with your WhatsApp mobile app.
+3. Users add their phone number in **Settings → Profile**.
+4. Users enable WhatsApp notifications in **Settings → Notifications**.
+5. The gateway will send notifications for `task.assigned` and `task.mentioned` events.
+
+> **Note:** The gateway runs on port `3001` by default. Configure via `WHATSAPP_GATEWAY_URL` in your `.env` file.
 
 ## Development
 

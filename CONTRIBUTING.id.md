@@ -50,6 +50,7 @@ test(sprint): add burndown chart calculation tests
 - **JavaScript/TypeScript**: Jalankan `npm run lint` dan `npm run format` sebelum komit.
 - **TypeScript**: Jalankan `npm run types:check` — mode ketat diaktifkan.
 - **Tes**: Tulis tes untuk fungsionalitas baru menggunakan sintaks Pest.
+- **WhatsApp Gateway**: Kode berada di `whatsapp-gateway/`. Jalankan `npm run format` dan `npm run lint:check` di direktori tersebut sebelum komit.
 
 ## Internasionalisasi
 

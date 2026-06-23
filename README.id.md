@@ -44,6 +44,7 @@
 - **Integrasi GitHub** — Hubungkan _commit_ dan PR ke tugas.
 - **Autentikasi Dua Faktor** — TOTP dan _passkey_ (WebAuthn).
 - **i18n** — Dukungan bahasa Inggris dan Indonesia.
+- **WhatsApp Gateway** — Siarkan notifikasi (tugas ditugaskan, disebut) via WhatsApp Web menggunakan gateway Node.js terpisah.
 
 ## Tumpukan Teknologi
 
@@ -53,6 +54,7 @@
 | Frontend | React 19, Inertia 3 |
 | Styling | Tailwind CSS 4, shadcn/ui |
 | Realtime | Laravel Reverb, Laravel Echo |
+| WhatsApp | whatsapp-web.js (gateway Node.js terpisah) |
 | Database | SQLite (_dev_), MySQL (_production_) |
 | Antrean | _Database driver_ |
 | Autentikasi | Laravel Fortify (_register_, _login_, 2FA, _passkey_) |
@@ -73,9 +75,12 @@
 git clone git@github.com:aryadwiputra/qeerja.git
 cd qeerja
 
-# Install dependensi
+# Install dependensi PHP
 composer install
+
+# Install dependensi Node.js (frontend + gateway WhatsApp)
 npm install
+cd whatsapp-gateway && npm install && cd ..
 
 # Siapkan lingkungan
 cp .env.example .env
@@ -93,6 +98,33 @@ composer run dev
 ```
 
 Buka `http://localhost:8000` di peramban Anda.
+
+## WhatsApp Gateway
+
+Qeerja menyertakan layanan Node.js terpisah untuk mengirim notifikasi WhatsApp menggunakan `whatsapp-web.js`.
+
+### Persiapan
+
+```bash
+# Masuk ke direktori gateway (sudah diinstall di atas)
+cd whatsapp-gateway
+
+# Salin lingkungan
+cp .env.example .env
+
+# Jalankan gateway (akan menghasilkan kode QR)
+npm start
+```
+
+### Penggunaan
+
+1. Buka **Pengaturan Ruang Kerja → WhatsApp** dan klik **Hubungkan WhatsApp**.
+2. Pindai kode QR dengan aplikasi WhatsApp di ponsel Anda.
+3. Pengguna menambahkan nomor telepon di **Pengaturan → Profil**.
+4. Pengguna mengaktifkan notifikasi WhatsApp di **Pengaturan → Notifikasi**.
+5. Gateway akan mengirim notifikasi untuk event `task.assigned` dan `task.mentioned`.
+
+> **Catatan:** Gateway berjalan di port `3001` secara bawaan. Konfigurasikan via `WHATSAPP_GATEWAY_URL` di file `.env`.
 
 ## Pengembangan
 
