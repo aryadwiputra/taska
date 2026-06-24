@@ -13,7 +13,6 @@ export function startServer(client, port) {
         currentQr = qr;
         const dataUri = await QR.toDataURL(qr);
         console.log('[gateway] QR refreshed');
-        // expose via status endpoint
         app.set('qrDataUri', dataUri);
         app.set('qrTerminal', qr);
     });
@@ -23,13 +22,35 @@ export function startServer(client, port) {
         app.set('ready', true);
     });
 
-    client.on('disconnected', () => {
+    client.on('disconnected', (reason) => {
+        console.warn('[gateway] disconnected:', reason);
         app.set('ready', false);
         currentQr = null;
     });
 
+    function authMiddleware(req, res, next) {
+        const token = process.env.LARAVEL_API_TOKEN;
+
+        if (!token) {
+            return next();
+        }
+
+        const auth = req.headers['authorization'];
+
+        if (auth !== `Bearer ${token}`) {
+            return res.status(401).json({ error: 'unauthorized' });
+        }
+
+        next();
+    }
+
+    // GET /health
+    app.get('/health', (_req, res) => {
+        res.json({ ok: true, ready: app.get('ready') === true });
+    });
+
     // GET /status
-    app.get('/status', (_req, res) => {
+    app.get('/status', authMiddleware, (_req, res) => {
         const ready = app.get('ready') === true;
         const qr = ready ? null : app.get('qrDataUri');
 
@@ -41,7 +62,7 @@ export function startServer(client, port) {
     });
 
     // POST /send
-    app.post('/send', async (req, res) => {
+    app.post('/send', authMiddleware, async (req, res) => {
         if (app.get('ready') !== true) {
             return res.status(503).json({ error: 'client not ready' });
         }
@@ -63,7 +84,7 @@ export function startServer(client, port) {
     });
 
     // DELETE /session
-    app.delete('/session', async (_req, res) => {
+    app.delete('/session', authMiddleware, async (_req, res) => {
         try {
             await client.destroy();
             app.set('ready', false);
