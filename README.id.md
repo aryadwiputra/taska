@@ -26,7 +26,7 @@
 
 ---
 
-**Qeerja** adalah alat manajemen proyek _open-source_ modern yang dibangun dengan Laravel, Inertia, dan React. Qeerja menyatukan papan (_board_), sprint, persetujuan, otomatisasi, dan rilis dalam satu ruang kerja yang terfokus — dengan kolaborasi _real-time_ via Laravel Reverb.
+**Qeerja** adalah alat manajemen proyek _open-source_ modern yang dibangun dengan Laravel, Inertia, dan React. Qeerja menyatukan papan (_board_), sprint, persetujuan, otomatisasi, dan rilis dalam satu ruang kerja yang terfokus — dengan kolaborasi _real-time_ via Node.js dan Socket.IO.
 
 ## Fitur
 
@@ -39,7 +39,7 @@
 - **Tujuan & Hasil Kunci** — Tentukan sasaran dan lacak epik yang terhubung.
 - **Tampilan Lintas Proyek** — Linimasa (Gantt) dan papan yang mencakup banyak proyek.
 - **Laporan** — Grafik kecepatan, pelacakan _burndown_, distribusi beban kerja.
-- **Kolaborasi _Real-time_** — Pembaruan papan langsung, indikator pengetikan, umpan aktivitas via Laravel Reverb.
+- **Kolaborasi _Real-time_** — Pembaruan papan langsung, indikator pengetikan, umpan aktivitas via Node.js Socket.IO.
 - **Akses Berbasis Peran** — Sistem izin dengan peran tingkat ruang kerja dan proyek.
 - **Integrasi GitHub** — Hubungkan _commit_ dan PR ke tugas.
 - **Autentikasi Dua Faktor** — TOTP dan _passkey_ (WebAuthn).
@@ -53,7 +53,7 @@
 | Backend | PHP 8.3+, Laravel 13 |
 | Frontend | React 19, Inertia 3 |
 | Styling | Tailwind CSS 4, shadcn/ui |
-| Realtime | Laravel Reverb, Laravel Echo |
+| Realtime | Node.js Socket.IO |
 | WhatsApp | whatsapp-web.js (gateway Node.js terpisah) |
 | Database | SQLite (_dev_), MySQL (_production_) |
 | Antrean | _Database driver_ |
@@ -129,7 +129,7 @@ npm start
 ## Pengembangan
 
 ```bash
-# Lingkungan dev lengkap (server + antrean + log + reverb + vite)
+# Lingkungan dev lengkap (server + antrean + log + vite)
 composer run dev
 
 # Jalankan semua pemeriksaan (lint → format → tipe → tes)

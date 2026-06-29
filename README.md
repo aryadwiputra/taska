@@ -26,7 +26,7 @@
 
 ---
 
-**Qeerja** is a modern open-source project management tool built on Laravel, Inertia, and React. It brings boards, sprints, approvals, automation, and releases into one focused workspace — with real-time collaboration via Laravel Reverb.
+**Qeerja** is a modern open-source project management tool built on Laravel, Inertia, and React. It brings boards, sprints, approvals, automation, and releases into one focused workspace — with real-time collaboration via Node.js and Socket.IO.
 
 ## Features
 
@@ -39,7 +39,7 @@
 - **Goals & Key Results** — Define objectives and track linked epics.
 - **Cross-Project Views** — Timeline (Gantt) and board spanning multiple projects.
 - **Reports** — Velocity charts, burndown tracking, workload distribution.
-- **Real-time Collaboration** — Live board updates, typing indicators, activity feeds via Laravel Reverb.
+- **Real-time Collaboration** — Live board updates, typing indicators, activity feeds via Node.js Socket.IO.
 - **Role-Based Access** — Permission system with workspace and project-level roles.
 - **GitHub Integration** — Link commits and PRs to tasks.
 - **Two-Factor Authentication** — TOTP and passkeys (WebAuthn).
@@ -53,7 +53,7 @@
 | Backend | PHP 8.3+, Laravel 13 |
 | Frontend | React 19, Inertia 3 |
 | Styling | Tailwind CSS 4, shadcn/ui |
-| Realtime | Laravel Reverb, Laravel Echo |
+| Realtime | Node.js Socket.IO |
 | WhatsApp | whatsapp-web.js (standalone Node.js gateway) |
 | Database | SQLite (dev), MySQL (production) |
 | Queue | Database driver |
@@ -129,7 +129,7 @@ npm start
 ## Development
 
 ```bash
-# Full dev environment (server + queue + logs + reverb + vite)
+# Full dev environment (server + queue + logs + vite)
 composer run dev
 
 # Run all checks (lint → format → types → tests)
