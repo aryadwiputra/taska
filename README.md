@@ -78,9 +78,10 @@ cd qeerja
 # Install PHP dependencies
 composer install
 
-# Install Node.js dependencies (frontend + WhatsApp gateway)
+# Install Node.js dependencies (frontend + gateways)
 npm install
 cd whatsapp-gateway && npm install && cd ..
+cd realtime-gateway && npm install && cd ..
 
 # Set up environment
 cp .env.example .env
@@ -98,6 +99,29 @@ composer run dev
 ```
 
 Open `http://localhost:8000` in your browser.
+
+## Realtime Gateway
+
+Qeerja uses a standalone Node.js Socket.IO service for real-time board updates, typing indicators, and notifications.
+
+### Setup
+
+```bash
+# Navigate to the gateway directory (already installed above)
+cd realtime-gateway
+
+# Copy environment
+cp .env.example .env
+
+# Edit .env to match your setup:
+#   LARAVEL_URL=http://localhost:8000
+#   LARAVEL_API_TOKEN=<same as REALTIME_API_TOKEN in Laravel .env>
+
+# Start the gateway
+npm start
+```
+
+> **Note:** The gateway runs on port `3002` by default. Configure via `GATEWAY_PORT` in your `.env` file.
 
 ## WhatsApp Gateway
 
@@ -129,7 +153,7 @@ npm start
 ## Development
 
 ```bash
-# Full dev environment (server + queue + logs + vite)
+# Full dev environment (server + queue + logs + vite + gateways)
 composer run dev
 
 # Run all checks (lint → format → types → tests)

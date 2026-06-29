@@ -28,7 +28,7 @@ app/Http/Controllers/        # Controller classes
 ## Commands
 
 ```bash
-# Full dev environment (server + queue + logs + vite)
+# Full dev environment (server + queue + logs + vite + gateways)
 composer run dev
 
 # Run all checks and tests (lint→format→types→tests)

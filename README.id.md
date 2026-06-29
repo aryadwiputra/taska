@@ -78,9 +78,10 @@ cd qeerja
 # Install dependensi PHP
 composer install
 
-# Install dependensi Node.js (frontend + gateway WhatsApp)
+# Install dependensi Node.js (frontend + gateway)
 npm install
 cd whatsapp-gateway && npm install && cd ..
+cd realtime-gateway && npm install && cd ..
 
 # Siapkan lingkungan
 cp .env.example .env
@@ -98,6 +99,29 @@ composer run dev
 ```
 
 Buka `http://localhost:8000` di peramban Anda.
+
+## Gateway Realtime
+
+Qeerja menggunakan layanan Node.js Socket.IO terpisah untuk pembaruan papan secara real-time, indikator pengetikan, dan notifikasi.
+
+### Persiapan
+
+```bash
+# Masuk ke direktori gateway (sudah diinstall di atas)
+cd realtime-gateway
+
+# Salin lingkungan
+cp .env.example .env
+
+# Edit .env sesuai pengaturan Anda:
+#   LARAVEL_URL=http://localhost:8000
+#   LARAVEL_API_TOKEN=<sama dengan REALTIME_API_TOKEN di .env Laravel>
+
+# Jalankan gateway
+npm start
+```
+
+> **Catatan:** Gateway berjalan di port `3002` secara bawaan. Konfigurasikan via `GATEWAY_PORT` di file `.env`.
 
 ## WhatsApp Gateway
 
@@ -129,7 +153,7 @@ npm start
 ## Pengembangan
 
 ```bash
-# Lingkungan dev lengkap (server + antrean + log + vite)
+# Lingkungan dev lengkap (server + antrean + log + vite + gateway)
 composer run dev
 
 # Jalankan semua pemeriksaan (lint → format → tipe → tes)
