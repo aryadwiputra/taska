@@ -4,24 +4,54 @@ namespace App\Services;
 
 use App\Jobs\SendWhatsAppNotification;
 use App\Models\Notification;
+use App\Models\NotificationChannel;
 use App\Models\NotificationPreference;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
-use App\Notifications\TaskAssignedNotification;
-use App\Notifications\TaskCommentedNotification;
+use App\Notifications\Channels\DiscordChannel;
+use App\Notifications\Channels\InAppChannel;
+use App\Notifications\Channels\MailChannel;
+use App\Notifications\Channels\SlackChannel;
+use App\Notifications\Channels\TelegramChannel;
+use App\Notifications\Channels\WebhookChannel;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class NotificationService
 {
+    private array $channels = [];
+
+    public function __construct()
+    {
+        $this->channels = [
+            'in_app' => app(InAppChannel::class),
+            'email' => app(MailChannel::class),
+            'slack' => app(SlackChannel::class),
+            'discord' => app(DiscordChannel::class),
+            'telegram' => app(TelegramChannel::class),
+            'webhook' => app(WebhookChannel::class),
+        ];
+    }
+
     public function notifyAssigned(Task $task, User $assignee, User $assignedBy): void
     {
         if ((int) $assignee->id === (int) $assignedBy->id) {
             return;
         }
 
-        $projectSlug = $task->project->slug;
+        $data = [
+            'type' => 'task.assigned',
+            'title' => 'Task assigned',
+            'body' => sprintf('%s assigned you to %s.', $assignedBy->name, $task->code),
+            'task_code' => $task->code,
+            'project_slug' => $task->project->slug,
+            'task_id' => $task->id,
+        ];
+
+        $notification = null;
 
         if (NotificationPreference::isInAppEnabled($assignee, 'task.assigned')) {
             $notification = $this->create($assignee, 'task.assigned', 'Task assigned', sprintf(
@@ -30,20 +60,10 @@ class NotificationService
                 $task->code,
             ), $task);
 
-            app(RealtimeGatewayService::class)->broadcast("user.{$assignee->id}", 'notification', [
-                'type' => 'task.assigned',
-                'title' => 'Task assigned',
-                'body' => sprintf('%s assigned you to %s.', $assignedBy->name, $task->code),
-                'task_code' => $task->code,
-                'project_slug' => $projectSlug,
-                'notification_id' => $notification?->id,
-                'task_id' => $task->id,
-            ]);
+            $data['notification_id'] = $notification?->id;
         }
 
-        if (NotificationPreference::isEmailEnabled($assignee, 'task.assigned')) {
-            $assignee->notify(new TaskAssignedNotification($task, $assignedBy));
-        }
+        $this->sendThroughChannels($assignee, 'task.assigned', $data);
 
         $this->sendWhatsApp($assignee, 'task.assigned', sprintf(
             "📋 Task: %s\n📌 %s\n⚡ Priority: %s\n👤 Assigned by: %s",
@@ -76,6 +96,15 @@ class NotificationService
                 continue;
             }
 
+            $data = [
+                'type' => 'task.updated',
+                'title' => 'Task updated',
+                'body' => sprintf('%s updated %s.', $actor->name, $task->code),
+                'task_code' => $task->code,
+                'project_slug' => $projectSlug,
+                'task_id' => $task->id,
+            ];
+
             if (NotificationPreference::isInAppEnabled($watcher, 'task.updated')) {
                 $notification = $this->create($watcher, 'task.updated', 'Task updated', sprintf(
                     '%s updated %s.',
@@ -83,16 +112,10 @@ class NotificationService
                     $task->code,
                 ), $task);
 
-                app(RealtimeGatewayService::class)->broadcast("user.{$watcher->id}", 'notification', [
-                    'type' => 'task.updated',
-                    'title' => 'Task updated',
-                    'body' => sprintf('%s updated %s.', $actor->name, $task->code),
-                    'task_code' => $task->code,
-                    'project_slug' => $projectSlug,
-                    'notification_id' => $notification?->id,
-                    'task_id' => $task->id,
-                ]);
+                $data['notification_id'] = $notification?->id;
             }
+
+            $this->sendThroughChannels($watcher, 'task.updated', $data);
         }
     }
 
@@ -108,6 +131,15 @@ class NotificationService
         $projectSlug = $task->project->slug;
 
         foreach ($recipients as $recipient) {
+            $data = [
+                'type' => 'task.commented',
+                'title' => 'New comment',
+                'body' => sprintf('%s commented on %s.', $commenter->name, $task->code),
+                'task_code' => $task->code,
+                'project_slug' => $projectSlug,
+                'task_id' => $task->id,
+            ];
+
             if (NotificationPreference::isInAppEnabled($recipient, 'task.commented')) {
                 $notification = $this->create($recipient, 'task.commented', 'New comment', sprintf(
                     '%s commented on %s.',
@@ -115,20 +147,10 @@ class NotificationService
                     $task->code,
                 ), $task, ['comment_id' => $comment->id]);
 
-                app(RealtimeGatewayService::class)->broadcast("user.{$recipient->id}", 'notification', [
-                    'type' => 'task.commented',
-                    'title' => 'New comment',
-                    'body' => sprintf('%s commented on %s.', $commenter->name, $task->code),
-                    'task_code' => $task->code,
-                    'project_slug' => $projectSlug,
-                    'notification_id' => $notification?->id,
-                    'task_id' => $task->id,
-                ]);
+                $data['notification_id'] = $notification?->id;
             }
 
-            if (NotificationPreference::isEmailEnabled($recipient, 'task.commented')) {
-                $recipient->notify(new TaskCommentedNotification($task, $comment, $commenter));
-            }
+            $this->sendThroughChannels($recipient, 'task.commented', $data);
         }
     }
 
@@ -153,6 +175,69 @@ class NotificationService
                 'task_code' => $task->code,
             ], $extraData),
         ]);
+    }
+
+    /**
+     * @param  array{type: string, title: string, body: string, task_code?: string, project_slug?: string, task_id?: int|null, notification_id?: string|null}  $data
+     */
+    private function sendThroughChannels(User $user, string $type, array $data): void
+    {
+        $workspaceId = $data['project_slug']
+            ? optional(Project::where('slug', $data['project_slug'])->first())->workspace_id
+            : null;
+
+        $workspaceChannels = NotificationChannel::enabled()
+            ->when($workspaceId, fn ($q) => $q->where('workspace_id', $workspaceId))
+            ->get();
+
+        $builtInDrivers = ['in_app', 'email'];
+
+        // Built-in channels — always available
+        foreach ($builtInDrivers as $driver) {
+            if (! NotificationPreference::isEnabled($user, $type, $driver)) {
+                continue;
+            }
+            if (! isset($this->channels[$driver])) {
+                continue;
+            }
+
+            try {
+                $dummyChannel = new NotificationChannel(['config' => [], 'driver' => $driver]);
+                $this->channels[$driver]->send($user, $data, $dummyChannel);
+            } catch (\Throwable $e) {
+                Log::warning('Notification built-in channel failed', [
+                    'channel' => $driver,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Workspace-configured channels (Slack, Discord, Telegram, Webhook)
+        foreach ($workspaceChannels as $channelConfig) {
+            $driver = $channelConfig->driver;
+
+            if (in_array($driver, $builtInDrivers, true)) {
+                continue;
+            }
+
+            if (! NotificationPreference::isEnabled($user, $type, $driver)) {
+                continue;
+            }
+
+            if (isset($this->channels[$driver])) {
+                try {
+                    $this->channels[$driver]->send($user, $data, $channelConfig);
+                } catch (\Throwable $e) {
+                    Log::warning('Notification channel failed', [
+                        'channel' => $driver,
+                        'user_id' => $user->id,
+                        'type' => $type,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
     }
 
     private function sendWhatsApp(User $user, string $type, string $message, Task $task): void

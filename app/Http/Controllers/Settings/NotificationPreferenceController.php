@@ -15,7 +15,7 @@ class NotificationPreferenceController extends Controller
     {
         $preferences = NotificationPreference::where('user_id', $request->user()->id)
             ->get()
-            ->keyBy('type');
+            ->groupBy('type');
 
         $notificationTypes = [
             'task.assigned' => 'Task assigned',
@@ -25,15 +25,19 @@ class NotificationPreferenceController extends Controller
             'workspace.invitation' => 'Workspace invitation',
         ];
 
+        $channels = ['in_app', 'email', 'whatsapp'];
+
         $result = [];
         foreach ($notificationTypes as $type => $label) {
-            $preference = $preferences->get($type);
-            $result[$type] = [
-                'label' => $label,
-                'in_app_enabled' => $preference?->in_app_enabled ?? true,
-                'email_enabled' => $preference?->email_enabled ?? true,
-                'whatsapp_enabled' => $preference?->whatsapp_enabled ?? false,
-            ];
+            $row = ['label' => $label];
+
+            foreach ($channels as $channel) {
+                $pref = $preferences->get($type)?->firstWhere('channel', $channel);
+                $defaults = ['in_app' => true, 'email' => true, 'whatsapp' => false];
+                $row[$channel.'_enabled'] = $pref?->enabled ?? $defaults[$channel];
+            }
+
+            $result[$type] = $row;
         }
 
         return Inertia::render('settings/notifications', [
@@ -53,14 +57,12 @@ class NotificationPreferenceController extends Controller
         $user = $request->user();
 
         foreach ($validated['preferences'] as $type => $settings) {
-            NotificationPreference::updateOrCreate(
-                ['user_id' => $user->id, 'type' => $type],
-                [
-                    'in_app_enabled' => $settings['in_app_enabled'],
-                    'email_enabled' => $settings['email_enabled'],
-                    'whatsapp_enabled' => $settings['whatsapp_enabled'] ?? false,
-                ]
-            );
+            foreach (['in_app', 'email', 'whatsapp'] as $channel) {
+                NotificationPreference::updateOrCreate(
+                    ['user_id' => $user->id, 'type' => $type, 'channel' => $channel],
+                    ['enabled' => $settings[$channel.'_enabled'] ?? false],
+                );
+            }
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Notification preferences updated.')]);

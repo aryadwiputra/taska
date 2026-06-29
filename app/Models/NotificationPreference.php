@@ -8,18 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NotificationPreference extends Model
 {
+    protected $table = 'notification_preferences';
+
     protected $fillable = [
         'user_id',
         'type',
-        'in_app_enabled',
-        'email_enabled',
-        'whatsapp_enabled',
+        'channel',
+        'enabled',
     ];
 
     protected $casts = [
-        'in_app_enabled' => 'boolean',
-        'email_enabled' => 'boolean',
-        'whatsapp_enabled' => 'boolean',
+        'enabled' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -37,22 +36,39 @@ class NotificationPreference extends Model
         return $query->where('user_id', $userId);
     }
 
-    public static function isEmailEnabled(User $user, string $type): bool
+    public function scopeForChannel(Builder $query, string $channel): Builder
     {
+        return $query->where('channel', $channel);
+    }
+
+    public static function isEnabled(User $user, string $type, string $channel): bool
+    {
+        $defaults = [
+            'in_app' => true,
+            'email' => true,
+            'whatsapp' => false,
+            'slack' => true,
+            'discord' => true,
+            'telegram' => true,
+            'webhook' => true,
+        ];
+
         $preference = static::where('user_id', $user->id)
             ->where('type', $type)
+            ->where('channel', $channel)
             ->first();
 
-        return $preference?->email_enabled ?? true;
+        return $preference?->enabled ?? ($defaults[$channel] ?? true);
     }
 
     public static function isInAppEnabled(User $user, string $type): bool
     {
-        $preference = static::where('user_id', $user->id)
-            ->where('type', $type)
-            ->first();
+        return static::isEnabled($user, $type, 'in_app');
+    }
 
-        return $preference?->in_app_enabled ?? true;
+    public static function isEmailEnabled(User $user, string $type): bool
+    {
+        return static::isEnabled($user, $type, 'email');
     }
 
     public static function isWhatsAppEnabled(User $user, string $type): bool
@@ -61,10 +77,6 @@ class NotificationPreference extends Model
             return false;
         }
 
-        $preference = static::where('user_id', $user->id)
-            ->where('type', $type)
-            ->first();
-
-        return $preference?->whatsapp_enabled ?? false;
+        return static::isEnabled($user, $type, 'whatsapp');
     }
 }

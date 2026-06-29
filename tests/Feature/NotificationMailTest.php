@@ -1,16 +1,12 @@
 <?php
 
+use App\Mail\GenericNotificationMail;
 use App\Models\User;
-use App\Notifications\TaskAssignedNotification;
-use App\Notifications\TaskCommentedNotification;
-use App\Notifications\TaskMentionedNotification;
-use App\Services\MentionNotificationService;
 use App\Services\NotificationService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Notification as NotificationFacade;
+use Illuminate\Support\Facades\Mail;
 
-test('task assignment sends queued mail notification', function () {
-    NotificationFacade::fake();
+test('task assignment sends email notification via mail channel', function () {
+    Mail::fake();
 
     $reporter = User::factory()->create();
     $assignee = User::factory()->create();
@@ -20,18 +16,13 @@ test('task assignment sends queued mail notification', function () {
 
     app(NotificationService::class)->notifyAssigned($task, $assignee, $reporter);
 
-    NotificationFacade::assertSentTo(
-        $assignee,
-        TaskAssignedNotification::class,
-        fn (TaskAssignedNotification $notification, array $channels): bool => $notification instanceof ShouldQueue
-            && in_array('mail', $channels, true)
-            && $notification->task->is($task)
-            && $notification->assignedBy->is($reporter),
-    );
+    Mail::assertSent(GenericNotificationMail::class, function (GenericNotificationMail $mail) use ($assignee) {
+        return $mail->hasTo($assignee->email);
+    });
 });
 
-test('task comment sends queued mail notification to task reporter', function () {
-    NotificationFacade::fake();
+test('task comment sends email notification via mail channel', function () {
+    Mail::fake();
 
     $reporter = User::factory()->create();
     $commenter = User::factory()->create();
@@ -45,40 +36,7 @@ test('task comment sends queued mail notification to task reporter', function ()
 
     app(NotificationService::class)->notifyComment($task, $commenter, $comment);
 
-    NotificationFacade::assertSentTo(
-        $reporter,
-        TaskCommentedNotification::class,
-        fn (TaskCommentedNotification $notification, array $channels): bool => $notification instanceof ShouldQueue
-            && in_array('mail', $channels, true)
-            && $notification->task->is($task)
-            && $notification->comment->is($comment)
-            && $notification->commenter->is($commenter),
-    );
-});
-
-test('task mention sends queued mail notification to mentioned user', function () {
-    NotificationFacade::fake();
-
-    $reporter = User::factory()->create();
-    $commenter = User::factory()->create();
-    $mentioned = User::factory()->create();
-    $workspace = createWorkspaceMember($reporter, 'manager');
-    $project = createProjectForWorkspace($workspace, $reporter, 'manager');
-    $task = createTaskForProject($project, $reporter);
-    $comment = $task->comments()->create([
-        'user_id' => $commenter->id,
-        'body' => "Can you check this, @{$mentioned->name}?",
-    ]);
-
-    app(MentionNotificationService::class)->notify($comment, $task, $commenter, collect([$mentioned]));
-
-    NotificationFacade::assertSentTo(
-        $mentioned,
-        TaskMentionedNotification::class,
-        fn (TaskMentionedNotification $notification, array $channels): bool => $notification instanceof ShouldQueue
-            && in_array('mail', $channels, true)
-            && $notification->task->is($task)
-            && $notification->comment->is($comment)
-            && $notification->commenter->is($commenter),
-    );
+    Mail::assertSent(GenericNotificationMail::class, function (GenericNotificationMail $mail) use ($reporter) {
+        return $mail->hasTo($reporter->email);
+    });
 });

@@ -112,4 +112,9 @@ class Workspace extends Model
             }
         });
     }
+
+    public function notificationChannels(): HasMany
+    {
+        return $this->hasMany(NotificationChannel::class);
+    }
 }

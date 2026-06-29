@@ -42,6 +42,7 @@ use App\Http\Controllers\WorkloadController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
 use App\Http\Controllers\WorkspaceMemberController;
+use App\Http\Controllers\WorkspaceNotificationChannelController;
 use App\Http\Controllers\WorkspaceSettingController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -94,6 +95,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workspaces/{workspace:slug}/settings/whatsapp/status', [WhatsAppGatewayController::class, 'status'])->name('workspaces.settings.whatsapp.status');
         Route::post('/workspaces/{workspace:slug}/settings/whatsapp/connect', [WhatsAppGatewayController::class, 'connect'])->name('workspaces.settings.whatsapp.connect');
         Route::delete('/workspaces/{workspace:slug}/settings/whatsapp/disconnect', [WhatsAppGatewayController::class, 'disconnect'])->name('workspaces.settings.whatsapp.disconnect');
+
+        Route::post('/workspaces/{workspace:slug}/settings/notification-channels', [WorkspaceNotificationChannelController::class, 'store'])->name('workspaces.settings.notification-channels.store');
+        Route::put('/workspaces/{workspace:slug}/settings/notification-channels/{channel}', [WorkspaceNotificationChannelController::class, 'update'])->name('workspaces.settings.notification-channels.update');
+        Route::delete('/workspaces/{workspace:slug}/settings/notification-channels/{channel}', [WorkspaceNotificationChannelController::class, 'destroy'])->name('workspaces.settings.notification-channels.destroy');
 
         Route::get('/workspaces/{workspace:slug}/cross-project/timeline', [CrossProjectController::class, 'timeline'])->name('workspaces.cross-project.timeline');
         Route::get('/workspaces/{workspace:slug}/cross-project/board', [CrossProjectController::class, 'board'])->name('workspaces.cross-project.board');
