@@ -5,7 +5,6 @@ export function useSocketEvent<T = Record<string, unknown>>(
     channel: string | null,
     event: string,
     callback: (data: T) => void,
-    deps: unknown[] = [],
 ) {
     const { socket } = useSocket();
     const callbackRef = useRef(callback);
