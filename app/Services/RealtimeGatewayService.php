@@ -28,7 +28,7 @@ class RealtimeGatewayService
                 'data' => $data,
             ]);
         } catch (\Throwable $e) {
-            Log::warning('Realtime broadcast failed', [
+            Log::error('Realtime broadcast failed', [
                 'channel' => $channel,
                 'event' => $event,
                 'error' => $e->getMessage(),

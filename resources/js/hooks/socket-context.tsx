@@ -21,7 +21,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
         const baseUrl = import.meta.env.VITE_SOCKETIO_URL || '';
 
-        fetch(`${baseUrl}/api/socket/token`).then((r) => {
+        fetch('/api/socket/token', { credentials: 'include' }).then((r) => {
             if (!r.ok) {
                 throw new Error('auth failed');
             }
@@ -38,6 +38,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
             });
 
             s.on('connect', () => setConnected(true));
+            s.on('connect_error', () => setConnected(false));
             s.on('disconnect', () => setConnected(false));
             setSocket(s);
             currentSocket = s;
