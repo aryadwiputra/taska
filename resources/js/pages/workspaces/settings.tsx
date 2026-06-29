@@ -33,6 +33,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WhatsAppSettingsTab } from '@/components/whatsapp-settings-tab';
 import { WorkspaceMemberDialog } from '@/components/workspace-member-dialog';
+import { WorkspaceNotificationChannels } from '@/components/workspace-notification-channels';
 import { WorkspaceRolesPermissions } from '@/components/workspace-roles-permissions';
 import {
     destroy as workspaceDestroy,
@@ -121,6 +122,13 @@ interface Props {
     taskTypes: TaskTypeData[];
     priorities: PriorityData[];
     rolesPermissions: Record<string, string | string[]>;
+    channels: Array<{
+        id: number;
+        driver: string;
+        name: string;
+        config: Record<string, string>;
+        enabled: boolean;
+    }>;
 }
 
 export default function WorkspaceSettings({
@@ -131,6 +139,7 @@ export default function WorkspaceSettings({
     taskTypes,
     priorities,
     rolesPermissions,
+    channels,
 }: Props) {
     const { t } = useTranslation();
     const roleLabels: Record<string, string> = {
@@ -335,6 +344,9 @@ export default function WorkspaceSettings({
                                 {t('workspace.members_tab')}
                             </TabsTrigger>
                             <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+                            <TabsTrigger value="notifications">
+                                {t('workspace.notifications_tab')}
+                            </TabsTrigger>
                             <TabsTrigger value="roles">
                                 {t('workspace.roles_tab')}
                             </TabsTrigger>
@@ -1289,6 +1301,13 @@ export default function WorkspaceSettings({
                         <TabsContent value="whatsapp">
                             <WhatsAppSettingsTab
                                 workspaceSlug={workspace.slug}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="notifications">
+                            <WorkspaceNotificationChannels
+                                workspaceSlug={workspace.slug}
+                                channels={channels}
                             />
                         </TabsContent>
 

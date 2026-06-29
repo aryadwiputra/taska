@@ -706,6 +706,7 @@
         "hide_archived": "Sembunyikan arsip",
         "show_archived": "Tampilkan arsip",
         "level": "Level",
+        "notifications_tab": "Notifikasi",
         "roles_tab": "Peran",
         "roles_title": "Izin Peran",
         "projects_title": "{{name}} — Proyek",

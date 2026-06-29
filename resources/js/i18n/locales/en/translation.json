@@ -756,6 +756,7 @@
         "hide_archived": "Hide archived",
         "show_archived": "Show archived",
         "level": "Level",
+        "notifications_tab": "Notifications",
         "roles_tab": "Roles",
         "roles_title": "Role Permissions"
     },
