@@ -9,7 +9,6 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\Workspace;
 use App\Services\RealtimeGatewayService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,15 +17,12 @@ use Inertia\Response;
 
 class EpicController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): JsonResponse
+    public function index(Workspace $workspace, Project $project): RedirectResponse
     {
-        Gate::authorize('view', $project);
-
-        return response()->json([
-            'epics' => $project->epics()
-                ->withCount('tasks')
-                ->orderBy('name')
-                ->get(['id', 'name', 'summary', 'color', 'start_date', 'due_date', 'status']),
+        return redirect()->route('projects.show', [
+            'workspace' => $workspace->slug,
+            'project' => $project->slug,
+            'tab' => 'epics',
         ]);
     }
 

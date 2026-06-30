@@ -9,7 +9,6 @@ use App\Models\Sprint;
 use App\Models\Task;
 use App\Models\Workspace;
 use App\Services\RealtimeGatewayService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,17 +17,12 @@ use Inertia\Response;
 
 class SprintController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): JsonResponse
+    public function index(Workspace $workspace, Project $project): RedirectResponse
     {
-        Gate::authorize('view', $project);
-
-        return response()->json([
-            'sprints' => $project->sprints()
-                ->where('is_backlog', false)
-                ->withCount('tasks')
-                ->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'planned' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END")
-                ->orderByDesc('start_date')
-                ->get(['id', 'name', 'goal', 'status', 'start_date', 'end_date', 'completed_at']),
+        return redirect()->route('projects.show', [
+            'workspace' => $workspace->slug,
+            'project' => $project->slug,
+            'tab' => 'sprints',
         ]);
     }
 
