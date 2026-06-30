@@ -39,6 +39,7 @@ import {
     destroy as workspaceDestroy,
     index as workspaceIndex,
     restore as workspaceRestore,
+    show as workspaceShow,
     update as workspaceUpdate,
 } from '@/routes/workspaces';
 import {
@@ -321,8 +322,8 @@ export default function WorkspaceSettings({
                 <PageHeader
                     title={workspace.name}
                     description={t('workspace.settings')}
-                    backHref={workspaceIndex()}
-                    backLabel="Workspaces"
+                    backHref={workspaceShow({ workspace: workspace.slug }).url}
+                    backLabel={workspace.name}
                 />
 
                 <div className="mx-auto w-full max-w-4xl">
