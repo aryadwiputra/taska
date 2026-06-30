@@ -1,11 +1,5 @@
-import {
-    closestCorners,
-    pointerWithin,
-} from '@dnd-kit/core';
-import type {
-    CollisionDetection,
-    UniqueIdentifier,
-} from '@dnd-kit/core';
+import { closestCorners, pointerWithin } from '@dnd-kit/core';
+import type { CollisionDetection, UniqueIdentifier } from '@dnd-kit/core';
 import type {
     BoardColumn,
     BoardDropPosition,

@@ -21,30 +21,33 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
         const baseUrl = import.meta.env.VITE_SOCKETIO_URL || '';
 
-        fetch('/api/socket/token', { credentials: 'include' }).then((r) => {
-            if (!r.ok) {
-                throw new Error('auth failed');
-            }
+        fetch('/api/socket/token', { credentials: 'include' })
+            .then((r) => {
+                if (!r.ok) {
+                    throw new Error('auth failed');
+                }
 
-            return r.json();
-        }).then(({ token }) => {
-            if (!token) {
-                return;
-            }
+                return r.json();
+            })
+            .then(({ token }) => {
+                if (!token) {
+                    return;
+                }
 
-            const s = io(baseUrl, {
-                auth: { token },
-                transports: ['websocket'],
+                const s = io(baseUrl, {
+                    auth: { token },
+                    transports: ['websocket'],
+                });
+
+                s.on('connect', () => setConnected(true));
+                s.on('connect_error', () => setConnected(false));
+                s.on('disconnect', () => setConnected(false));
+                setSocket(s);
+                currentSocket = s;
+            })
+            .catch(() => {
+                // Auth endpoint not available — no realtime
             });
-
-            s.on('connect', () => setConnected(true));
-            s.on('connect_error', () => setConnected(false));
-            s.on('disconnect', () => setConnected(false));
-            setSocket(s);
-            currentSocket = s;
-        }).catch(() => {
-            // Auth endpoint not available — no realtime
-        });
 
         return () => {
             currentSocket?.close();

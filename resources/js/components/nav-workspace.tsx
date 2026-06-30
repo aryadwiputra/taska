@@ -8,7 +8,10 @@ import {
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { settings as workspaceSettings } from '@/routes/workspaces';
-import { board as crossBoard, timeline as crossTimeline } from '@/routes/workspaces/cross-project';
+import {
+    board as crossBoard,
+    timeline as crossTimeline,
+} from '@/routes/workspaces/cross-project';
 import { index as goalsIndex } from '@/routes/workspaces/goals';
 
 interface Props {

@@ -49,6 +49,7 @@ export function useSocketPresence(channel: string | null) {
             setOnlineUsers((prev) => {
                 const next = new Set(prev);
                 next.delete(id);
+
                 return next;
             });
         });

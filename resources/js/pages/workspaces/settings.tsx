@@ -153,10 +153,18 @@ export default function WorkspaceSettings({
         'workspace.view': t('roles.permissions.workspace_view'),
         'workspace.edit': t('roles.permissions.workspace_edit'),
         'workspace.delete': t('roles.permissions.workspace_delete'),
-        'workspace.manage-members': t('roles.permissions.workspace_manage_members'),
-        'workspace.manage-labels': t('roles.permissions.workspace_manage_labels'),
-        'workspace.manage-task-types': t('roles.permissions.workspace_manage_task_types'),
-        'workspace.manage-priorities': t('roles.permissions.workspace_manage_priorities'),
+        'workspace.manage-members': t(
+            'roles.permissions.workspace_manage_members',
+        ),
+        'workspace.manage-labels': t(
+            'roles.permissions.workspace_manage_labels',
+        ),
+        'workspace.manage-task-types': t(
+            'roles.permissions.workspace_manage_task_types',
+        ),
+        'workspace.manage-priorities': t(
+            'roles.permissions.workspace_manage_priorities',
+        ),
         'project.create': t('roles.permissions.project_create'),
         'project.view-any': t('roles.permissions.project_view'),
         'project.edit': t('roles.permissions.project_edit'),
@@ -1307,9 +1315,7 @@ export default function WorkspaceSettings({
                         <TabsContent value="notifications">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>
-                                        Notification Channels
-                                    </CardTitle>
+                                    <CardTitle>Notification Channels</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <WorkspaceNotificationChannels

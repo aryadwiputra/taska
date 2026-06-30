@@ -267,7 +267,10 @@ export default function ProjectShow({
     const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState(() => {
-        if (typeof window === 'undefined') return 'list';
+        if (typeof window === 'undefined') {
+            return 'list';
+        }
+
         const tab = new URL(window.location.href).searchParams.get('tab');
 
         return tab ?? 'list';

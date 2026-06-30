@@ -30,7 +30,8 @@ import type { CurrentWorkspaceProps } from '@/types/dashboard';
 export function NavProjects() {
     const { t } = useTranslation();
     const { props } = usePage();
-    const currentWorkspace = props.currentWorkspace as CurrentWorkspaceProps | null;
+    const currentWorkspace =
+        props.currentWorkspace as CurrentWorkspaceProps | null;
     const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
     if (!currentWorkspace) {
@@ -44,27 +45,42 @@ export function NavProjects() {
     const subItems = (slug: string) => [
         {
             title: t('sidebar.board'),
-            href: projectBoard({ workspace: currentWorkspace.slug, project: slug }).url,
+            href: projectBoard({
+                workspace: currentWorkspace.slug,
+                project: slug,
+            }).url,
             icon: FolderKanban,
         },
         {
             title: t('sidebar.backlog'),
-            href: backlogIndex({ workspace: currentWorkspace.slug, project: slug }).url,
+            href: backlogIndex({
+                workspace: currentWorkspace.slug,
+                project: slug,
+            }).url,
             icon: ListTodo,
         },
         {
             title: t('sidebar.epics'),
-            href: epicsIndex({ workspace: currentWorkspace.slug, project: slug }).url,
+            href: epicsIndex({
+                workspace: currentWorkspace.slug,
+                project: slug,
+            }).url,
             icon: Layers,
         },
         {
             title: t('sidebar.sprints'),
-            href: sprintsIndex({ workspace: currentWorkspace.slug, project: slug }).url,
+            href: sprintsIndex({
+                workspace: currentWorkspace.slug,
+                project: slug,
+            }).url,
             icon: Timer,
         },
         {
             title: t('sidebar.settings'),
-            href: projectSettings({ workspace: currentWorkspace.slug, project: slug }).url,
+            href: projectSettings({
+                workspace: currentWorkspace.slug,
+                project: slug,
+            }).url,
             icon: Settings,
         },
     ];
@@ -93,7 +109,7 @@ export function NavProjects() {
                 </div>
 
                 {currentWorkspace.projects.length > 0 ? (
-                    <SidebarMenuSub className="mr-0 pr-0 group-data-[collapsible=icon]:!block group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:px-1">
+                    <SidebarMenuSub className="mr-0 pr-0 group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:!block group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:px-1">
                         {currentWorkspace.projects.map((project) => {
                             const isOpen = expanded[project.id] ?? false;
 
@@ -107,8 +123,10 @@ export function NavProjects() {
                                                 onClick={() =>
                                                     router.visit(
                                                         projectBoard.url({
-                                                            workspace: currentWorkspace.slug,
-                                                            project: project.slug,
+                                                            workspace:
+                                                                currentWorkspace.slug,
+                                                            project:
+                                                                project.slug,
                                                         }),
                                                     )
                                                 }
@@ -117,11 +135,16 @@ export function NavProjects() {
                                                     className={`flex size-4 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${project.color ? 'text-white' : 'bg-muted text-muted-foreground'}`}
                                                     style={
                                                         project.color
-                                                            ? { backgroundColor: project.color }
+                                                            ? {
+                                                                  backgroundColor:
+                                                                      project.color,
+                                                              }
                                                             : undefined
                                                     }
                                                 >
-                                                    {project.key.charAt(0).toUpperCase()}
+                                                    {project.key
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </div>
                                                 <span className="truncate text-sm">
                                                     {project.name}
@@ -130,7 +153,7 @@ export function NavProjects() {
                                         </SidebarMenuSubButton>
                                         <button
                                             type="button"
-                                            className="absolute right-0 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground group-data-[collapsible=icon]:hidden"
+                                            className="absolute top-1/2 right-0 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors group-data-[collapsible=icon]:hidden hover:text-foreground"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 toggle(project.id);
@@ -143,24 +166,32 @@ export function NavProjects() {
                                     </div>
                                     {isOpen && (
                                         <SidebarMenuSub className="pl-4">
-                                            {subItems(project.slug).map((item) => (
-                                                <SidebarMenuSubItem key={item.title}>
-                                                    <SidebarMenuSubButton asChild>
-                                                        <button
-                                                            type="button"
-                                                            className="flex w-full items-center gap-2"
-                                                            onClick={() =>
-                                                                router.visit(item.href)
-                                                            }
+                                            {subItems(project.slug).map(
+                                                (item) => (
+                                                    <SidebarMenuSubItem
+                                                        key={item.title}
+                                                    >
+                                                        <SidebarMenuSubButton
+                                                            asChild
                                                         >
-                                                            <item.icon className="size-3.5" />
-                                                            <span className="truncate text-xs">
-                                                                {item.title}
-                                                            </span>
-                                                        </button>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            ))}
+                                                            <button
+                                                                type="button"
+                                                                className="flex w-full items-center gap-2"
+                                                                onClick={() =>
+                                                                    router.visit(
+                                                                        item.href,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <item.icon className="size-3.5" />
+                                                                <span className="truncate text-xs">
+                                                                    {item.title}
+                                                                </span>
+                                                            </button>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                ),
+                                            )}
                                         </SidebarMenuSub>
                                     )}
                                 </SidebarMenuSubItem>

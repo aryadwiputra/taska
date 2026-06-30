@@ -43,29 +43,32 @@ const TYPE_ICONS: Record<string, string> = {
     'task.commented': '💬',
     'task.mentioned': '📣',
     'member.added': '➕',
-    'due_date_reminder': '⏰',
+    due_date_reminder: '⏰',
 };
 
 function formatTimeAgo(iso: string): string {
     const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
 
     if (seconds < 60) {
-return 'just now';
-}
+        return 'just now';
+    }
 
     if (seconds < 3600) {
-return `${Math.floor(seconds / 60)}m ago`;
-}
+        return `${Math.floor(seconds / 60)}m ago`;
+    }
 
     if (seconds < 86400) {
-return `${Math.floor(seconds / 3600)}h ago`;
-}
+        return `${Math.floor(seconds / 3600)}h ago`;
+    }
 
     if (seconds < 604800) {
-return `${Math.floor(seconds / 86400)}d ago`;
-}
+        return `${Math.floor(seconds / 86400)}d ago`;
+    }
 
-    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+    });
 }
 
 export function NotificationDropdown() {
@@ -74,7 +77,8 @@ export function NotificationDropdown() {
     const auth = props.auth as Auth;
     const initialUnread = auth?.notifications?.unreadCount ?? 0;
     const userId = auth?.user?.id;
-    const workspaceSlug = (props.currentWorkspace as { slug: string } | null)?.slug;
+    const workspaceSlug = (props.currentWorkspace as { slug: string } | null)
+        ?.slug;
     const [open, setOpen] = useState(false);
 
     const [unreadCount, setUnreadCount] = useState(initialUnread);
@@ -85,11 +89,16 @@ export function NotificationDropdown() {
     const fetchRecent = useCallback(() => {
         fetch('/api/notifications/recent', { credentials: 'include' })
             .then((r) => r.json())
-            .then((data: { notifications: NotificationItem[]; unread_count: number }) => {
-                setNotifications(data.notifications);
-                setUnreadCount(data.unread_count);
-                fetchedRef.current = true;
-            })
+            .then(
+                (data: {
+                    notifications: NotificationItem[];
+                    unread_count: number;
+                }) => {
+                    setNotifications(data.notifications);
+                    setUnreadCount(data.unread_count);
+                    fetchedRef.current = true;
+                },
+            )
             .finally(() => setLoading(false));
     }, []);
 
@@ -149,18 +158,26 @@ export function NotificationDropdown() {
 
     const handleClick = (item: NotificationItem) => {
         if (!workspaceSlug) {
-return;
-}
+            return;
+        }
 
         fetch(`/notifications/${item.id}/read`, {
             method: 'PATCH',
-            headers: { 'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '') },
+            headers: {
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                ),
+            },
         });
 
         if (!item.read_at) {
             setUnreadCount((prev) => Math.max(0, prev - 1));
             setNotifications((prev) =>
-                prev.map((n) => (n.id === item.id ? { ...n, read_at: new Date().toISOString() } : n)),
+                prev.map((n) =>
+                    n.id === item.id
+                        ? { ...n, read_at: new Date().toISOString() }
+                        : n,
+                ),
             );
         }
 
@@ -169,7 +186,9 @@ return;
         const projectSlug = data?.project_slug ?? data?.projectSlug;
 
         if (taskId && projectSlug) {
-            router.visit(`/${workspaceSlug}/projects/${projectSlug}/tasks/${taskId}`);
+            router.visit(
+                `/${workspaceSlug}/projects/${projectSlug}/tasks/${taskId}`,
+            );
         } else {
             router.visit(notificationsIndex());
         }
@@ -178,11 +197,18 @@ return;
     const handleMarkAllRead = () => {
         fetch('/notifications/read-all', {
             method: 'POST',
-            headers: { 'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '') },
+            headers: {
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                ),
+            },
         }).then(() => {
             setUnreadCount(0);
             setNotifications((prev) =>
-                prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })),
+                prev.map((n) => ({
+                    ...n,
+                    read_at: n.read_at ?? new Date().toISOString(),
+                })),
             );
         });
     };
@@ -195,7 +221,7 @@ return;
                     {unreadCount > 0 && (
                         <Badge
                             variant="destructive"
-                            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-none"
+                            className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-none"
                         >
                             {unreadCount > 99 ? '99+' : unreadCount}
                         </Badge>
@@ -249,7 +275,9 @@ return;
                                             {TYPE_ICONS[item.type] ?? '📌'}
                                         </span>
                                         <div className="min-w-0 flex-1">
-                                            <p className={`truncate text-sm ${!item.read_at ? 'font-semibold' : ''}`}>
+                                            <p
+                                                className={`truncate text-sm ${!item.read_at ? 'font-semibold' : ''}`}
+                                            >
                                                 {item.title}
                                             </p>
                                             {item.body && (

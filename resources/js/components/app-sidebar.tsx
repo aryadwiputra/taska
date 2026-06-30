@@ -1,10 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import {
-    CheckSquare,
-    LayoutGrid,
-    Search,
-    Settings,
-} from 'lucide-react';
+import { CheckSquare, LayoutGrid, Search, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AppLogo from '@/components/app-logo';
 import { ConnectionStatus } from '@/components/connection-status';
@@ -79,7 +74,9 @@ export function AppSidebar() {
             <SidebarContent>
                 <NavMain items={mainNavItems} />
 
-                {currentWorkspace && <NavWorkspace workspaceSlug={currentWorkspace.slug} />}
+                {currentWorkspace && (
+                    <NavWorkspace workspaceSlug={currentWorkspace.slug} />
+                )}
 
                 <NavProjects />
 

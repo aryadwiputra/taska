@@ -157,8 +157,6 @@ function parseTaskId(id: string | number): number | null {
     return null;
 }
 
-
-
 const AVATAR_COLORS = [
     'bg-blue-500',
     'bg-emerald-500',

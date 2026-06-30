@@ -537,9 +537,7 @@ export function TaskDetailDrawer({
                 return;
             }
 
-            setComments((prev) =>
-                prev.filter((c) => c.id !== e.commentId),
-            );
+            setComments((prev) => prev.filter((c) => c.id !== e.commentId));
         },
         [projectId, taskId],
     );
@@ -1185,7 +1183,9 @@ export function TaskDetailDrawer({
                                         {t('task.status')}
                                     </Label>
                                     <Select
-                                        value={String(task.board_column?.id ?? '')}
+                                        value={String(
+                                            task.board_column?.id ?? '',
+                                        )}
                                         onValueChange={(value) => {
                                             const column =
                                                 options.board_columns.find(

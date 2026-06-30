@@ -840,9 +840,7 @@ export default function TaskShow({
                 return;
             }
 
-            setComments((prev) =>
-                prev.filter((c) => c.id !== e.commentId),
-            );
+            setComments((prev) => prev.filter((c) => c.id !== e.commentId));
         },
         [projectId, task.id],
     );

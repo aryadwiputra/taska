@@ -46,7 +46,7 @@ export default function NotificationSettings({ preferences, channels }: Props) {
                 >
                     {({ processing }) => (
                         <>
-                            <div className="overflow-x-auto overflow-hidden rounded-lg border">
+                            <div className="overflow-hidden overflow-x-auto rounded-lg border">
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b bg-muted/50">
@@ -82,7 +82,10 @@ export default function NotificationSettings({ preferences, channels }: Props) {
                                                                 type="checkbox"
                                                                 name={`preferences[${type}][channels][${ch.key}]`}
                                                                 defaultChecked={
-                                                                    pref.channels[ch.key] ?? true
+                                                                    pref
+                                                                        .channels[
+                                                                        ch.key
+                                                                    ] ?? true
                                                                 }
                                                                 value="1"
                                                                 className="size-4 rounded border-gray-300"

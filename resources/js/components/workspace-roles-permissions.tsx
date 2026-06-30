@@ -35,7 +35,11 @@ const PERMISSION_ORDER = [
     'board.manage',
 ];
 
-export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, roleLabels }: Props) {
+export function WorkspaceRolesPermissions({
+    rolesPermissions,
+    permissionLabels,
+    roleLabels,
+}: Props) {
     const roleOrder = ['owner', 'admin', 'manager', 'member', 'viewer'];
 
     return (
@@ -43,7 +47,10 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {roleOrder.map((roleKey) => {
                     const permissions = rolesPermissions[roleKey];
-                    const isWildcard = Array.isArray(permissions) && permissions.length === 1 && permissions[0] === '*';
+                    const isWildcard =
+                        Array.isArray(permissions) &&
+                        permissions.length === 1 &&
+                        permissions[0] === '*';
 
                     return (
                         <Card key={roleKey}>
@@ -52,12 +59,15 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
                                     <CardTitle className="text-base capitalize">
                                         {roleLabels[roleKey] ?? roleKey}
                                     </CardTitle>
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                    >
                                         {isWildcard
                                             ? 'All'
                                             : Array.isArray(permissions)
-                                            ? `${permissions.length}`
-                                            : '0'}
+                                              ? `${permissions.length}`
+                                              : '0'}
                                     </Badge>
                                 </div>
                             </CardHeader>
@@ -65,7 +75,10 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
                                 {isWildcard ? (
                                     <div className="flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
                                         <Shield className="size-4 text-primary" />
-                                        <span>Full access — owner bypass semua permission check</span>
+                                        <span>
+                                            Full access — owner bypass semua
+                                            permission check
+                                        </span>
                                     </div>
                                 ) : Array.isArray(permissions) ? (
                                     PERMISSION_ORDER.filter((p) =>
@@ -90,12 +103,15 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base">Project Role Policies</CardTitle>
+                    <CardTitle className="text-base">
+                        Project Role Policies
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="mb-4 text-sm text-muted-foreground">
-                        Project roles can grant additional access beyond workspace permissions.
-                        These policies apply when a user has an explicit project role.
+                        Project roles can grant additional access beyond
+                        workspace permissions. These policies apply when a user
+                        has an explicit project role.
                     </p>
                     <div className="overflow-x-auto rounded-md border">
                         <table className="w-full text-sm">
@@ -128,7 +144,11 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
                                 {[
                                     {
                                         action: 'Edit task (reporter/assignee always can)',
-                                        allowed: ['lead', 'manager', 'developer'],
+                                        allowed: [
+                                            'lead',
+                                            'manager',
+                                            'developer',
+                                        ],
                                         note: 'TaskPolicy::update',
                                     },
                                     {
@@ -142,26 +162,37 @@ export function WorkspaceRolesPermissions({ rolesPermissions, permissionLabels, 
                                         note: 'BoardPolicy::update',
                                     },
                                 ].map((row) => (
-                                    <tr key={row.action} className="border-b last:border-0">
+                                    <tr
+                                        key={row.action}
+                                        className="border-b last:border-0"
+                                    >
                                         <td className="px-4 py-2.5">
                                             <span>{row.action}</span>
                                             <span className="ml-2 font-mono text-xs text-muted-foreground">
                                                 {row.note}
                                             </span>
                                         </td>
-                                        {['lead', 'manager', 'developer', 'qa', 'member', 'viewer'].map(
-                                            (role) => (
-                                                <td key={role} className="px-3 py-2.5 text-center">
-                                                    {row.allowed.includes(role) ? (
-                                                        <Check className="mx-auto size-4 text-emerald-500" />
-                                                    ) : (
-                                                        <span className="text-muted-foreground">
-                                                            —
-                                                        </span>
-                                                    )}
-                                                </td>
-                                            ),
-                                        )}
+                                        {[
+                                            'lead',
+                                            'manager',
+                                            'developer',
+                                            'qa',
+                                            'member',
+                                            'viewer',
+                                        ].map((role) => (
+                                            <td
+                                                key={role}
+                                                className="px-3 py-2.5 text-center"
+                                            >
+                                                {row.allowed.includes(role) ? (
+                                                    <Check className="mx-auto size-4 text-emerald-500" />
+                                                ) : (
+                                                    <span className="text-muted-foreground">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </td>
+                                        ))}
                                     </tr>
                                 ))}
                             </tbody>
