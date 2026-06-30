@@ -71,7 +71,14 @@
         "no_projects": "No projects yet",
         "create_first_project": "Create your first project",
         "create_workspace_prompt": "Create a workspace to get started with projects and tasks.",
-        "new_project": "New project"
+        "new_project": "New project",
+        "goals": "Goals",
+        "cross_board": "All Boards",
+        "cross_timeline": "Timeline",
+        "board": "Board",
+        "backlog": "Backlog",
+        "epics": "Epics",
+        "sprints": "Sprints"
     },
     "user_menu": {
         "settings": "Settings",

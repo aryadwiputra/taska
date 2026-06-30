@@ -72,7 +72,14 @@
         "no_projects": "Belum ada proyek",
         "create_first_project": "Buat proyek pertama Anda",
         "create_workspace_prompt": "Buat ruang kerja untuk memulai dengan proyek dan tugas.",
-        "new_project": "Proyek baru"
+        "new_project": "Proyek baru",
+        "goals": "Tujuan",
+        "cross_board": "Semua Papan",
+        "cross_timeline": "Linimasa",
+        "board": "Papan",
+        "backlog": "Backlog",
+        "epics": "Epic",
+        "sprints": "Sprint"
     },
     "user_menu": {
         "settings": "Pengaturan",
