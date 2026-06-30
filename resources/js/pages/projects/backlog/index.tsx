@@ -318,6 +318,7 @@ export default function BacklogIndex({
                 setTasks(data.backlog_tasks ?? []);
             })
             .catch((e) => {
+                if (e instanceof DOMException && e.name === 'AbortError') return;
                 console.error('Failed to fetch backlog tasks:', e);
             });
 
