@@ -37,7 +37,6 @@ import { WorkspaceNotificationChannels } from '@/components/workspace-notificati
 import { WorkspaceRolesPermissions } from '@/components/workspace-roles-permissions';
 import {
     destroy as workspaceDestroy,
-    index as workspaceIndex,
     restore as workspaceRestore,
     show as workspaceShow,
     update as workspaceUpdate,
