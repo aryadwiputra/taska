@@ -6,9 +6,10 @@ import {
     ChevronRight,
     FileText,
     Plus,
+    Search,
     Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { show as projectShow } from '@/routes/projects';
 import {
     destroy as docsDestroy,
+    search as searchRoute,
     show as docsShow,
     store as docsStore,
 } from '@/routes/projects/docs';
@@ -42,6 +44,36 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
     const [newTitle, setNewTitle] = useState('');
     const [newParentId, setNewParentId] = useState<string>('none');
     const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<DocTreeItem[]>([]);
+    const [searching, setSearching] = useState(false);
+    const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const handleSearch = useCallback((q: string) => {
+        setSearchQuery(q);
+
+        if (searchTimerRef.current) {
+            clearTimeout(searchTimerRef.current);
+        }
+
+        if (!q.trim()) {
+            setSearchResults([]);
+            setSearching(false);
+            return;
+        }
+
+        searchTimerRef.current = setTimeout(() => {
+            setSearching(true);
+
+            fetch(
+                searchRoute.url({ workspace: workspace.slug, project: project.slug }) + '?q=' + encodeURIComponent(q),
+                { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } },
+            )
+                .then((r) => r.json())
+                .then(setSearchResults)
+                .finally(() => setSearching(false));
+        }, 300);
+    }, [workspace.slug, project.slug]);
 
     const toggleCollapse = (id: number) => {
         setCollapsed((prev) => {
@@ -205,6 +237,35 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                     <Plus className="size-4" />
                     <span>{t('docs.new_doc')}</span>
                 </Button>
+            </div>
+
+            <div className="relative">
+                <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    placeholder={t('docs.search_docs')}
+                    className="pl-9"
+                />
+                {searchQuery && searchResults.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card shadow-soft">
+                        {searchResults.map((r) => (
+                            <button
+                                key={r.id}
+                                type="button"
+                                onClick={() =>
+                                    router.visit(
+                                        docsShow.url({ workspace: workspace.slug, project: project.slug, doc: r.slug }),
+                                    )
+                                }
+                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent"
+                            >
+                                <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+                                <span className="truncate">{r.title}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {creating && (
