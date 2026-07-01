@@ -50,6 +50,7 @@ import { index as activityIndex } from '@/routes/projects/activity';
 import { index as automationIndex } from '@/routes/projects/automation';
 import { index as backlogShow } from '@/routes/projects/backlog';
 import { index as componentIndex } from '@/routes/projects/components';
+import { index as docsIndex } from '@/routes/projects/docs';
 import {
     destroy as destroyEpic,
     show as epicShow,
@@ -923,6 +924,20 @@ export default function ProjectShow({
                             {t('reports.title')}
                         </TabsTrigger>
                         <TabsTrigger value="activity">Activity</TabsTrigger>
+                        <TabsTrigger
+                            value="docs"
+                            onClick={() =>
+                                router.visit(
+                                    docsIndex.url({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    }),
+                                )
+                            }
+                        >
+                            <FileText className="size-4" />
+                            <span>{t('docs.title')}</span>
+                        </TabsTrigger>
                         <TabsTrigger
                             value="automation"
                             onClick={() =>

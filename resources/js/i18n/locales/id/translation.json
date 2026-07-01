@@ -1371,5 +1371,26 @@
         "repository": "Repositori",
         "documentation": "Dokumentasi",
         "navigation_menu": "Menu navigasi"
+    },
+    "docs": {
+        "title": "Dokumen",
+        "new_doc": "Dokumen baru",
+        "edit_doc": "Edit dokumen",
+        "delete_doc": "Hapus dokumen",
+        "delete_confirm": "Hapus dokumen ini? Tindakan ini tidak dapat dibatalkan.",
+        "delete_confirm_children": "Hapus dokumen ini dan semua sub-halamannya?",
+        "empty_title": "Belum ada dokumen",
+        "empty_description": "Dokumentasikan proyek Anda — buat dokumen pertama.",
+        "create_doc": "Buat dokumen",
+        "save_doc": "Simpan",
+        "cancel": "Batal",
+        "doc_title": "Judul",
+        "doc_content": "Konten",
+        "parent_doc": "Induk dokumen",
+        "none": "Tidak ada (halaman root)",
+        "last_edited": "Terakhir diedit oleh {name}",
+        "created_by": "Dibuat oleh {name}",
+        "uncollapse": "Buka semua",
+        "collapse": "Tutup semua"
     }
 }

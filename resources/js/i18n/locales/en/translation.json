@@ -1370,5 +1370,26 @@
         "repository": "Repository",
         "documentation": "Documentation",
         "navigation_menu": "Navigation menu"
+    },
+    "docs": {
+        "title": "Docs",
+        "new_doc": "New doc",
+        "edit_doc": "Edit doc",
+        "delete_doc": "Delete doc",
+        "delete_confirm": "Delete this doc? This cannot be undone.",
+        "delete_confirm_children": "Delete this doc and all its sub-pages?",
+        "empty_title": "No docs yet",
+        "empty_description": "Document your project — create the first doc.",
+        "create_doc": "Create doc",
+        "save_doc": "Save doc",
+        "cancel": "Cancel",
+        "doc_title": "Title",
+        "doc_content": "Content",
+        "parent_doc": "Parent doc",
+        "none": "None (root page)",
+        "last_edited": "Last edited by {name}",
+        "created_by": "Created by {name}",
+        "uncollapse": "Expand all",
+        "collapse": "Collapse all"
     }
 }
