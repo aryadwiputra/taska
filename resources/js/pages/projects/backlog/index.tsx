@@ -16,7 +16,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { CalendarDays, GripVertical, Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    canManageBoard,
+    canManageSprints,
+    toastNoAccess,
+} from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import { show as projectShow } from '@/routes/projects';
 import {
@@ -151,6 +156,7 @@ interface Props {
     project: ProjectData;
     sprints: SprintData[];
     backlogTasks: TaskItem[];
+    userProjectRole?: string | null;
 }
 
 const priorityColors: Record<string, string> = {
@@ -167,11 +173,13 @@ function SortableTaskRow({
     sprints,
     onMoveToSprint,
     onClick,
+    canMoveToSprint: canMove,
 }: {
     task: TaskItem;
     sprints: SprintData[];
     onMoveToSprint: (taskId: number, sprintId: number) => void;
     onClick: () => void;
+    canMoveToSprint: boolean;
 }) {
     const { t } = useTranslation();
     const {
@@ -247,30 +255,120 @@ function SortableTaskRow({
                 </div>
             </div>
 
-            <Select
-                value=""
-                onValueChange={(value) => {
-                    if (value !== 'none') {
-                        onMoveToSprint(task.id, Number(value));
-                    }
-                }}
-            >
-                <SelectTrigger className="h-8 w-40 text-xs">
-                    <SelectValue placeholder={t('sprint.add_task')} />
-                </SelectTrigger>
-                <SelectContent>
-                    {sprints
-                        .filter((s) => s.status !== 'completed')
-                        .map((sprint) => (
-                            <SelectItem
-                                key={sprint.id}
-                                value={String(sprint.id)}
-                            >
-                                {sprint.name}
-                            </SelectItem>
-                        ))}
-                </SelectContent>
-            </Select>
+            {canMove && (
+                <Select
+                    value=""
+                    onValueChange={(value) => {
+                        if (value !== 'none') {
+                            onMoveToSprint(task.id, Number(value));
+                        }
+                    }}
+                >
+                    <SelectTrigger className="h-8 w-40 text-xs">
+                        <SelectValue placeholder={t('sprint.add_task')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {sprints
+                            .filter((s) => s.status !== 'completed')
+                            .map((sprint) => (
+                                <SelectItem
+                                    key={sprint.id}
+                                    value={String(sprint.id)}
+                                >
+                                    {sprint.name}
+                                </SelectItem>
+                            ))}
+                    </SelectContent>
+                </Select>
+            )}
+        </div>
+    );
+}
+
+function PlainTaskRow({
+    task,
+    sprints,
+    onMoveToSprint,
+    onClick,
+    canMoveToSprint: canMove,
+}: {
+    task: TaskItem;
+    sprints: SprintData[];
+    onMoveToSprint: (taskId: number, sprintId: number) => void;
+    onClick: () => void;
+    canMoveToSprint: boolean;
+}) {
+    const { t } = useTranslation();
+
+    return (
+        <div className="flex items-center gap-3 border-b border-border px-3 py-3 transition-colors last:border-0 hover:bg-muted/30">
+            <div onClick={onClick} className="min-w-0 flex-1 cursor-pointer">
+                <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-muted-foreground">
+                        {task.code}
+                    </span>
+                    <span className="truncate text-sm font-medium">
+                        {task.title}
+                    </span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className="text-[10px]">
+                        {task.board_column.name}
+                    </Badge>
+                    <Badge variant="secondary" className="text-[10px]">
+                        {task.task_type.name}
+                    </Badge>
+                    {task.story_points != null && (
+                        <span className="inline-flex size-4 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-semibold text-muted-foreground">
+                            {task.story_points}
+                        </span>
+                    )}
+                    {task.priority && (
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <div
+                                className={cn(
+                                    'size-1.5 rounded-full',
+                                    priorityColors[task.priority.key] ??
+                                        'bg-muted-foreground',
+                                )}
+                            />
+                            {task.priority.name}
+                        </div>
+                    )}
+                    {task.due_date && (
+                        <span className="text-[10px] text-muted-foreground">
+                            Due {formatDate(task.due_date)}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {canMove && (
+                <Select
+                    value=""
+                    onValueChange={(value) => {
+                        if (value !== 'none') {
+                            onMoveToSprint(task.id, Number(value));
+                        }
+                    }}
+                >
+                    <SelectTrigger className="h-8 w-40 text-xs">
+                        <SelectValue placeholder={t('sprint.add_task')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {sprints
+                            .filter((s) => s.status !== 'completed')
+                            .map((sprint) => (
+                                <SelectItem
+                                    key={sprint.id}
+                                    value={String(sprint.id)}
+                                >
+                                    {sprint.name}
+                                </SelectItem>
+                            ))}
+                    </SelectContent>
+                </Select>
+            )}
         </div>
     );
 }
@@ -280,8 +378,16 @@ export default function BacklogIndex({
     project,
     sprints,
     backlogTasks: initialTasks,
+    userProjectRole,
 }: Props) {
     const { t } = useTranslation();
+    const { props: pageProps } = usePage();
+    const currentWorkspace = pageProps.currentWorkspace as {
+        role?: string;
+    } | null;
+    const wsRole = currentWorkspace?.role;
+    const wsRole = currentWorkspace?.role;
+    const canReorder = canManageBoard(wsRole, userProjectRole);
     const backlogGuide = useBacklogGuide(t);
     const [tasks, setTasks] = useState<TaskItem[]>(initialTasks);
     const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
@@ -513,51 +619,76 @@ export default function BacklogIndex({
                         </CardHeader>
                         <CardContent>
                             {tasks.length > 0 ? (
-                                <DndContext
-                                    sensors={sensors}
-                                    collisionDetection={closestCenter}
-                                    onDragStart={handleDragStart}
-                                    onDragEnd={handleDragEnd}
-                                >
+                                canReorder ? (
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
+                                            <SortableContext
+                                                items={tasks.map((t) => t.id)}
+                                                strategy={
+                                                    verticalListSortingStrategy
+                                                }
+                                            >
+                                                {tasks.map((task) => (
+                                                    <SortableTaskRow
+                                                        key={task.id}
+                                                        task={task}
+                                                        sprints={sprints}
+                                                        onMoveToSprint={
+                                                            handleMoveToSprint
+                                                        }
+                                                        onClick={() => {
+                                                            setDrawerTaskId(
+                                                                task.id,
+                                                            );
+                                                            setDrawerOpen(true);
+                                                        }}
+                                                        canMoveToSprint={canManageSprints(
+                                                            wsRole,
+                                                        )}
+                                                    />
+                                                ))}
+                                            </SortableContext>
+                                        </div>
+                                        <DragOverlay>
+                                            {activeTask && (
+                                                <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 shadow-elevated">
+                                                    <GripVertical className="size-4 text-muted-foreground" />
+                                                    <span className="font-mono text-xs text-muted-foreground">
+                                                        {activeTask.code}
+                                                    </span>
+                                                    <span className="truncate text-sm font-medium">
+                                                        {activeTask.title}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </DragOverlay>
+                                    </DndContext>
+                                ) : (
                                     <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
-                                        <SortableContext
-                                            items={tasks.map((t) => t.id)}
-                                            strategy={
-                                                verticalListSortingStrategy
-                                            }
-                                        >
-                                            {tasks.map((task) => (
-                                                <SortableTaskRow
-                                                    key={task.id}
-                                                    task={task}
-                                                    sprints={sprints}
-                                                    onMoveToSprint={
-                                                        handleMoveToSprint
-                                                    }
-                                                    onClick={() => {
-                                                        setDrawerTaskId(
-                                                            task.id,
-                                                        );
-                                                        setDrawerOpen(true);
-                                                    }}
-                                                />
-                                            ))}
-                                        </SortableContext>
+                                        {tasks.map((task) => (
+                                            <PlainTaskRow
+                                                key={task.id}
+                                                task={task}
+                                                sprints={sprints}
+                                                onMoveToSprint={
+                                                    handleMoveToSprint
+                                                }
+                                                onClick={() => {
+                                                    setDrawerTaskId(task.id);
+                                                    setDrawerOpen(true);
+                                                }}
+                                                canMoveToSprint={canManageSprints(
+                                                    wsRole,
+                                                )}
+                                            />
+                                        ))}
                                     </div>
-                                    <DragOverlay>
-                                        {activeTask && (
-                                            <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 shadow-elevated">
-                                                <GripVertical className="size-4 text-muted-foreground" />
-                                                <span className="font-mono text-xs text-muted-foreground">
-                                                    {activeTask.code}
-                                                </span>
-                                                <span className="truncate text-sm font-medium">
-                                                    {activeTask.title}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </DragOverlay>
-                                </DndContext>
+                                )
                             ) : (
                                 <EmptyState
                                     icon={Layers}
