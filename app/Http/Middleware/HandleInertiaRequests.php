@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Notification;
+use App\Models\ProjectMember;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -65,15 +66,35 @@ class HandleInertiaRequests extends Middleware
                     return null;
                 }
 
+                $workspaceRole = $workspace->members()
+                    ->where('user_id', $user->id)
+                    ->value('role');
+
+                $projects = $workspace->projects()
+                    ->select('projects.id', 'projects.name', 'projects.key', 'projects.color', 'projects.slug')
+                    ->orderBy('name')
+                    ->get();
+
+                $userProjectRoles = $projects->isEmpty()
+                    ? collect()
+                    : ProjectMember::whereIn('project_id', $projects->pluck('id'))
+                        ->where('user_id', $user->id)
+                        ->pluck('role', 'project_id');
+
                 return [
                     'id' => $workspace->id,
                     'name' => $workspace->name,
                     'slug' => $workspace->slug,
                     'logo' => $workspace->logo,
-                    'projects' => $workspace->projects()
-                        ->select('projects.id', 'projects.name', 'projects.key', 'projects.color', 'projects.slug')
-                        ->orderBy('name')
-                        ->get(),
+                    'role' => $workspaceRole,
+                    'projects' => $projects->map(fn ($p) => [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'key' => $p->key,
+                        'slug' => $p->slug,
+                        'color' => $p->color,
+                        'userRole' => $userProjectRoles->get($p->id),
+                    ])->all(),
                 ];
             },
         ];

@@ -18,6 +18,11 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import {
+    canCreateProject,
+    canAccessProjectSettings,
+    toastNoAccess,
+} from '@/lib/permissions';
+import {
     board as projectBoard,
     create as projectCreate,
     settings as projectSettings,
@@ -82,6 +87,7 @@ export function NavProjects() {
                 project: slug,
             }).url,
             icon: Settings,
+            requiresSettings: true as const,
         },
     ];
 
@@ -96,13 +102,19 @@ export function NavProjects() {
                         type="button"
                         className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
                         aria-label={t('sidebar.new_project')}
-                        onClick={() =>
+                        onClick={() => {
+                            if (!canCreateProject(currentWorkspace.role)) {
+                                toastNoAccess();
+
+                                return;
+                            }
+
                             router.visit(
                                 projectCreate.url({
                                     workspace: currentWorkspace.slug,
                                 }),
-                            )
-                        }
+                            );
+                        }}
                     >
                         <Plus className="size-3.5" />
                     </button>
@@ -177,11 +189,22 @@ export function NavProjects() {
                                                             <button
                                                                 type="button"
                                                                 className="flex w-full items-center gap-2"
-                                                                onClick={() =>
+                                                                onClick={() => {
+                                                                    if (
+                                                                        item.requiresSettings &&
+                                                                        !canAccessProjectSettings(
+                                                                            project.userRole,
+                                                                        )
+                                                                    ) {
+                                                                        toastNoAccess();
+
+                                                                        return;
+                                                                    }
+
                                                                     router.visit(
                                                                         item.href,
-                                                                    )
-                                                                }
+                                                                    );
+                                                                }}
                                                             >
                                                                 <item.icon className="size-3.5" />
                                                                 <span className="truncate text-xs">
@@ -207,13 +230,19 @@ export function NavProjects() {
                         <button
                             type="button"
                             className="text-xs font-medium text-primary transition-colors hover:underline"
-                            onClick={() =>
+                            onClick={() => {
+                                if (!canCreateProject(currentWorkspace.role)) {
+                                    toastNoAccess();
+
+                                    return;
+                                }
+
                                 router.visit(
                                     projectCreate.url({
                                         workspace: currentWorkspace.slug,
                                     }),
-                                )
-                            }
+                                );
+                            }}
                         >
                             {t('sidebar.create_first_project')}
                         </button>

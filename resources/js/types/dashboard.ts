@@ -105,12 +105,14 @@ export interface CurrentWorkspaceProps {
     name: string;
     slug: string;
     logo: string | null;
+    role: string;
     projects: Array<{
         id: number;
         name: string;
         key: string;
         slug: string;
         color: string | null;
+        userRole: string | null;
     }>;
 }
 
