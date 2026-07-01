@@ -338,9 +338,11 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function edit(Workspace $workspace, Project $project, SettingService $settings): Response
+    public function edit(Workspace $workspace, Project $project, SettingService $settings, Request $request): Response
     {
         Gate::authorize('update', $project);
+
+        $currentMember = $project->members()->where('user_id', $request->user()->id)->first();
 
         $members = $project->members()
             ->with('user:id,name,email,avatar')
@@ -397,6 +399,7 @@ class ProjectController extends Controller
             'integration' => Integration::where('project_id', $project->id)
                 ->where('provider', 'github')
                 ->first(['provider_user_id', 'metadata']),
+            'userProjectRole' => $currentMember?->role,
             'notificationRules' => NotificationRule::where('user_id', request()->user()->id)
                 ->where(fn ($q) => $q->whereNull('project_id')->orWhere('project_id', $project->id))
                 ->orderByDesc('created_at')

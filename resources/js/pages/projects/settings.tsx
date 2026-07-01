@@ -1,4 +1,4 @@
-import { Form, Head, Link, router } from '@inertiajs/react';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Bell,
@@ -31,6 +31,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { canDeleteProject } from '@/lib/permissions';
 import {
     show as projectShow,
     update as projectUpdate,
@@ -175,6 +176,7 @@ interface Props {
         project_id: number | null;
         created_at: string;
     }>;
+    userProjectRole?: string | null;
 }
 
 const roleLabels: Record<string, string> = {
@@ -197,8 +199,15 @@ export default function ProjectSettings({
     boards,
     integration,
     notificationRules,
+    userProjectRole,
 }: Props) {
     const { t } = useTranslation();
+    const { props: pageProps } = usePage();
+    const currentWorkspace = pageProps.currentWorkspace as {
+        role?: string;
+    } | null;
+    const wsRole = currentWorkspace?.role;
+    const canDelete = canDeleteProject(wsRole, userProjectRole);
     const [addMemberOpen, setAddMemberOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null);
@@ -2144,16 +2153,20 @@ export default function ProjectSettings({
                                                     'project_settings.archive_description',
                                                 )}
                                             </p>
-                                            <Button
-                                                variant="destructive"
-                                                onClick={() =>
-                                                    setDeleteConfirmOpen(true)
-                                                }
-                                            >
-                                                {t(
-                                                    'project_settings.archive_project',
-                                                )}
-                                            </Button>
+                                            {canDelete && (
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        setDeleteConfirmOpen(
+                                                            true,
+                                                        )
+                                                    }
+                                                >
+                                                    {t(
+                                                        'project_settings.archive_project',
+                                                    )}
+                                                </Button>
+                                            )}
                                             {deleteConfirmOpen && (
                                                 <div className="flex items-center gap-2">
                                                     <form
