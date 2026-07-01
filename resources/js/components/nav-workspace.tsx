@@ -7,7 +7,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { canAccessWorkspaceSettings, toastNoAccess } from '@/lib/permissions';
+import {
+    canAccessGoals,
+    canAccessWorkspaceSettings,
+    toastNoAccess,
+} from '@/lib/permissions';
 import { settings as workspaceSettings } from '@/routes/workspaces';
 import {
     board as crossBoard,
@@ -32,12 +36,13 @@ export function NavWorkspace({ workspaceSlug }: Props) {
             title: t('sidebar.settings'),
             href: workspaceSettings({ workspace: workspaceSlug }).url,
             icon: Settings,
-            requiresSettings: true as const,
+            permission: 'settings' as const,
         },
         {
             title: t('sidebar.goals'),
             href: goalsIndex({ workspace: workspaceSlug }).url,
             icon: Flag,
+            permission: 'goals' as const,
         },
         {
             title: t('sidebar.cross_board'),
@@ -51,27 +56,34 @@ export function NavWorkspace({ workspaceSlug }: Props) {
         },
     ];
 
+    const checkPermission = (item: (typeof items)[number]): boolean => {
+        const role = currentWorkspace?.role;
+
+        switch (item.permission) {
+            case 'settings':
+                return canAccessWorkspaceSettings(role);
+            case 'goals':
+                return canAccessGoals(role);
+            default:
+                return true;
+        }
+    };
+
     return (
         <SidebarMenu className="px-2 py-0">
             {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                         asChild
-                        isActive={
-                            isCurrentUrl(item.href) && !item.requiresSettings
-                        }
+                        isActive={isCurrentUrl(item.href) && !item.permission}
                         tooltip={{ children: item.title }}
                     >
-                        {item.requiresSettings ? (
+                        {item.permission ? (
                             <button
                                 type="button"
                                 className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => {
-                                    if (
-                                        !canAccessWorkspaceSettings(
-                                            currentWorkspace?.role,
-                                        )
-                                    ) {
+                                    if (!checkPermission(item)) {
                                         toastNoAccess();
 
                                         return;
