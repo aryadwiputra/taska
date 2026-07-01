@@ -6,6 +6,7 @@ use App\Models\Epic;
 use App\Models\Goal;
 use App\Models\KeyResult;
 use App\Models\Workspace;
+use App\Support\Rbac;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class GoalController extends Controller
 {
     public function index(Workspace $workspace): Response
     {
-        Gate::authorize('viewAny', [Goal::class, $workspace]);
+        Gate::authorize('view', $workspace);
 
         $goals = $workspace->goals()
             ->with(['keyResults', 'epics'])
@@ -45,7 +46,9 @@ class GoalController extends Controller
 
     public function store(Request $request, Workspace $workspace): JsonResponse
     {
-        Gate::authorize('create', [Goal::class, $workspace]);
+        if (! Rbac::userCanInWorkspace($request->user(), $workspace, 'project.create')) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -70,7 +73,7 @@ class GoalController extends Controller
 
     public function show(Workspace $workspace, Goal $goal): Response
     {
-        Gate::authorize('view', $goal);
+        Gate::authorize('view', $workspace);
 
         $goal->load(['keyResults', 'epics']);
 
@@ -112,7 +115,7 @@ class GoalController extends Controller
 
     public function update(Request $request, Workspace $workspace, Goal $goal): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -135,7 +138,9 @@ class GoalController extends Controller
 
     public function destroy(Workspace $workspace, Goal $goal): JsonResponse
     {
-        Gate::authorize('delete', $goal);
+        if (! Rbac::userCanInWorkspace(request()->user(), $workspace, 'workspace.edit')) {
+            abort(403);
+        }
 
         $goal->delete();
 
@@ -144,7 +149,7 @@ class GoalController extends Controller
 
     public function storeKeyResult(Request $request, Workspace $workspace, Goal $goal): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -165,7 +170,7 @@ class GoalController extends Controller
 
     public function updateKeyResult(Request $request, Workspace $workspace, Goal $goal, KeyResult $keyResult): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -188,7 +193,7 @@ class GoalController extends Controller
 
     public function destroyKeyResult(Workspace $workspace, Goal $goal, KeyResult $keyResult): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $keyResult->delete();
 
@@ -197,7 +202,7 @@ class GoalController extends Controller
 
     public function addEpic(Request $request, Workspace $workspace, Goal $goal): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $validated = $request->validate([
             'epic_id' => 'required|exists:epics,id',
@@ -226,7 +231,7 @@ class GoalController extends Controller
 
     public function removeEpic(Workspace $workspace, Goal $goal, Epic $epic): JsonResponse
     {
-        Gate::authorize('update', $goal);
+        Gate::authorize('view', $workspace);
 
         $goal->epics()->detach($epic);
 
