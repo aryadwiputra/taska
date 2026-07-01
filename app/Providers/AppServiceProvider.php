@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\ApprovalFlow;
 use App\Models\AutomationRule;
 use App\Models\Board;
+use App\Models\Doc;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskComment;
@@ -13,6 +14,7 @@ use App\Models\Workspace;
 use App\Policies\ApprovalFlowPolicy;
 use App\Policies\AutomationRulePolicy;
 use App\Policies\BoardPolicy;
+use App\Policies\DocPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaskCommentPolicy;
 use App\Policies\TaskPolicy;
@@ -53,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TaskComment::class, TaskCommentPolicy::class);
         Gate::policy(ApprovalFlow::class, ApprovalFlowPolicy::class);
         Gate::policy(AutomationRule::class, AutomationRulePolicy::class);
+        Gate::policy(Doc::class, DocPolicy::class);
 
         Gate::before(function (User $user, string $ability, mixed ...$arguments): ?bool {
             if ($user->isSuperAdmin()) {

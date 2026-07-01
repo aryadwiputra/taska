@@ -250,6 +250,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/relations', [TaskRelationController::class, 'store'])->name('projects.tasks.relations.store');
         Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/tasks/{task}/relations/{relation}', [TaskRelationController::class, 'destroy'])->name('projects.tasks.relations.destroy');
+
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs', [DocController::class, 'index'])->name('projects.docs.index');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc:slug}', [DocController::class, 'show'])->name('projects.docs.show');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/docs', [DocController::class, 'store'])->name('projects.docs.store');
+        Route::patch('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc:slug}', [DocController::class, 'update'])->name('projects.docs.update');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc:slug}', [DocController::class, 'destroy'])->name('projects.docs.destroy');
     });
 });
 
