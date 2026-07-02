@@ -135,7 +135,7 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
         node: DocTreeItem;
         depth: number;
     }) => {
-        const hasChildren = node.children.length > 0;
+        const hasChildren = (node.children ?? []).length > 0;
         const isCollapsed = collapsed.has(node.id);
 
         return (

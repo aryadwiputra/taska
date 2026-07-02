@@ -42,10 +42,22 @@ class DocController extends Controller
 
         $breadcrumbs = $this->buildBreadcrumbs($doc);
 
+        $docArray = $doc->toArray();
+        $docArray['children'] = $doc->children->map(fn ($child) => [
+            'id' => $child->id,
+            'title' => $child->title,
+            'slug' => $child->slug,
+            'author' => $child->relationLoaded('author') && $child->author ? [
+                'id' => $child->author->id,
+                'name' => $child->author->name,
+                'avatar' => $child->author->avatar,
+            ] : null,
+        ])->toArray();
+
         return Inertia::render('projects/docs/show', [
             'workspace' => ['id' => $workspace->id, 'name' => $workspace->name, 'slug' => $workspace->slug],
             'project' => ['id' => $project->id, 'name' => $project->name, 'key' => $project->key, 'slug' => $project->slug],
-            'doc' => $doc->toArray() + ['breadcrumbs' => $breadcrumbs, 'versions_count' => $doc->versions()->count()],
+            'doc' => $docArray + ['breadcrumbs' => $breadcrumbs, 'versions_count' => $doc->versions()->count()],
         ]);
     }
 

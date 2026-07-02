@@ -140,7 +140,7 @@ export default function DocsShow({
         node: DocTreeItem;
         depth: number;
     }) => {
-        const hasChildren = node.children.length > 0;
+        const hasChildren = (node.children ?? []).length > 0;
         const isCollapsed = collapsed.has(node.id);
         const isActive = node.id === doc.id;
 
@@ -409,7 +409,7 @@ export default function DocsShow({
                                 }}
                             />
 
-                            {doc.children.length > 0 && (
+                            {(doc.children ?? []).length > 0 && (
                                 <div>
                                     <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
                                         Sub-pages
