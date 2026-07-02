@@ -567,7 +567,12 @@
         "confirm_archive_project": "Are you sure you want to archive this project? This action cannot be undone.",
         "confirm_delete_column": "Delete this column? Tasks in this column will lose their column reference.",
         "settings_saved": "Settings saved.",
-        "save_changes": "Save changes"
+        "save_changes": "Save changes",
+        "whatsapp": "WhatsApp Gateway",
+        "whatsapp_description": "Connect your WhatsApp account to send notifications.",
+        "whatsapp_gateway": "Gateway",
+        "connect_whatsapp": "Connect WhatsApp",
+        "disconnect_whatsapp": "Disconnect WhatsApp"
     },
     "profile": {
         "name": "Name",

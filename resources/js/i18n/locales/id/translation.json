@@ -519,7 +519,12 @@
         "confirm_archive_project": "Apakah Anda yakin ingin mengarsipkan proyek ini? Tindakan ini tidak dapat dibatalkan.",
         "confirm_delete_column": "Hapus kolom ini? Tugas di kolom ini akan kehilangan referensi kolom.",
         "settings_saved": "Pengaturan tersimpan.",
-        "save_changes": "Simpan perubahan"
+        "save_changes": "Simpan perubahan",
+        "whatsapp": "WhatsApp Gateway",
+        "whatsapp_description": "Hubungkan akun WhatsApp untuk mengirim notifikasi.",
+        "whatsapp_gateway": "Gateway",
+        "connect_whatsapp": "Hubungkan WhatsApp",
+        "disconnect_whatsapp": "Putuskan WhatsApp"
     },
     "profile": {
         "name": "Nama",

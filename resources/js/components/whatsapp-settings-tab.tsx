@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { Smartphone, Wifi, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -45,18 +44,25 @@ export function WhatsAppSettingsTab({ workspaceSlug }: Props) {
     }, [fetchStatus]);
 
     const handleConnect = () => {
-        router.post(
-            connectRoute.url({ workspace: workspaceSlug }),
-            {},
-            { preserveScroll: true, onSuccess: fetchStatus },
-        );
+        fetch(connectRoute.url({ workspace: workspaceSlug }), {
+            method: 'POST',
+            headers: {
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                ),
+            },
+        }).then(fetchStatus);
     };
 
     const handleDisconnect = () => {
-        router.delete(disconnectRoute.url({ workspace: workspaceSlug }), {
-            preserveScroll: true,
-            onSuccess: fetchStatus,
-        });
+        fetch(disconnectRoute.url({ workspace: workspaceSlug }), {
+            method: 'DELETE',
+            headers: {
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                ),
+            },
+        }).then(fetchStatus);
     };
 
     return (
