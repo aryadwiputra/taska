@@ -121,6 +121,11 @@ class Project extends Model
         return $this->hasMany(ActivityLog::class);
     }
 
+    public function docs(): HasMany
+    {
+        return $this->hasMany(Doc::class);
+    }
+
     public function integration(): HasOne
     {
         return $this->hasOne(Integration::class);
