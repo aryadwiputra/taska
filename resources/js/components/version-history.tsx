@@ -12,7 +12,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { restoreVersion } from '@/actions/DocController';
+import { restoreVersion } from '@/actions/App/Http/Controllers/DocController';
 import { versions as versionsRoute } from '@/routes/projects/docs';
 
 interface VersionItem {
