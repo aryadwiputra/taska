@@ -15,7 +15,7 @@ use Inertia\Response;
 
 class BacklogController extends Controller
 {
-    public function index(Workspace $workspace, Project $project): Response
+    public function index(Workspace $workspace, Project $project, Request $request): Response
     {
         Gate::authorize('view', $project);
 
