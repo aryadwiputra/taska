@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWorkspaceInvitationRequest;
+use App\Models\NotificationLog;
 use App\Models\NotificationPreference;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceInvitation;
-use App\Notifications\WorkspaceInvitationNotification;
+use App\Services\MailjetService;
 use App\Services\WorkspaceRoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -41,12 +41,33 @@ class WorkspaceInvitationController extends Controller
             'expired_at' => now()->addDays(7),
         ]);
 
-        if ($existingUser && NotificationPreference::isEmailEnabled($existingUser, 'workspace.invitation')) {
-            Notification::route('mail', $email)
-                ->notify(new WorkspaceInvitationNotification($invitation->load(['workspace', 'invitedBy'])));
-        } elseif (! $existingUser) {
-            Notification::route('mail', $email)
-                ->notify(new WorkspaceInvitationNotification($invitation->load(['workspace', 'invitedBy'])));
+        // ponytail: synchronous Mailjet API call, queue if latency becomes an issue
+        if ($existingUser && ! NotificationPreference::isEmailEnabled($existingUser, 'workspace.invitation')) {
+            // skip — user disabled email notifications
+        } else {
+            $invitation->load(['workspace', 'invitedBy']);
+            $acceptUrl = route('workspace-invitations.accept', ['invitation' => $invitation->token]);
+            $subject = "Invitation to join {$invitation->workspace->name}";
+            $html = sprintf(
+                '<div style="max-width:480px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">
+                    <h2 style="color:#1e293b;margin-top:0;">%s</h2>
+                    <p style="color:#475569;line-height:1.6;">%s</p>
+                    <a href="%s" style="display:inline-block;padding:10px 20px;color:#fff;background:#2563eb;border-radius:6px;text-decoration:none;font-weight:600;">Accept Invitation</a>
+                    <p style="color:#94a3b8;font-size:14px;margin-top:16px;">This invitation expires in 7 days.</p>
+                </div>',
+                htmlspecialchars($subject),
+                htmlspecialchars("{$invitation->invitedBy->name} invited you to join {$invitation->workspace->name} as {$invitation->role}."),
+                $acceptUrl,
+            );
+            $sent = app(MailjetService::class)->send($email, null, $subject, $html);
+            NotificationLog::create([
+                'channel' => 'email',
+                'recipient' => $email,
+                'type' => 'workspace.invitation',
+                'status' => $sent ? 'sent' : 'failed',
+                'error' => $sent ? null : 'Mailjet API returned non-success',
+                'sent_at' => now(),
+            ]);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Invitation sent.']);

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\SendWhatsAppNotification;
 use App\Models\Notification;
 use App\Models\NotificationChannel;
+use App\Models\NotificationLog;
 use App\Models\NotificationPreference;
 use App\Models\Project;
 use App\Models\Task;
@@ -17,7 +18,6 @@ use App\Notifications\Channels\SlackChannel;
 use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\Channels\WebhookChannel;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class NotificationService
@@ -204,11 +204,23 @@ class NotificationService
             try {
                 $dummyChannel = new NotificationChannel(['config' => [], 'driver' => $driver]);
                 $this->channels[$driver]->send($user, $data, $dummyChannel);
-            } catch (\Throwable $e) {
-                Log::warning('Notification built-in channel failed', [
+                NotificationLog::create([
+                    'notification_id' => $data['notification_id'] ?? null,
                     'channel' => $driver,
-                    'user_id' => $user->id,
+                    'recipient' => $driver === 'in_app' ? (string) $user->id : $user->email,
+                    'type' => $type,
+                    'status' => 'sent',
+                    'sent_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                NotificationLog::create([
+                    'notification_id' => $data['notification_id'] ?? null,
+                    'channel' => $driver,
+                    'recipient' => $driver === 'in_app' ? (string) $user->id : $user->email,
+                    'type' => $type,
+                    'status' => 'failed',
                     'error' => $e->getMessage(),
+                    'sent_at' => now(),
                 ]);
             }
         }
@@ -228,12 +240,23 @@ class NotificationService
             if (isset($this->channels[$driver])) {
                 try {
                     $this->channels[$driver]->send($user, $data, $channelConfig);
-                } catch (\Throwable $e) {
-                    Log::warning('Notification channel failed', [
+                    NotificationLog::create([
+                        'notification_id' => $data['notification_id'] ?? null,
                         'channel' => $driver,
-                        'user_id' => $user->id,
+                        'recipient' => $channelConfig->name ?? $driver,
                         'type' => $type,
+                        'status' => 'sent',
+                        'sent_at' => now(),
+                    ]);
+                } catch (\Throwable $e) {
+                    NotificationLog::create([
+                        'notification_id' => $data['notification_id'] ?? null,
+                        'channel' => $driver,
+                        'recipient' => $channelConfig->name ?? $driver,
+                        'type' => $type,
+                        'status' => 'failed',
                         'error' => $e->getMessage(),
+                        'sent_at' => now(),
                     ]);
                 }
             }

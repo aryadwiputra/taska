@@ -2,12 +2,15 @@
 
 use App\Models\User;
 use App\Models\WorkspaceInvitation;
-use App\Notifications\WorkspaceInvitationNotification;
-use Illuminate\Support\Facades\Notification as NotificationFacade;
+use App\Services\MailjetService;
 use Illuminate\Support\Str;
 
 test('workspace owner can invite user by email', function () {
-    NotificationFacade::fake();
+    $mailjet = Mockery::mock(MailjetService::class);
+    $mailjet->shouldReceive('send')
+        ->once()
+        ->with('new@example.com', null, Mockery::type('string'), Mockery::type('string'));
+    $this->app->instance(MailjetService::class, $mailjet);
 
     $owner = User::factory()->create();
     $workspace = createWorkspaceMember($owner, 'owner');
@@ -26,16 +29,12 @@ test('workspace owner can invite user by email', function () {
         ->and($invitation->workspace_id)->toBe($workspace->id)
         ->and($invitation->role)->toBe('member')
         ->and($invitation->token)->not->toBeEmpty();
-
-    NotificationFacade::assertSentOnDemand(
-        WorkspaceInvitationNotification::class,
-        fn (WorkspaceInvitationNotification $notification, array $channels): bool => in_array('mail', $channels, true)
-            && $notification->invitation->is($invitation),
-    );
 });
 
 test('workspace owner cannot invite an existing member', function () {
-    NotificationFacade::fake();
+    $mailjet = Mockery::mock(MailjetService::class);
+    $mailjet->shouldReceive('send')->never();
+    $this->app->instance(MailjetService::class, $mailjet);
 
     $owner = User::factory()->create();
     $member = User::factory()->create(['email' => 'member@example.com']);
@@ -55,7 +54,6 @@ test('workspace owner cannot invite an existing member', function () {
         ->assertRedirect();
 
     expect(WorkspaceInvitation::where('email', 'member@example.com')->exists())->toBeFalse();
-    NotificationFacade::assertNothingSent();
 });
 
 test('invited user can accept workspace invitation', function () {
