@@ -1955,7 +1955,7 @@ export default function ProjectShow({
                     open={drawerOpen}
                     onOpenChange={setDrawerOpen}
                     onDelete={() => router.reload()}
-                    userProjectRole={projectRole}
+                    userProjectRole={userProjectRole}
                 />
             </div>
         </>
