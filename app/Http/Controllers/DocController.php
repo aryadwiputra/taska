@@ -55,10 +55,15 @@ class DocController extends Controller
             ] : null,
         ])->toArray();
 
+        $tree = DocTreeBuilder::buildTree(
+            $project->docs()->with('author:id,name,avatar')->ordered()->get()
+        );
+
         return Inertia::render('projects/docs/show', [
             'workspace' => ['id' => $workspace->id, 'name' => $workspace->name, 'slug' => $workspace->slug],
             'project' => ['id' => $project->id, 'name' => $project->name, 'key' => $project->key, 'slug' => $project->slug],
             'doc' => $docArray + ['breadcrumbs' => $breadcrumbs, 'versions_count' => $doc->versions()->count()],
+            'docsTree' => $tree,
         ]);
     }
 
