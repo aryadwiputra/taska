@@ -21,6 +21,7 @@ use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationRuleController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PasswordSetupController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
@@ -264,7 +265,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'verified'])->get('/invitations/{invitation:token}/accept', [WorkspaceInvitationController::class, 'accept'])->name('workspace-invitations.accept');
+Route::get('/invitations/{invitation:token}/accept', [WorkspaceInvitationController::class, 'accept'])->name('workspace-invitations.accept');
+
+Route::middleware(['guest'])->group(function () {
+    Route::get('/password/setup', [PasswordSetupController::class, 'show'])->name('password.setup');
+    Route::post('/password/setup', [PasswordSetupController::class, 'store'])->name('password.setup.store');
+});
 
 // GitHub webhook — no auth (signed by GitHub)
 Route::scopeBindings()->post('/workspaces/{workspace:slug}/projects/{project:slug}/github/webhook', [GitHubWebhookController::class, 'handle'])->name('projects.github.webhook');

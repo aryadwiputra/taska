@@ -128,7 +128,13 @@
         "enter_recovery_code": "Enter recovery code",
         "verification_sent": "A new verification link has been sent to the email address you provided during registration.",
         "welcome": "Welcome",
-        "suggest_starting": "We suggest starting with the following."
+        "suggest_starting": "We suggest starting with the following.",
+        "setup_password": "Set your password",
+        "setup_password_description": "Create your password to join the workspace.",
+        "welcome_to_taska": "You're invited!",
+        "create_password": "Create password",
+        "min_8_chars": "Minimum 8 characters",
+        "join_workspace": "Join workspace"
     },
     "dashboard": {
         "title": "Dashboard",

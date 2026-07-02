@@ -35,6 +35,11 @@ class WorkspaceInvitation extends Model
         return $this->belongsTo(User::class, 'invited_by');
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
     public function isExpired(): bool
     {
         return $this->expired_at !== null && $this->expired_at->isPast();

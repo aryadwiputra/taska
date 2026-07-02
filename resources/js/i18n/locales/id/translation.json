@@ -129,7 +129,13 @@
         "enter_recovery_code": "Masukkan kode pemulihan",
         "verification_sent": "Tautan verifikasi baru telah dikirim ke alamat email yang Anda berikan saat pendaftaran.",
         "welcome": "Selamat datang",
-        "suggest_starting": "Kami sarankan memulai dengan yang berikut."
+        "suggest_starting": "Kami sarankan memulai dengan yang berikut.",
+        "setup_password": "Atur kata sandi Anda",
+        "setup_password_description": "Buat kata sandi untuk bergabung ke workspace.",
+        "welcome_to_taska": "Anda diundang!",
+        "create_password": "Buat kata sandi",
+        "min_8_chars": "Minimal 8 karakter",
+        "join_workspace": "Gabung ke workspace"
     },
     "dashboard": {
         "title": "Dasbor",

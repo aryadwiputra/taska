@@ -30,6 +30,15 @@ class WorkspaceInvitationController extends Controller
             return back();
         }
 
+        if (! $existingUser) {
+            $existingUser = User::create([
+                'name' => explode('@', $email)[0],
+                'email' => $email,
+                'password' => null,
+                'email_verified_at' => now(),
+            ]);
+        }
+
         $invitation = WorkspaceInvitation::query()->updateOrCreate([
             'workspace_id' => $workspace->id,
             'email' => $email,
@@ -101,14 +110,18 @@ class WorkspaceInvitationController extends Controller
             return to_route('dashboard');
         }
 
-        if (! $request->user()) {
-            session(['pending_invitation_token' => $invitation->token]);
+        session(['pending_invitation_token' => $invitation->token]);
 
-            return redirect()->route('login');
+        if (! $request->user()) {
+            return redirect()->route('password.setup');
         }
 
         if (! hash_equals(Str::lower($request->user()->email), Str::lower($invitation->email))) {
             abort(403, 'This invitation belongs to another email address.');
+        }
+
+        if (! $request->user()->password) {
+            return redirect()->route('password.setup');
         }
 
         $workspace = $invitation->workspace;
@@ -129,6 +142,7 @@ class WorkspaceInvitationController extends Controller
         $invitation->update(['accepted_at' => now()]);
         session()->put('current_workspace_id', $workspace->id);
         setPermissionsTeamId($workspace->id);
+        session()->forget('pending_invitation_token');
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "You joined {$workspace->name}."]);
 

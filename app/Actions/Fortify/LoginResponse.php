@@ -10,11 +10,7 @@ class LoginResponse implements LoginResponseContract
     public function toResponse($request): RedirectResponse
     {
         if ($token = session('pending_invitation_token')) {
-            session()->forget('pending_invitation_token');
-
-            return redirect()->route('workspace-invitations.accept', [
-                'invitation' => $token,
-            ]);
+            return redirect()->route('password.setup');
         }
 
         return redirect(config('fortify.home'));
