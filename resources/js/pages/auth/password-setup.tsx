@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { store } from '@/routes/password/setup';
 
 type Props = {
     email: string;
@@ -36,7 +37,7 @@ export default function PasswordSetup({ email, workspaceName, inviterName, role 
             </div>
 
             <Form
-                action={route('password.setup.store')}
+                action={store.url()}
                 method="post"
                 className="flex flex-col gap-6"
             >
