@@ -116,6 +116,13 @@ class NotificationService
             }
 
             $this->sendThroughChannels($watcher, 'task.updated', $data);
+
+            $this->sendWhatsApp($watcher, 'task.updated', sprintf(
+                "📋 Task updated: %s\n📌 %s\n👤 By: %s",
+                $task->code,
+                $task->title,
+                $actor->name,
+            ), $task);
         }
     }
 
@@ -151,6 +158,13 @@ class NotificationService
             }
 
             $this->sendThroughChannels($recipient, 'task.commented', $data);
+
+            $this->sendWhatsApp($recipient, 'task.commented', sprintf(
+                "💬 New comment on %s\n📌 %s\n👤 By: %s",
+                $task->code,
+                $task->title,
+                $commenter->name,
+            ), $task);
         }
     }
 

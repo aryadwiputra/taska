@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\NotificationLog;
 use App\Services\WhatsAppGatewayService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,6 +27,14 @@ class SendWhatsAppNotification implements ShouldQueue
     public function handle(WhatsAppGatewayService $gateway): void
     {
         $gateway->send($this->phone, $this->message);
+
+        NotificationLog::create([
+            'channel' => 'whatsapp',
+            'recipient' => mask_phone($this->phone),
+            'type' => 'whatsapp',
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
     }
 
     public function failed(\Throwable $e): void
