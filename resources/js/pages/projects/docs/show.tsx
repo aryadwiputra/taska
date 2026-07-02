@@ -13,7 +13,7 @@ import {
     User,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { RichEditor } from '@/components/rich-editor';
@@ -64,6 +64,13 @@ export default function DocsShow({
     const [creating, setCreating] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [versionsOpen, setVersionsOpen] = useState(false);
+
+    useEffect(() => {
+        setDoc(initialDoc);
+        setEditTitle(initialDoc.title);
+        setEditContent(initialDoc.content || '');
+        setEditParentId(String(initialDoc.parent_id ?? 'none'));
+    }, [initialDoc]);
 
     const toggleCollapse = (id: number) => {
         setCollapsed((prev) => {

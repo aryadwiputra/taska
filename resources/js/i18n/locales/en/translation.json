@@ -1402,6 +1402,7 @@
         "created_by": "Created by {name}",
         "uncollapse": "Expand all",
         "collapse": "Collapse all",
-        "version_history": "Version history"
+        "version_history": "Version history",
+        "failed_load_versions": "Failed to load versions."
     }
 }

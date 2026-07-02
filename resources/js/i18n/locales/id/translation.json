@@ -1402,6 +1402,8 @@
         "last_edited": "Terakhir diedit oleh {name}",
         "created_by": "Dibuat oleh {name}",
         "uncollapse": "Buka semua",
-        "collapse": "Tutup semua"
+        "collapse": "Tutup semua",
+        "version_history": "Riwayat versi",
+        "failed_load_versions": "Gagal memuat versi."
     }
 }

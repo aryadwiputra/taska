@@ -37,6 +37,7 @@ export function VersionHistory({ workspaceSlug, projectSlug, docSlug, open, onOp
     const { t } = useTranslation();
     const [versions, setVersions] = useState<VersionItem[]>([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if (!open) {
@@ -44,13 +45,21 @@ export function VersionHistory({ workspaceSlug, projectSlug, docSlug, open, onOp
         }
 
         setLoading(true);
+        setError(false);
 
         fetch(
             versionsRoute.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug }),
             { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } },
         )
-            .then((r) => r.json())
+            .then((r) => {
+                if (!r.ok) {
+                    throw new Error('Failed to load versions');
+                }
+
+                return r.json();
+            })
             .then(setVersions)
+            .catch(() => setError(true))
             .finally(() => setLoading(false));
     }, [open, workspaceSlug, projectSlug, docSlug]);
 
@@ -88,6 +97,8 @@ export function VersionHistory({ workspaceSlug, projectSlug, docSlug, open, onOp
                 <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
                     {loading ? (
                         <p className="py-4 text-center text-sm text-muted-foreground">Loading...</p>
+                    ) : error ? (
+                        <p className="py-4 text-center text-sm text-destructive">{t('docs.failed_load_versions')}</p>
                     ) : versions.length === 0 ? (
                         <p className="py-4 text-center text-sm text-muted-foreground">No versions yet.</p>
                     ) : (

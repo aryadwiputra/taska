@@ -23,7 +23,7 @@ class DocTreeBuilder
             'sort_order' => $doc->sort_order,
             'created_at' => $doc->created_at,
             'updated_at' => $doc->updated_at,
-            'author' => $doc->relationLoaded('author') ? [
+            'author' => $doc->relationLoaded('author') && $doc->author ? [
                 'id' => $doc->author->id,
                 'name' => $doc->author->name,
                 'avatar' => $doc->author->avatar,
