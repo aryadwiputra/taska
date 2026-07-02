@@ -101,6 +101,12 @@ class WorkspaceInvitationController extends Controller
             return to_route('dashboard');
         }
 
+        if (! $request->user()) {
+            session(['pending_invitation_token' => $invitation->token]);
+
+            return redirect()->route('login');
+        }
+
         if (! hash_equals(Str::lower($request->user()->email), Str::lower($invitation->email))) {
             abort(403, 'This invitation belongs to another email address.');
         }
