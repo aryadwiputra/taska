@@ -19,6 +19,7 @@ use App\Policies\ProjectPolicy;
 use App\Policies\TaskCommentPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\WorkspacePolicy;
+use App\Services\MailjetService;
 use App\Support\Rbac;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Mailjet\Client;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,7 +36,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MailjetService::class, fn () => new MailjetService(
+            new Client(
+                config('services.mailjet.key'),
+                config('services.mailjet.secret'),
+                true,
+                ['version' => 'v3.1'],
+            ),
+        ));
     }
 
     /**

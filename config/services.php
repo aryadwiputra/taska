@@ -42,4 +42,9 @@ return [
         'webhook_secret' => env('GITHUB_WEBHOOK_SECRET'),
     ],
 
+    'mailjet' => [
+        'key' => env('MJ_APIKEY_PUBLIC'),
+        'secret' => env('MJ_APIKEY_PRIVATE'),
+    ],
+
 ];
