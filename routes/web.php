@@ -11,6 +11,7 @@ use App\Http\Controllers\CommentTypingController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\CrossProjectController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocController;
 use App\Http\Controllers\EpicController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubWebhookController;
