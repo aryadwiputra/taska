@@ -10,7 +10,7 @@ import {
     UserPlus,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GithubSettingsTab } from '@/components/github-settings-tab';
 import { NotificationRulesTab } from '@/components/notification-rules-tab';
@@ -203,6 +203,20 @@ export default function ProjectSettings({
 }: Props) {
     const { t } = useTranslation();
     const { props: pageProps } = usePage();
+
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window === 'undefined') return 'general';
+
+        return new URL(window.location.href).searchParams.get('tab') ?? 'general';
+    });
+
+    const handleTabChange = useCallback((tab: string) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url.toString());
+        setActiveTab(tab);
+    }, []);
+
     const currentWorkspace = pageProps.currentWorkspace as {
         role?: string;
     } | null;
@@ -420,7 +434,7 @@ export default function ProjectSettings({
                 />
 
                 <div className="mx-auto w-full max-w-4xl">
-                    <Tabs defaultValue="general">
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-6 flex h-auto max-w-full flex-wrap justify-start">
                             <TabsTrigger value="general">
                                 {t('settings.general')}

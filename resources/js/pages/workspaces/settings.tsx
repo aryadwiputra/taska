@@ -13,7 +13,7 @@ import {
     Trash2,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -142,6 +142,20 @@ export default function WorkspaceSettings({
     channels,
 }: Props) {
     const { t } = useTranslation();
+
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window === 'undefined') return 'general';
+
+        return new URL(window.location.href).searchParams.get('tab') ?? 'general';
+    });
+
+    const handleTabChange = useCallback((tab: string) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url.toString());
+        setActiveTab(tab);
+    }, []);
+
     const roleLabels: Record<string, string> = {
         owner: t('members.owner'),
         admin: t('members.admin'),
@@ -334,7 +348,7 @@ export default function WorkspaceSettings({
                 />
 
                 <div className="mx-auto w-full max-w-4xl">
-                    <Tabs defaultValue="general">
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-6 flex h-auto max-w-full flex-wrap justify-start">
                             <TabsTrigger value="general">
                                 {t('workspace.general')}
