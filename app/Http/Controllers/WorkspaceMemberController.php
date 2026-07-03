@@ -10,6 +10,7 @@ use App\Models\WorkspaceMember;
 use App\Services\WorkspaceRoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class WorkspaceMemberController extends Controller
@@ -36,22 +37,31 @@ class WorkspaceMemberController extends Controller
     {
         $validated = $request->validated();
 
-        $exists = $workspace->members()->where('user_id', $validated['user_id'])->exists();
+        if ($request->has('user_id') && $request->input('user_id')) {
+            $userId = (int) $validated['user_id'];
+        } else {
+            $userId = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'email_verified_at' => now(),
+            ])->id;
+        }
 
-        if ($exists) {
+        if ($workspace->members()->where('user_id', $userId)->exists()) {
             Inertia::flash('toast', ['type' => 'warning', 'message' => 'User is already a member.']);
 
             return back();
         }
 
         $workspace->members()->create([
-            'user_id' => $validated['user_id'],
+            'user_id' => $userId,
             'role' => $validated['role'],
             'invited_by' => $request->user()->id,
             'status' => 'active',
         ]);
 
-        $roleService->syncRole(User::findOrFail($validated['user_id']), $workspace, $validated['role']);
+        $roleService->syncRole(User::findOrFail($userId), $workspace, $validated['role']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Member added.']);
 

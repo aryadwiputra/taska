@@ -111,7 +111,7 @@ test('workspace member store validates required fields', function () {
 
     $this->actingAs($owner)->withSession(['current_workspace_id' => $workspace->id])
         ->post(route('workspaces.members.store', $workspace), [])
-        ->assertSessionHasErrors(['user_id', 'role']);
+        ->assertSessionHasErrors(['name', 'email', 'password', 'role']);
 });
 
 test('workspace member store rejects duplicate members', function () {
