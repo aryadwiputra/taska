@@ -1,6 +1,7 @@
 import { router, useHttp } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -47,6 +48,7 @@ export function WorkspaceMemberDialog({
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [tabMode, setTabMode] = useState<'existing' | 'new'>('existing');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {
         get,
@@ -92,11 +94,21 @@ export function WorkspaceMemberDialog({
                 return;
             }
 
+            setIsSubmitting(true);
             router.post(
                 memberStore({ workspace: workspaceSlug }),
                 { user_id: selectedUserId, role: selectedRole },
                 {
-                    onSuccess: () => onOpenChange(false),
+                    onSuccess: () => {
+                        onOpenChange(false);
+                        setIsSubmitting(false);
+                    },
+                    onError: (errors) => {
+                        setIsSubmitting(false);
+                        Object.values(errors).forEach((error) => {
+                            toast.error(error);
+                        });
+                    },
                 },
             );
         } else {
@@ -104,11 +116,21 @@ export function WorkspaceMemberDialog({
                 return;
             }
 
+            setIsSubmitting(true);
             router.post(
                 memberStore({ workspace: workspaceSlug }),
                 { name, email, password, role: selectedRole },
                 {
-                    onSuccess: () => onOpenChange(false),
+                    onSuccess: () => {
+                        onOpenChange(false);
+                        setIsSubmitting(false);
+                    },
+                    onError: (errors) => {
+                        setIsSubmitting(false);
+                        Object.values(errors).forEach((error) => {
+                            toast.error(error);
+                        });
+                    },
                 },
             );
         }
@@ -122,10 +144,14 @@ export function WorkspaceMemberDialog({
         setEmail('');
         setPassword('');
         setSelectedRole('member');
+        setIsSubmitting(false);
     };
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { reset(); onOpenChange(v); }}>
+        <Dialog open={open} onOpenChange={(v) => {
+            reset();
+            onOpenChange(v);
+        }}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{t('members.add_member')}</DialogTitle>
@@ -269,12 +295,13 @@ export function WorkspaceMemberDialog({
                     <Button
                         onClick={() => handleAdd(tabMode)}
                         disabled={
-                            tabMode === 'existing'
+                            isSubmitting ||
+                            (tabMode === 'existing'
                                 ? !selectedUserId
-                                : !name || !email || !password
+                                : !name || !email || !password)
                         }
                     >
-                        {t('members.add_member')}
+                        {isSubmitting ? t('common.saving') : t('members.add_member')}
                     </Button>
                 </div>
             </DialogContent>
