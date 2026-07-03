@@ -16,11 +16,6 @@ class DatabaseSeeder extends Seeder
 
         $users = [
             ['name' => 'Super Admin', 'email' => 'superadmin@taska.web.id', 'superadmin' => true, 'ws_role' => 'owner', 'project_role' => 'lead'],
-            ['name' => 'Arya', 'email' => 'arya@taska.web.id', 'superadmin' => false, 'ws_role' => 'admin', 'project_role' => 'lead'],
-            ['name' => 'Galih', 'email' => 'galih@taska.web.id', 'superadmin' => false, 'ws_role' => 'member', 'project_role' => 'developer'],
-            ['name' => 'Raihan', 'email' => 'raihan@taska.web.id', 'superadmin' => false, 'ws_role' => 'member', 'project_role' => 'developer'],
-            ['name' => 'Fatur', 'email' => 'fatur@taska.web.id', 'superadmin' => false, 'ws_role' => 'member', 'project_role' => 'developer'],
-            ['name' => 'Maul', 'email' => 'maul@taska.web.id', 'superadmin' => false, 'ws_role' => 'member', 'project_role' => 'developer'],
         ];
 
         $createdUsers = [];
@@ -28,7 +23,7 @@ class DatabaseSeeder extends Seeder
             $user = User::factory()->when($u['superadmin'], fn ($f) => $f->asSuperAdmin())->create([
                 'name' => $u['name'],
                 'email' => $u['email'],
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Root123!arya'),
             ]);
             $createdUsers[] = ['user' => $user, 'data' => $u];
         }
@@ -65,7 +60,7 @@ class DatabaseSeeder extends Seeder
             ['key' => 'WAC', 'slug' => 'whatsapp-centralized', 'name' => 'WhatsApp Centralized', 'color' => '#16A34A'],
         ];
 
-        $createdBy = $workspace->members()->where('role', 'admin')->firstOrFail()->user;
+        $createdBy = $createdUsers[0]['user'];
 
         foreach ($projects as $pd) {
             $project = $workspace->projects()->create([
