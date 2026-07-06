@@ -62,7 +62,7 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
             searchParams.q = search;
         }
 
-        fetch(index({ workspace: workspaceSlug }, searchParams), {
+        fetch(index.url({ workspace: workspaceSlug }, searchParams), {
             headers: {
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
