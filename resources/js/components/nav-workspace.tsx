@@ -9,7 +9,6 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import {
     canAccessGoals,
-    canAccessWorkspaceSettings,
     toastNoAccess,
 } from '@/lib/permissions';
 import { settings as workspaceSettings } from '@/routes/workspaces';
@@ -19,6 +18,7 @@ import {
 } from '@/routes/workspaces/cross-project';
 import { index as goalsIndex } from '@/routes/workspaces/goals';
 import type { CurrentWorkspaceProps } from '@/types/dashboard';
+import type { WorkspaceRole } from '@/types/permissions';
 
 interface Props {
     workspaceSlug: string;
@@ -36,37 +36,61 @@ export function NavWorkspace({ workspaceSlug }: Props) {
             title: t('sidebar.settings'),
             href: workspaceSettings({ workspace: workspaceSlug }).url,
             icon: Settings,
-            permission: 'settings' as const,
+            permission: 'workspace.manage-members' as const,
         },
         {
             title: t('sidebar.goals'),
             href: goalsIndex({ workspace: workspaceSlug }).url,
             icon: Flag,
-            permission: 'goals' as const,
         },
         {
             title: t('sidebar.cross_board'),
             href: crossBoard({ workspace: workspaceSlug }).url,
             icon: Layout,
+            permission: 'project.create' as const,
         },
         {
             title: t('sidebar.cross_timeline'),
             href: crossTimeline({ workspace: workspaceSlug }).url,
             icon: Clock,
+            permission: 'project.create' as const,
         },
     ];
 
     const checkPermission = (item: (typeof items)[number]): boolean => {
-        const role = currentWorkspace?.role;
-
-        switch (item.permission) {
-            case 'settings':
-                return canAccessWorkspaceSettings(role);
-            case 'goals':
-                return canAccessGoals(role);
-            default:
-                return true;
+        if (!item.permission) {
+            return true;
         }
+
+        const permissions = props.permissions as {
+            workspace?: string[];
+            project?: string[];
+        } | undefined;
+
+        return Boolean(
+            permissions?.workspace?.includes(item.permission) ||
+            permissions?.project?.includes(item.permission),
+        );
+    };
+
+    const handleClick = (item: (typeof items)[number]) => {
+        if (item.permission === 'workspace.manage-members') {
+            const role = currentWorkspace?.role as WorkspaceRole | undefined;
+
+            if (!canAccessGoals(role)) {
+                toastNoAccess();
+
+                return;
+            }
+        }
+
+        if (!checkPermission(item)) {
+            toastNoAccess();
+
+            return;
+        }
+
+        router.visit(item.href);
     };
 
     return (
@@ -82,15 +106,7 @@ export function NavWorkspace({ workspaceSlug }: Props) {
                             <button
                                 type="button"
                                 className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm"
-                                onClick={() => {
-                                    if (!checkPermission(item)) {
-                                        toastNoAccess();
-
-                                        return;
-                                    }
-
-                                    router.visit(item.href);
-                                }}
+                                onClick={() => handleClick(item)}
                             >
                                 <item.icon />
                                 <span>{item.title}</span>

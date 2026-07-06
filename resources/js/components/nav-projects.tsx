@@ -18,9 +18,9 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import {
-    canCreateProject,
     canAccessProjectSettings,
     toastNoAccess,
+    useHasPermission,
 } from '@/lib/permissions';
 import {
     board as projectBoard,
@@ -31,12 +31,14 @@ import { index as backlogIndex } from '@/routes/projects/backlog';
 import { index as epicsIndex } from '@/routes/projects/epics';
 import { index as sprintsIndex } from '@/routes/projects/sprints';
 import type { CurrentWorkspaceProps } from '@/types/dashboard';
+import type { ProjectRole } from '@/types/permissions';
 
 export function NavProjects() {
     const { t } = useTranslation();
     const { props } = usePage();
     const currentWorkspace =
         props.currentWorkspace as CurrentWorkspaceProps | null;
+    const hasPermission = useHasPermission();
     const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
     if (!currentWorkspace) {
@@ -103,7 +105,7 @@ export function NavProjects() {
                         className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
                         aria-label={t('sidebar.new_project')}
                         onClick={() => {
-                            if (!canCreateProject(currentWorkspace.role)) {
+                            if (!hasPermission('project.create')) {
                                 toastNoAccess();
 
                                 return;
@@ -193,7 +195,7 @@ export function NavProjects() {
                                                                     if (
                                                                         item.requiresSettings &&
                                                                         !canAccessProjectSettings(
-                                                                            project.userRole,
+                                                                            project.userRole as ProjectRole | null,
                                                                         )
                                                                     ) {
                                                                         toastNoAccess();
@@ -231,7 +233,7 @@ export function NavProjects() {
                             type="button"
                             className="text-xs font-medium text-primary transition-colors hover:underline"
                             onClick={() => {
-                                if (!canCreateProject(currentWorkspace.role)) {
+                                if (!hasPermission('project.create')) {
                                     toastNoAccess();
 
                                     return;
