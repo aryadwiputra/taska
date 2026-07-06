@@ -3,7 +3,9 @@
 namespace App\Support;
 
 use App\Models\Board;
+use App\Models\Epic;
 use App\Models\Project;
+use App\Models\Sprint;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
@@ -96,6 +98,14 @@ class Rbac
             }
 
             if ($argument instanceof Board) {
+                return $argument->project->workspace;
+            }
+
+            if ($argument instanceof Epic) {
+                return $argument->project->workspace;
+            }
+
+            if ($argument instanceof Sprint) {
                 return $argument->project->workspace;
             }
 

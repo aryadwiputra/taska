@@ -136,6 +136,8 @@ class EpicController extends Controller
 
     public function store(StoreEpicRequest $request, Workspace $workspace, Project $project): RedirectResponse
     {
+        Gate::authorize('epic.create');
+
         $validated = $request->validated();
 
         $project->epics()->create([
@@ -158,6 +160,8 @@ class EpicController extends Controller
 
     public function update(UpdateEpicRequest $request, Workspace $workspace, Project $project, Epic $epic): RedirectResponse
     {
+        Gate::authorize('update', $project);
+
         $this->ensureEpicBelongsToProject($epic, $project);
 
         $epic->update($request->validated());

@@ -139,6 +139,8 @@ class SprintController extends Controller
 
     public function store(StoreSprintRequest $request, Workspace $workspace, Project $project): RedirectResponse
     {
+        Gate::authorize('sprint.create');
+
         $validated = $request->validated();
 
         $project->sprints()->create([
@@ -162,6 +164,8 @@ class SprintController extends Controller
 
     public function update(UpdateSprintRequest $request, Workspace $workspace, Project $project, Sprint $sprint): RedirectResponse
     {
+        Gate::authorize('update', $project);
+
         $this->ensureSprintBelongsToProject($sprint, $project);
 
         $validated = $request->validated();
