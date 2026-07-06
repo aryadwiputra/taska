@@ -570,7 +570,7 @@ export default function TaskShow({
                     task: task.id,
                 }),
                 formData,
-                { preserveScroll: true, onSuccess: refreshTaskDetails },
+            { preserveScroll: true, onSuccess: () => setTimeout(refreshTaskDetails, 100) },
             );
         }
     };
