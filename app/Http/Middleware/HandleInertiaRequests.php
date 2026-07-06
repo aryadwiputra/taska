@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Notification;
+use App\Models\Project;
 use App\Models\ProjectMember;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -87,6 +88,7 @@ class HandleInertiaRequests extends Middleware
                     'slug' => $workspace->slug,
                     'logo' => $workspace->logo,
                     'role' => $workspaceRole,
+                    'permissions' => $this->getWorkspacePermissions($user, $workspace),
                     'projects' => $projects->map(fn ($p) => [
                         'id' => $p->id,
                         'name' => $p->name,
@@ -97,6 +99,84 @@ class HandleInertiaRequests extends Middleware
                     ])->all(),
                 ];
             },
+            'permissions' => [
+                'workspace' => function () use ($user, $request): array {
+                    if (! $user) {
+                        return [];
+                    }
+
+                    $workspaceId = $request->session()->get('current_workspace_id');
+                    $workspace = $workspaceId
+                        ? $user->workspaces()->where('workspaces.id', $workspaceId)->first()
+                        : $user->workspaces()->first();
+
+                    if (! $workspace) {
+                        return [];
+                    }
+
+                    return $this->getWorkspacePermissions($user, $workspace);
+                },
+                'project' => function () use ($request): array {
+                    $projectSlug = $request->route('project');
+
+                    if (! $projectSlug) {
+                        return [];
+                    }
+
+                    $project = Project::where('slug', $projectSlug)->first();
+
+                    if (! $project) {
+                        return [];
+                    }
+
+                    $user = $request->user();
+
+                    if (! $user) {
+                        return [];
+                    }
+
+                    return $this->getProjectPermissions($user, $project);
+                },
+            ],
         ];
+    }
+
+    private function getWorkspacePermissions($user, $workspace): array
+    {
+        if ($user->isSuperAdmin()) {
+            return config('permissions.permissions');
+        }
+
+        $role = $workspace->members()
+            ->where('user_id', $user->id)
+            ->value('role');
+
+        return config("permissions.roles.{$role}", []);
+    }
+
+    private function getProjectPermissions($user, $project): array
+    {
+        if ($user->isSuperAdmin()) {
+            return config('permissions.permissions');
+        }
+
+        $member = $project->members()
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $member) {
+            return [];
+        }
+
+        $workspace = $project->workspace;
+
+        $workspaceRole = $workspace->members()
+            ->where('user_id', $user->id)
+            ->value('role');
+
+        $workspacePerms = config("permissions.roles.{$workspaceRole}", []);
+        $projectPerms = config("permissions.roles.{$member->role}", []);
+
+        return array_unique(array_merge($workspacePerms, $projectPerms));
     }
 }
