@@ -1049,6 +1049,8 @@
         "edit_description": "Add or manage project assignments",
         "current_assignments": "Current Assignments",
         "add_assignment": "Add Assignment",
+        "no_projects": "No projects yet. Create a project first.",
+        "no_members": "No members to display.",
         "filter_unassigned": "Unassigned"
     },
     "filter": {

@@ -1001,6 +1001,8 @@
         "edit_description": "Tambah atau kelola penugasan proyek",
         "current_assignments": "Penugasan Saat Ini",
         "add_assignment": "Tambah Penugasan",
+        "no_projects": "Belum ada proyek. Buat proyek terlebih dahulu.",
+        "no_members": "Tidak ada anggota untuk ditampilkan.",
         "filter_unassigned": "Belum Ditugaskan"
     },
     "filter": {
