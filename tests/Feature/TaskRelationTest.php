@@ -140,3 +140,80 @@ test('watcher toggle logs activity', function () {
 
     expect($task->activities()->where('action', 'watcher_added')->exists())->toBeTrue();
 });
+
+test('parent task returns children in show JSON response', function () {
+    $developer = User::factory()->create();
+    $workspace = createWorkspaceMember($developer, 'manager');
+    $project = createProjectForWorkspace($workspace, $developer, 'developer');
+    $parent = createTaskForProject($project, $developer);
+    $taskType = $workspace->taskTypes()->first();
+
+    $this->actingAs($developer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
+            'title' => 'Sub-task 1',
+            'task_type_id' => $taskType->id,
+            'parent_id' => $parent->id,
+        ])
+        ->assertRedirect();
+
+    $response = $this->actingAs($developer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->getJson(route('projects.tasks.show', [$workspace, $project, $parent]), [
+            'Accept' => 'application/json',
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonPath('task.children.0.title', 'Sub-task 1');
+});
+
+test('children count increases after creating sub-task', function () {
+    $developer = User::factory()->create();
+    $workspace = createWorkspaceMember($developer, 'manager');
+    $project = createProjectForWorkspace($workspace, $developer, 'developer');
+    $parent = createTaskForProject($project, $developer);
+    $taskType = $workspace->taskTypes()->first();
+
+    $parent->refresh();
+    expect($parent->children()->count())->toBe(0);
+
+    $this->actingAs($developer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
+            'title' => 'Sub-task',
+            'task_type_id' => $taskType->id,
+            'parent_id' => $parent->id,
+        ])
+        ->assertRedirect();
+
+    $parent->refresh();
+    expect($parent->children()->count())->toBe(1);
+    expect($parent->children()->first()->title)->toBe('Sub-task');
+});
+
+test('multiple children are returned correctly', function () {
+    $developer = User::factory()->create();
+    $workspace = createWorkspaceMember($developer, 'manager');
+    $project = createProjectForWorkspace($workspace, $developer, 'developer');
+    $parent = createTaskForProject($project, $developer);
+    $taskType = $workspace->taskTypes()->first();
+
+    foreach (['Sub-task 1', 'Sub-task 2', 'Sub-task 3'] as $title) {
+        $this->actingAs($developer)
+            ->withSession(['current_workspace_id' => $workspace->id])
+            ->post(route('projects.tasks.store', [$workspace, $project]), [
+                'title' => $title,
+                'task_type_id' => $taskType->id,
+                'parent_id' => $parent->id,
+            ]);
+    }
+
+    $response = $this->actingAs($developer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->getJson(route('projects.tasks.show', [$workspace, $project, $parent]), [
+            'Accept' => 'application/json',
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonPath('task.children', fn ($children) => count($children) === 3);
+});

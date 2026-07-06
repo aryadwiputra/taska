@@ -40,7 +40,7 @@ class TaskController extends Controller
             'sprints:id,name,status,start_date,end_date',
             'boardColumn:id,name,status_key,color',
             'watchers:id,name,avatar',
-            'children:id,code,title,completed_at,priority_id',
+            'children:id,parent_id,code,title,completed_at,priority_id',
             'children.priority:id,name,key,level,color',
             'parent:id,code,title',
             'relatedTasks.relatedTask:id,code,title',
