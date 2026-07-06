@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useSocketEvent } from '@/hooks/use-socket';
-import { UserAssignmentList } from './user-assignment-list';
 import { UserAssignmentListView } from './user-assignment-list-view';
 import { UserAssignmentHeader } from './user-assignment-header';
 import { UserBulkAssignBar } from './user-bulk-assign-bar';
@@ -50,7 +49,7 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterProject, setFilterProject] = useState('all');
-    const [viewMode, setViewMode] = useState<'matrix' | 'list'>('matrix');
+    const [viewMode, setViewMode] = useState<'list'>('list');
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<UserAssignmentData | null>(null);
@@ -149,10 +148,6 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
         );
     };
 
-    const handleSelectAll = (checked: boolean) => {
-        setSelectedUsers(checked ? users.map((u) => u.user_id) : []);
-    };
-
     const filteredUsers = users.filter((user) => {
         if (filterProject === 'all') {
             return true;
@@ -185,8 +180,6 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
                 onSearchChange={setSearch}
                 filterProject={filterProject}
                 onFilterChange={setFilterProject}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
                 projects={projects}
             />
 
@@ -197,30 +190,17 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
                 onClear={() => setSelectedUsers([])}
             />
 
-            {viewMode === 'matrix' ? (
-                <UserAssignmentList
-                    users={filteredUsers}
-                    projects={projects}
-                    selectedUsers={selectedUsers}
-                    onSelectUser={handleSelectUser}
-                    onSelectAll={handleSelectAll}
-                    onAssign={handleAssign}
-                    onUpdateRole={handleUpdateRole}
-                    onRemove={handleRemove}
-                />
-            ) : (
-                <UserAssignmentListView
-                    users={filteredUsers}
-                    projects={projects}
-                    selectedUsers={selectedUsers}
-                    onSelectUser={handleSelectUser}
-                    onEditAssignment={(user) => {
-                        setEditingUser(user);
-                        setEditDialogOpen(true);
-                    }}
-                    onRemove={handleRemove}
-                />
-            )}
+            <UserAssignmentListView
+                users={filteredUsers}
+                projects={projects}
+                selectedUsers={selectedUsers}
+                onSelectUser={handleSelectUser}
+                onEditAssignment={(user) => {
+                    setEditingUser(user);
+                    setEditDialogOpen(true);
+                }}
+                onRemove={handleRemove}
+            />
 
             <EditAssignmentDialog
                 open={editDialogOpen}

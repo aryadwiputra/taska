@@ -8,15 +8,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface Props {
     search: string;
     onSearchChange: (value: string) => void;
     filterProject: string;
     onFilterChange: (value: string) => void;
-    viewMode: 'matrix' | 'list';
-    onViewModeChange: (mode: 'matrix' | 'list') => void;
     projects: Array<{ id: number; name: string; key: string }>;
 }
 
@@ -25,8 +22,6 @@ export function UserAssignmentHeader({
     onSearchChange,
     filterProject,
     onFilterChange,
-    viewMode,
-    onViewModeChange,
     projects,
 }: Props) {
     const { t } = useTranslation();
@@ -63,19 +58,6 @@ export function UserAssignmentHeader({
                     </SelectContent>
                 </Select>
             </div>
-            <ToggleGroup
-                type="single"
-                value={viewMode}
-                onValueChange={(v) => v && onViewModeChange(v as 'matrix' | 'list')}
-                className="self-start"
-            >
-                <ToggleGroupItem value="matrix" className="h-8 text-xs">
-                    Matrix
-                </ToggleGroupItem>
-                <ToggleGroupItem value="list" className="h-8 text-xs">
-                    List
-                </ToggleGroupItem>
-            </ToggleGroup>
         </div>
     );
 }
