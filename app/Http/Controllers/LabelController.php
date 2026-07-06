@@ -76,6 +76,8 @@ class LabelController extends Controller
 
     public function store(StoreLabelRequest $request, Workspace $workspace, Project $project): RedirectResponse
     {
+        Gate::authorize('update', $project);
+
         $validated = $request->validated();
 
         $project->labels()->create([
@@ -97,6 +99,8 @@ class LabelController extends Controller
 
     public function update(UpdateLabelRequest $request, Workspace $workspace, Project $project, Label $label): RedirectResponse
     {
+        Gate::authorize('update', $project);
+
         $this->ensureLabelBelongsToProject($label, $project);
 
         $validated = $request->validated();

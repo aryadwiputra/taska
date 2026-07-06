@@ -15,6 +15,8 @@ class PriorityController extends Controller
 {
     public function store(StorePriorityRequest $request, Workspace $workspace): RedirectResponse
     {
+        Gate::authorize('workspace.manage-priorities');
+
         $validated = $request->validated();
 
         $workspace->priorities()->create([
@@ -32,6 +34,8 @@ class PriorityController extends Controller
 
     public function update(UpdatePriorityRequest $request, Workspace $workspace, Priority $priority): RedirectResponse
     {
+        Gate::authorize('workspace.manage-priorities');
+
         abort_unless((int) $priority->workspace_id === (int) $workspace->id, 404);
 
         $validated = $request->validated();

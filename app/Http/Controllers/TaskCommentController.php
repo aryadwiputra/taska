@@ -21,6 +21,8 @@ class TaskCommentController extends Controller
 {
     public function store(StoreCommentRequest $request, Workspace $workspace, Project $project, Task $task, TaskActivityService $activity, MentionParser $mentionParser, MentionNotificationService $mentionNotifications): RedirectResponse
     {
+        Gate::authorize('task.comment');
+
         $validated = $request->validated();
 
         $comment = $task->comments()->create([
@@ -42,6 +44,8 @@ class TaskCommentController extends Controller
 
     public function update(UpdateCommentRequest $request, Workspace $workspace, Project $project, Task $task, TaskComment $comment, MentionParser $mentionParser, MentionNotificationService $mentionNotifications): RedirectResponse
     {
+        Gate::authorize('update', $comment);
+
         abort_unless((int) $comment->task_id === (int) $task->id, 404);
 
         $oldBody = $comment->body;

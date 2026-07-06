@@ -15,6 +15,8 @@ class TaskTypeController extends Controller
 {
     public function store(StoreTaskTypeRequest $request, Workspace $workspace): RedirectResponse
     {
+        Gate::authorize('workspace.manage-task-types');
+
         $validated = $request->validated();
 
         $workspace->taskTypes()->create([
@@ -32,6 +34,8 @@ class TaskTypeController extends Controller
 
     public function update(UpdateTaskTypeRequest $request, Workspace $workspace, TaskType $taskType): RedirectResponse
     {
+        Gate::authorize('workspace.manage-task-types');
+
         abort_unless((int) $taskType->workspace_id === (int) $workspace->id, 404);
 
         $validated = $request->validated();
