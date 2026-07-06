@@ -907,7 +907,7 @@ export function TaskDetailDrawer({
                 preserveScroll: true,
                 onSuccess: () => {
                     setSubTaskTitle('');
-                    refreshTaskDetails();
+                    setTimeout(refreshTaskDetails, 100);
                 },
             },
         );
