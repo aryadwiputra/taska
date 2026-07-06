@@ -117,6 +117,8 @@ class BoardController extends Controller
 
     public function store(StoreBoardRequest $request, Workspace $workspace, Project $project): RedirectResponse
     {
+        Gate::authorize('board.manage');
+
         $validated = $request->validated();
 
         $board = $project->boards()->create([
@@ -144,6 +146,8 @@ class BoardController extends Controller
 
     public function update(UpdateBoardRequest $request, Workspace $workspace, Project $project, Board $board): RedirectResponse
     {
+        Gate::authorize('update', $board);
+
         $validated = $request->validated();
 
         $board->update([

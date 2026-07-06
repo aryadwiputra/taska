@@ -20,6 +20,8 @@ class BoardColumnController extends Controller
 {
     public function store(StoreBoardColumnRequest $request, Workspace $workspace, Project $project, Board $board): RedirectResponse
     {
+        Gate::authorize('update', $board);
+
         $validated = $request->validated();
 
         $maxPosition = $board->columns()->max('position');
@@ -40,6 +42,8 @@ class BoardColumnController extends Controller
 
     public function update(UpdateBoardColumnRequest $request, Workspace $workspace, Project $project, Board $board, BoardColumn $boardColumn): RedirectResponse
     {
+        Gate::authorize('update', $board);
+
         $validated = $request->validated();
 
         $boardColumn->update([
@@ -74,6 +78,8 @@ class BoardColumnController extends Controller
 
     public function reorder(ReorderBoardColumnsRequest $request, Workspace $workspace, Project $project, Board $board): JsonResponse
     {
+        Gate::authorize('update', $board);
+
         $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {

@@ -17,6 +17,8 @@ class ProjectMemberController extends Controller
 {
     public function store(StoreProjectMemberRequest $request, Workspace $workspace, Project $project, WorkspaceRoleService $roleService): RedirectResponse
     {
+        Gate::authorize('manageMembers', $project);
+
         $validated = $request->validated();
 
         $exists = $project->members()->where('user_id', $validated['user_id'])->exists();
@@ -55,6 +57,8 @@ class ProjectMemberController extends Controller
 
     public function update(UpdateProjectMemberRequest $request, Workspace $workspace, Project $project, ProjectMember $member): RedirectResponse
     {
+        Gate::authorize('manageMembers', $project);
+
         if ($member->project_id !== $project->id) {
             abort(404);
         }

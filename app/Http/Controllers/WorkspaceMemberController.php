@@ -35,6 +35,8 @@ class WorkspaceMemberController extends Controller
 
     public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace, WorkspaceRoleService $roleService): RedirectResponse
     {
+        Gate::authorize('manageMembers', $workspace);
+
         $validated = $request->validated();
 
         if ($request->has('user_id') && $request->input('user_id')) {
@@ -70,6 +72,8 @@ class WorkspaceMemberController extends Controller
 
     public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, WorkspaceMember $member, WorkspaceRoleService $roleService): RedirectResponse
     {
+        Gate::authorize('manageMembers', $workspace);
+
         if ($member->workspace_id !== $workspace->id) {
             abort(404);
         }
