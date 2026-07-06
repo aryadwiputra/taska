@@ -46,6 +46,7 @@ use App\Http\Controllers\WorkspaceInvitationController;
 use App\Http\Controllers\WorkspaceMemberController;
 use App\Http\Controllers\WorkspaceNotificationChannelController;
 use App\Http\Controllers\WorkspaceSettingController;
+use App\Http\Controllers\WorkspaceUserAssignmentController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/workspaces/{workspace:slug}/invitations', [WorkspaceInvitationController::class, 'store'])->name('workspaces.invitations.store');
         Route::delete('/workspaces/{workspace:slug}/invitations/{invitation}', [WorkspaceInvitationController::class, 'destroy'])->name('workspaces.invitations.destroy');
+
+        Route::get('/workspaces/{workspace:slug}/user-assignments', [WorkspaceUserAssignmentController::class, 'index'])->name('workspaces.user-assignments.index');
+        Route::post('/workspaces/{workspace:slug}/user-assignments', [WorkspaceUserAssignmentController::class, 'store'])->name('workspaces.user-assignments.store');
+        Route::post('/workspaces/{workspace:slug}/user-assignments/bulk', [WorkspaceUserAssignmentController::class, 'bulkStore'])->name('workspaces.user-assignments.bulk-store');
+        Route::put('/workspaces/{workspace:slug}/user-assignments/{projectMember}', [WorkspaceUserAssignmentController::class, 'update'])->name('workspaces.user-assignments.update');
+        Route::delete('/workspaces/{workspace:slug}/user-assignments/{projectMember}', [WorkspaceUserAssignmentController::class, 'destroy'])->name('workspaces.user-assignments.destroy');
 
         Route::put('/workspaces/{workspace:slug}/settings', [WorkspaceSettingController::class, 'update'])->name('workspaces.settings.update');
 

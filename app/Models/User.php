@@ -49,9 +49,14 @@ class User extends Authenticatable implements PasskeyUser
             ->withTimestamps();
     }
 
-    public function projectMemberships(): HasMany
+    public function projectMembers(): HasMany
     {
         return $this->hasMany(ProjectMember::class);
+    }
+
+    public function projectMemberships(): HasMany
+    {
+        return $this->projectMembers();
     }
 
     public function taskComments(): HasMany

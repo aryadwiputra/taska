@@ -31,6 +31,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserAssignmentTab } from '@/components/workspace/user-assignment-tab';
 import { WhatsAppSettingsTab } from '@/components/whatsapp-settings-tab';
 import { WorkspaceMemberDialog } from '@/components/workspace-member-dialog';
 import { WorkspaceNotificationChannels } from '@/components/workspace-notification-channels';
@@ -144,7 +145,9 @@ export default function WorkspaceSettings({
     const { t } = useTranslation();
 
     const [activeTab, setActiveTab] = useState(() => {
-        if (typeof window === 'undefined') return 'general';
+        if (typeof window === 'undefined') {
+return 'general';
+}
 
         return new URL(window.location.href).searchParams.get('tab') ?? 'general';
     });
@@ -364,6 +367,9 @@ export default function WorkspaceSettings({
                             </TabsTrigger>
                             <TabsTrigger value="members">
                                 {t('workspace.members_tab')}
+                            </TabsTrigger>
+                            <TabsTrigger value="user-assignments">
+                                {t('workspace.user_assignments')}
                             </TabsTrigger>
                             <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
                             <TabsTrigger value="notifications">
@@ -1318,6 +1324,13 @@ export default function WorkspaceSettings({
                                     </div>
                                 </CardContent>
                             </Card>
+                        </TabsContent>
+
+                        <TabsContent value="user-assignments">
+                            <UserAssignmentTab
+                                workspaceSlug={workspace.slug}
+                                workspaceId={workspace.id}
+                            />
                         </TabsContent>
 
                         <TabsContent value="whatsapp">
