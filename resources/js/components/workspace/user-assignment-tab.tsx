@@ -75,7 +75,7 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
                 setIsLoading(false);
             })
             .catch(() => {
-                toast.error(t('common.error'));
+                toast.error(t('error.unexpected_error'));
                 setIsLoading(false);
             });
     }, [workspaceSlug, search, t]);
@@ -118,7 +118,7 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
                     toast.success(t('assignments.unassigned'));
                 },
                 onError: (errors) => {
-                    toast.error(errors.message ?? t('common.error'));
+                    toast.error(errors.message ?? t('error.unexpected_error'));
                 },
             },
         );
@@ -166,9 +166,9 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
     });
 
     // Real-time updates
-    useSocketEvent(`workspace.${workspaceId}`, 'user.assigned', () => fetchData(), []);
-    useSocketEvent(`workspace.${workspaceId}`, 'user.assignment.updated', () => fetchData(), []);
-    useSocketEvent(`workspace.${workspaceId}`, 'user.unassigned', () => fetchData(), []);
+    useSocketEvent(`workspace.${workspaceId}`, 'user.assigned', () => fetchData());
+    useSocketEvent(`workspace.${workspaceId}`, 'user.assignment.updated', () => fetchData());
+    useSocketEvent(`workspace.${workspaceId}`, 'user.unassigned', () => fetchData());
 
     if (isLoading) {
         return (

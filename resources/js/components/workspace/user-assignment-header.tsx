@@ -58,7 +58,7 @@ export function UserAssignmentHeader({
                             </SelectItem>
                         ))}
                         <SelectItem value="unassigned">
-                            {t('assignments.unassigned')}
+                            {t('assignments.filter_unassigned')}
                         </SelectItem>
                     </SelectContent>
                 </Select>

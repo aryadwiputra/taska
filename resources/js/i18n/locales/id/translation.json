@@ -13,6 +13,9 @@
         "skip": "Lewati",
         "add": "Tambah",
         "remove": "Hapus",
+        "filter": "Filter",
+        "all": "Semua",
+        "error": "Terjadi kesalahan",
         "update": "Perbarui",
         "upload": "Unggah",
         "download": "Unduh",
@@ -728,6 +731,7 @@
         "level": "Level",
         "notifications_tab": "Notifikasi",
         "roles_tab": "Peran",
+        "user_assignments": "Penugasan Pengguna",
         "roles_title": "Izin Peran",
         "projects_title": "{{name}} — Proyek",
         "settings_title": "{{name}} — Pengaturan"
@@ -981,6 +985,23 @@
         "disconnect_confirm": "Putuskan GitHub dari proyek ini?",
         "setup_description": "Hubungkan proyek Anda ke GitHub untuk menautkan commit dan pull request ke tugas.",
         "webhook_secret": "GITHUB_WEBHOOK_SECRET"
+    },
+    "assignments": {
+        "assigned": "Pengguna ditugaskan ke proyek",
+        "unassigned": "Pengguna dihapus dari proyek",
+        "bulk_success": "{{users}} pengguna ditugaskan ke {{projects}} proyek",
+        "assign": "Tugaskan",
+        "projects": "proyek",
+        "no_assignments": "Belum ada penugasan proyek",
+        "bulk_selected": "{{count}} dipilih",
+        "select_project": "Pilih proyek",
+        "all_projects": "Semua proyek",
+        "bulk_assign": "Tugaskan",
+        "edit_title": "Edit penugasan untuk {{name}}",
+        "edit_description": "Tambah atau kelola penugasan proyek",
+        "current_assignments": "Penugasan Saat Ini",
+        "add_assignment": "Tambah Penugasan",
+        "filter_unassigned": "Belum Ditugaskan"
     },
     "filter": {
         "saved_filters": "Filter tersimpan",

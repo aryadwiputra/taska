@@ -352,7 +352,7 @@ return 'general';
 
                 <div className="mx-auto w-full max-w-4xl">
                     <Tabs value={activeTab} onValueChange={handleTabChange}>
-                        <TabsList className="mb-6 flex h-auto max-w-full flex-wrap justify-start">
+                        <TabsList className="mb-6 flex h-auto max-w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto">
                             <TabsTrigger value="general">
                                 {t('workspace.general')}
                             </TabsTrigger>

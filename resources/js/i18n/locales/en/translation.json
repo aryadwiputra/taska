@@ -40,6 +40,9 @@
         "in_days": "in {{count}} days",
         "days_overdue": "{{count}} overdue",
         "more": "+{{count}} more",
+        "filter": "Filter",
+        "all": "All",
+        "error": "An error occurred",
         "view": "View",
         "try_again": "Try again",
         "done": "Done",
@@ -778,6 +781,7 @@
         "level": "Level",
         "notifications_tab": "Notifications",
         "roles_tab": "Roles",
+        "user_assignments": "User Assignments",
         "roles_title": "Role Permissions"
     },
     "admin": {
@@ -1029,6 +1033,23 @@
         "disconnect_confirm": "Disconnect GitHub from this project?",
         "setup_description": "Connect your project to GitHub to link commits and pull requests to tasks.",
         "webhook_secret": "GITHUB_WEBHOOK_SECRET"
+    },
+    "assignments": {
+        "assigned": "User assigned to project",
+        "unassigned": "User removed from project",
+        "bulk_success": "{{users}} users assigned to {{projects}} projects",
+        "assign": "Assign",
+        "projects": "projects",
+        "no_assignments": "No project assignments yet",
+        "bulk_selected": "{{count}} selected",
+        "select_project": "Select project",
+        "all_projects": "All projects",
+        "bulk_assign": "Assign",
+        "edit_title": "Edit assignments for {{name}}",
+        "edit_description": "Add or manage project assignments",
+        "current_assignments": "Current Assignments",
+        "add_assignment": "Add Assignment",
+        "filter_unassigned": "Unassigned"
     },
     "filter": {
         "saved_filters": "Saved filters",
