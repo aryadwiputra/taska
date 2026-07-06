@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { CalendarDays, Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { canManageEpics } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
+import type { WorkspaceRole } from '@/types/permissions';
 import {
     show as projectShow,
     settings as projectSettings,
@@ -106,6 +108,9 @@ export default function EpicShow({
     availableTasks,
 }: Props) {
     const { t, i18n } = useTranslation();
+    const { props } = usePage();
+    const wsRole = (props.currentWorkspace as { role?: string } | null)?.role as WorkspaceRole | undefined;
+    const canEdit = canManageEpics(wsRole);
     const [addTaskId, setAddTaskId] = useState<string>('none');
 
     const formatDate = (date: string | null): string => {
@@ -204,6 +209,7 @@ export default function EpicShow({
                         </>
                     }
                     actions={
+                        canEdit ? (
                         <Link
                             href={projectSettings({
                                 workspace: workspace.slug,
@@ -214,6 +220,7 @@ export default function EpicShow({
                                 {t('epic.edit_epic')}
                             </Button>
                         </Link>
+                        ) : null
                     }
                 />
 
@@ -238,7 +245,7 @@ export default function EpicShow({
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between gap-4">
                             <CardTitle>{t('epic.tasks')}</CardTitle>
-                            {availableTasks.length > 0 && (
+                            {canEdit && availableTasks.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <Select
                                         value={addTaskId}
@@ -361,6 +368,7 @@ export default function EpicShow({
                                                     )}
                                                 </div>
                                             </div>
+                                            {canEdit && (
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -372,6 +380,7 @@ export default function EpicShow({
                                             >
                                                 <X className="size-4" />
                                             </Button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

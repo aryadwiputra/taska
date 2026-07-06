@@ -985,6 +985,7 @@ function BoardClient({
                                 <Settings2 className="size-3.5" />
                                 <span>{t('board.columns')}</span>
                             </Button>
+                            {canCreateTask(wsRole) && (
                             <TaskCreateDialog
                                 workspaceSlug={workspace.slug}
                                 projectSlug={project.slug}
@@ -998,6 +999,7 @@ function BoardClient({
                                     setNewTaskOpen(false);
                                 }}
                             />
+                            )}
                             <FeatureGuide content={boardGuide} />
                         </>
                     }

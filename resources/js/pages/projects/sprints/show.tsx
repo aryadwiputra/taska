@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     CalendarDays,
     Check,
@@ -24,7 +24,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { canManageSprints } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
+import type { WorkspaceRole } from '@/types/permissions';
 import {
     show as projectShow,
     board as projectBoard,
@@ -181,6 +183,9 @@ export default function SprintShow({
 }: Props) {
     const { t } = useTranslation();
     const sprintGuide = useSprintGuide(t);
+    const { props } = usePage();
+    const wsRole = (props.currentWorkspace as { role?: string } | null)?.role as WorkspaceRole | undefined;
+    const canManage = canManageSprints(wsRole);
     const [addTaskId, setAddTaskId] = useState<string>('none');
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -276,7 +281,7 @@ export default function SprintShow({
                     actions={
                         <>
                             <FeatureGuide content={sprintGuide} />
-                            {sprint.status === 'planned' && (
+                            {canManage && sprint.status === 'planned' && (
                                 <Button
                                     variant="default"
                                     size="sm"
@@ -296,7 +301,7 @@ export default function SprintShow({
                                     {t('sprint_page.start_sprint')}
                                 </Button>
                             )}
-                            {sprint.status === 'active' && (
+                            {canManage && sprint.status === 'active' && (
                                 <Button
                                     variant="default"
                                     size="sm"
@@ -355,6 +360,7 @@ export default function SprintShow({
                                     {t('sprint_page.open_board')}
                                 </Button>
                             </Link>
+                            {canManage && (
                             <Link
                                 href={projectSettings({
                                     workspace: workspace.slug,
@@ -365,6 +371,7 @@ export default function SprintShow({
                                     {t('sprint_page.edit_sprint')}
                                 </Button>
                             </Link>
+                            )}
                         </>
                     }
                 />
@@ -392,7 +399,7 @@ export default function SprintShow({
                             <CardTitle>
                                 {t('sprint_page.tasks_card_title')}
                             </CardTitle>
-                            {availableTasks.length > 0 && (
+                            {canManage && availableTasks.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <Select
                                         value={addTaskId}
@@ -517,6 +524,7 @@ export default function SprintShow({
                                                     )}
                                                 </div>
                                             </div>
+                                            {canManage && (
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -528,6 +536,7 @@ export default function SprintShow({
                                             >
                                                 <X className="size-4" />
                                             </Button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

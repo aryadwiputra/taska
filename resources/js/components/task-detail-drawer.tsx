@@ -1200,7 +1200,8 @@ export function TaskDetailDrawer({
                                         })
                                     }
                                     placeholder={t('task.add_description')}
-                                    className="mt-2 min-h-28 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                    readOnly={!canEdit}
+                                    className={`mt-2 min-h-28 w-full resize-y rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 ${!canEdit ? 'cursor-not-allowed border-input text-muted-foreground' : 'border-input'}`}
                                 />
                             </div>
 
@@ -1210,6 +1211,7 @@ export function TaskDetailDrawer({
                                         {t('task.status')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={String(
                                             task.board_column?.id ?? '',
                                         )}
@@ -1260,6 +1262,7 @@ export function TaskDetailDrawer({
                                         {t('task.type')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={String(task.task_type.id)}
                                         onValueChange={(value) => {
                                             const taskType =
@@ -1307,6 +1310,7 @@ export function TaskDetailDrawer({
                                         {t('task.priority')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={
                                             task.priority
                                                 ? String(task.priority.id)
@@ -1359,6 +1363,7 @@ export function TaskDetailDrawer({
                                         {t('task.story_points')}
                                     </Label>
                                     <Input
+                                        disabled={!canEdit}
                                         type="number"
                                         min="0"
                                         max="100"
@@ -1385,6 +1390,7 @@ export function TaskDetailDrawer({
                                         {t('task.epic')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={
                                             task.epics[0]
                                                 ? String(task.epics[0].id)
@@ -1416,6 +1422,7 @@ export function TaskDetailDrawer({
                                         {t('task.sprint')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={
                                             task.sprints[0]
                                                 ? String(task.sprints[0].id)
@@ -1447,6 +1454,7 @@ export function TaskDetailDrawer({
                                         {t('task.parent_task')}
                                     </Label>
                                     <Select
+                                        disabled={!canEdit}
                                         value={
                                             task.parent_id
                                                 ? String(task.parent_id)
@@ -1483,6 +1491,7 @@ export function TaskDetailDrawer({
                                         {t('task.start_date')}
                                     </Label>
                                     <Input
+                                        disabled={!canEdit}
                                         type="date"
                                         value={formatDateInput(task.start_date)}
                                         onChange={(event) => {
@@ -1501,6 +1510,7 @@ export function TaskDetailDrawer({
                                         {t('task.due_date')}
                                     </Label>
                                     <Input
+                                        disabled={!canEdit}
                                         type="date"
                                         value={formatDateInput(task.due_date)}
                                         onChange={(event) => {
@@ -1551,6 +1561,7 @@ export function TaskDetailDrawer({
                                             >
                                                 <input
                                                     type="checkbox"
+                                                    disabled={!canEdit}
                                                     checked={
                                                         !!child.completed_at
                                                     }
@@ -1620,6 +1631,7 @@ export function TaskDetailDrawer({
                                     </p>
                                 )}
 
+                                {canEdit && (
                                 <form
                                     onSubmit={handleAddSubTask}
                                     className="flex items-center gap-2"
@@ -1642,6 +1654,7 @@ export function TaskDetailDrawer({
                                         <span>{t('common.add')}</span>
                                     </Button>
                                 </form>
+                                )}
                             </div>
 
                             <Separator />
@@ -1663,6 +1676,7 @@ export function TaskDetailDrawer({
                                                 <Button
                                                     key={assignee.id}
                                                     type="button"
+                                                    disabled={!canEdit}
                                                     variant={
                                                         selected
                                                             ? 'secondary'
@@ -1702,6 +1716,7 @@ export function TaskDetailDrawer({
                                                 <Button
                                                     key={label.id}
                                                     type="button"
+                                                    disabled={!canEdit}
                                                     variant={
                                                         selected
                                                             ? 'secondary'
@@ -1761,6 +1776,7 @@ export function TaskDetailDrawer({
                                     </h3>
                                 </div>
 
+                                {canEdit && (
                                 <form
                                     onSubmit={handleUploadAttachment}
                                     className="mb-4 flex flex-col gap-2 sm:flex-row"
@@ -1783,6 +1799,7 @@ export function TaskDetailDrawer({
                                         <span>{t('common.upload')}</span>
                                     </Button>
                                 </form>
+                                )}
 
                                 {attachments.length > 0 ? (
                                     <div className="flex flex-col rounded-md border">
@@ -1811,6 +1828,7 @@ export function TaskDetailDrawer({
                                                         }
                                                     </span>
                                                 </a>
+                                                {canEdit && (
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
@@ -1824,6 +1842,7 @@ export function TaskDetailDrawer({
                                                 >
                                                     <Trash2 className="size-4" />
                                                 </Button>
+                                                )}
                                                 {attachment.is_previewable && (
                                                     <Button
                                                         type="button"
@@ -1876,6 +1895,7 @@ export function TaskDetailDrawer({
                                                     {rel.related_task.code}:{' '}
                                                     {rel.related_task.title}
                                                 </span>
+                                                {canEdit && (
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
@@ -1889,6 +1909,7 @@ export function TaskDetailDrawer({
                                                 >
                                                     <X className="size-3" />
                                                 </Button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1898,6 +1919,7 @@ export function TaskDetailDrawer({
                                     </p>
                                 )}
 
+                                {canEdit && (
                                 <form
                                     onSubmit={handleAddRelation}
                                     className="flex flex-wrap items-end gap-2"
@@ -1974,6 +1996,7 @@ export function TaskDetailDrawer({
                                         <span>{t('common.add')}</span>
                                     </Button>
                                 </form>
+                                )}
                             </div>
 
                             <Separator />
