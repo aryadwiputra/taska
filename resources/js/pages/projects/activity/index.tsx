@@ -168,7 +168,7 @@ export default function ActivityIndex({
                     backLabel={project.name}
                 />
 
-                <div className="mx-auto w-full max-w-2xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-6 flex flex-wrap items-center gap-3">
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">

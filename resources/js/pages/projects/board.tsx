@@ -816,7 +816,7 @@ function BoardClient({
             <Head title={t('board.board_title', { name: project.name })} />
 
             <div
-                className="mx-auto flex h-full w-full max-w-[1600px] flex-1 flex-col overflow-hidden"
+                className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col overflow-hidden"
                 suppressHydrationWarning
                 onPointerMove={(e) => {
                     pointerYRef.current = e.clientY;

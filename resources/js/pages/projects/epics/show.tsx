@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/select';
 import { canManageEpics } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
-import type { WorkspaceRole } from '@/types/permissions';
 import {
     show as projectShow,
     settings as projectSettings,
@@ -26,6 +25,7 @@ import {
     addTask as epicAddTask,
     removeTask as epicRemoveTask,
 } from '@/routes/projects/epics';
+import type { WorkspaceRole } from '@/types/permissions';
 
 interface UserRef {
     id: number;
@@ -224,7 +224,7 @@ export default function EpicShow({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-3xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                         <div
                             className="h-full rounded-full bg-primary transition-all"

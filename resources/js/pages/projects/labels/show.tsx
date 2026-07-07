@@ -150,7 +150,7 @@ export default function LabelShow({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-3xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('tasks.title')}</CardTitle>

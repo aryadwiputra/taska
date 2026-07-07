@@ -128,7 +128,7 @@ export default function SprintReport({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-4xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-6 grid gap-4 sm:grid-cols-4">
                         <SummaryCard
                             label={t('sprint_report.tasks')}

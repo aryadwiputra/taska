@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/select';
 import { canManageSprints } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
-import type { WorkspaceRole } from '@/types/permissions';
 import {
     show as projectShow,
     board as projectBoard,
@@ -39,6 +38,7 @@ import {
     report as sprintReport,
     start as sprintStart,
 } from '@/routes/projects/sprints';
+import type { WorkspaceRole } from '@/types/permissions';
 
 function useSprintGuide(t: (key: string) => string): GuideContent {
     return {
@@ -376,7 +376,7 @@ export default function SprintShow({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-3xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                         <div
                             className="h-full rounded-full bg-primary transition-all"

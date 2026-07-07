@@ -96,7 +96,7 @@ export default function CrossProjectTimeline({
                     backLabel={workspace.name}
                 />
 
-                <div className="mx-auto w-full max-w-6xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <div className="mb-4 flex flex-wrap gap-2">
                         {projects.map((project) => (
                             <Badge

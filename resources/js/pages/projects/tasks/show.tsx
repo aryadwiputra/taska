@@ -865,7 +865,7 @@ export default function TaskShow({
                     backLabel={project.name}
                 />
 
-                <div className="mx-auto flex w-full max-w-6xl gap-8">
+                <div className="mx-auto flex w-full max-w-7xl gap-8">
                     <div className="flex min-w-0 flex-1 flex-col gap-6">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-start justify-between gap-4">
@@ -1774,7 +1774,7 @@ export default function TaskShow({
                     </div>
                 </div>
 
-                <div className="mx-auto w-full max-w-6xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <Label className="text-xs tracking-wider text-muted-foreground uppercase">
                         {t('task.activity')}
                     </Label>

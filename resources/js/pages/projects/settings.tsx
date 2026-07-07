@@ -205,7 +205,9 @@ export default function ProjectSettings({
     const { props: pageProps } = usePage();
 
     const [activeTab, setActiveTab] = useState(() => {
-        if (typeof window === 'undefined') return 'general';
+        if (typeof window === 'undefined') {
+return 'general';
+}
 
         return new URL(window.location.href).searchParams.get('tab') ?? 'general';
     });
@@ -433,7 +435,7 @@ export default function ProjectSettings({
                     backLabel={project.name}
                 />
 
-                <div className="mx-auto w-full max-w-4xl">
+                <div className="mx-auto w-full max-w-7xl">
                     <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-6 flex h-auto max-w-full flex-wrap justify-start">
                             <TabsTrigger value="general">

@@ -260,7 +260,7 @@ export default function ReleasesIndex({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-4xl">
+                <div className="mx-auto w-full max-w-7xl">
                     {releases.length > 0 ? (
                         <div className="flex flex-col gap-3">
                             {releases.map((release) => {

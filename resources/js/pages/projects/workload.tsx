@@ -124,7 +124,7 @@ export default function WorkloadPage({
                     backLabel={project.name}
                 />
 
-                <div className="mx-auto w-full max-w-4xl">
+                <div className="mx-auto w-full max-w-7xl">
                     {sprints.length > 0 && (
                         <div className="mb-6">
                             <h2 className="mb-3 text-sm font-medium text-muted-foreground">

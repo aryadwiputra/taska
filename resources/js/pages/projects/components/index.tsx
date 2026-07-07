@@ -146,7 +146,7 @@ export default function ComponentsIndex({
                     }
                 />
 
-                <div className="mx-auto w-full max-w-3xl">
+                <div className="mx-auto w-full max-w-7xl">
                     {components.length > 0 ? (
                         <div className="flex flex-col rounded-md border">
                             {components.map((component) => (

@@ -833,7 +833,7 @@ export default function ProjectShow({
                 <Tabs
                     value={activeTab}
                     onValueChange={setActiveTab}
-                    className="mx-auto w-full max-w-6xl flex-col gap-4"
+                    className="mx-auto w-full max-w-7xl flex-col gap-4"
                 >
                     <TabsList>
                         <TabsTrigger

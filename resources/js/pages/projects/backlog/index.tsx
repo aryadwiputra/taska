@@ -550,7 +550,7 @@ export default function BacklogIndex({
                     actions={<FeatureGuide content={backlogGuide} />}
                 />
 
-                <div className="mx-auto w-full max-w-4xl">
+                <div className="mx-auto w-full max-w-7xl">
                     {sprints.length > 0 && (
                         <Card className="mb-6">
                             <CardHeader>
