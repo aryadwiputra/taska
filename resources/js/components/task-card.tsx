@@ -74,6 +74,7 @@ export function TaskCard({
 
     return (
         <div
+            data-slot="task-card"
             onClick={onClick}
             className={cn(
                 'flex cursor-pointer flex-col gap-2 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-none transition-[border-color,box-shadow,transform] hover:border-primary/30 hover:shadow-soft',
