@@ -1,6 +1,7 @@
-import { Trash2 } from 'lucide-react';
+import { FolderX, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/empty-state';
 import {
     Select,
     SelectContent,
@@ -38,12 +39,21 @@ interface Props {
     onRemove: (assignmentId: number, projectId: number, userId: number) => void;
 }
 
-const PROJECT_ROLES = ['lead', 'manager', 'developer', 'qa', 'member', 'viewer'] as const;
+const PROJECT_ROLES = [
+    'lead',
+    'manager',
+    'developer',
+    'qa',
+    'member',
+    'viewer',
+] as const;
 
 const ROLE_COLORS: Record<string, string> = {
     lead: 'bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800',
-    manager: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
-    developer: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800',
+    manager:
+        'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+    developer:
+        'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800',
     qa: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
     member: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
     viewer: 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
@@ -63,21 +73,18 @@ export function UserAssignmentList({
 
     if (projects.length === 0) {
         return (
-            <div className="border-border bg-muted/20 flex items-center justify-center rounded-lg border py-12 text-sm text-muted-foreground">
-                {t('assignments.no_projects')}
-            </div>
+            <EmptyState icon={FolderX} title={t('assignments.no_projects')} />
         );
     }
 
     if (users.length === 0) {
         return (
-            <div className="border-border bg-muted/20 flex items-center justify-center rounded-lg border py-12 text-sm text-muted-foreground">
-                {t('assignments.no_members')}
-            </div>
+            <EmptyState icon={FolderX} title={t('assignments.no_members')} />
         );
     }
 
-    const allSelected = users.length > 0 && selectedUsers.length === users.length;
+    const allSelected =
+        users.length > 0 && selectedUsers.length === users.length;
 
     const getAssignment = (userId: number, projectId: number) => {
         const user = users.find((u) => u.user_id === userId);
@@ -89,20 +96,20 @@ export function UserAssignmentList({
         <div className="overflow-x-auto rounded-lg border">
             <table className="w-full border-collapse text-sm">
                 <thead>
-                    <tr className="bg-muted/50 border-b">
-                        <th className="sticky left-0 z-20 border-border/60 bg-muted/50 px-3 py-2.5 text-left border-r">
+                    <tr className="border-b bg-muted/50">
+                        <th className="sticky left-0 z-20 border-r border-border/60 bg-muted/50 px-3 py-2.5 text-left">
                             <Checkbox
                                 checked={allSelected}
                                 onCheckedChange={(c) => onSelectAll(!!c)}
                             />
                         </th>
-                        <th className="sticky left-12 z-20 border-border/60 bg-muted/50 px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap border-r min-w-[180px]">
+                        <th className="sticky left-12 z-20 min-w-[180px] border-r border-border/60 bg-muted/50 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-muted-foreground">
                             {t('members.member')}
                         </th>
                         {projects.map((p) => (
                             <th
                                 key={p.id}
-                                className="border-border/60 px-2 py-2.5 font-semibold whitespace-nowrap border-r text-center last:border-r-0"
+                                className="border-r border-border/60 px-2 py-2.5 text-center font-semibold whitespace-nowrap last:border-r-0"
                             >
                                 <div className="mx-auto flex w-[56px] items-end justify-center">
                                     <span
@@ -120,17 +127,19 @@ export function UserAssignmentList({
                     {users.map((user) => (
                         <tr
                             key={user.user_id}
-                            className="border-border/60 hover:bg-muted/30 border-b last:border-b-0"
+                            className="border-b border-border/60 last:border-b-0 hover:bg-muted/30"
                         >
-                            <td className="sticky left-0 z-10 bg-card border-border/60 px-3 py-2 border-r">
+                            <td className="sticky left-0 z-10 border-r border-border/60 bg-card px-3 py-2">
                                 <Checkbox
-                                    checked={selectedUsers.includes(user.user_id)}
+                                    checked={selectedUsers.includes(
+                                        user.user_id,
+                                    )}
                                     onCheckedChange={(c) =>
                                         onSelectUser(user.user_id, !!c)
                                     }
                                 />
                             </td>
-                            <td className="sticky left-12 z-10 min-w-[180px] bg-card border-border/60 px-4 py-2 border-r">
+                            <td className="sticky left-12 z-10 min-w-[180px] border-r border-border/60 bg-card px-4 py-2">
                                 <div className="flex items-center gap-2.5">
                                     <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
                                         {user.name.charAt(0).toUpperCase()}
@@ -154,37 +163,44 @@ export function UserAssignmentList({
                                 return (
                                     <td
                                         key={project.id}
-                                        className="border-border/60 px-1.5 py-1.5 text-center border-r last:border-r-0"
+                                        className="border-r border-border/60 px-1.5 py-1.5 text-center last:border-r-0"
                                     >
                                         {assignment ? (
                                             <div className="flex flex-col items-center gap-1">
                                                 <Select
                                                     value={assignment.role}
                                                     onValueChange={(role) =>
-                                                        onUpdateRole(assignment.id, role)
+                                                        onUpdateRole(
+                                                            assignment.id,
+                                                            role,
+                                                        )
                                                     }
                                                 >
                                                     <SelectTrigger
                                                         className={cn(
                                                             'h-7 w-[100px] justify-center border px-1.5 text-[10px]',
-                                                            ROLE_COLORS[assignment.role] ??
+                                                            ROLE_COLORS[
+                                                                assignment.role
+                                                            ] ??
                                                                 'border-border',
                                                         )}
                                                     >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {PROJECT_ROLES.map((role) => (
-                                                            <SelectItem
-                                                                key={role}
-                                                                value={role}
-                                                                className="text-xs"
-                                                            >
-                                                                {t(
-                                                                    `members.${role}`,
-                                                                )}
-                                                            </SelectItem>
-                                                        ))}
+                                                        {PROJECT_ROLES.map(
+                                                            (role) => (
+                                                                <SelectItem
+                                                                    key={role}
+                                                                    value={role}
+                                                                    className="text-xs"
+                                                                >
+                                                                    {t(
+                                                                        `members.${role}`,
+                                                                    )}
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                                 <Button
@@ -216,17 +232,19 @@ export function UserAssignmentList({
                                                     <SelectValue placeholder="+" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {PROJECT_ROLES.map((role) => (
-                                                        <SelectItem
-                                                            key={role}
-                                                            value={role}
-                                                            className="text-xs"
-                                                        >
-                                                            {t(
-                                                                `members.${role}`,
-                                                            )}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {PROJECT_ROLES.map(
+                                                        (role) => (
+                                                            <SelectItem
+                                                                key={role}
+                                                                value={role}
+                                                                className="text-xs"
+                                                            >
+                                                                {t(
+                                                                    `members.${role}`,
+                                                                )}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         )}

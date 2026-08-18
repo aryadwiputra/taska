@@ -56,6 +56,7 @@ export function TaskSearchResult({ task, onOpen }: Props) {
     return (
         <button
             type="button"
+            data-slot="task-search-result"
             className="w-full rounded-xl border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50"
             onClick={() => onOpen(task)}
         >
