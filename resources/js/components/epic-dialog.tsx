@@ -11,6 +11,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -72,6 +73,7 @@ export function EpicDialog({
     const [startDate, setStartDate] = useState(epic?.start_date ?? '');
     const [dueDate, setDueDate] = useState(epic?.due_date ?? '');
     const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
         if (!name.trim()) {
@@ -92,10 +94,12 @@ export function EpicDialog({
         const options = {
             onSuccess: () => {
                 setProcessing(false);
+                setErrors({});
                 onOpenChange(false);
             },
-            onError: () => {
+            onError: (err: Record<string, string>) => {
                 setProcessing(false);
+                setErrors(err);
             },
         };
 
@@ -146,6 +150,7 @@ export function EpicDialog({
                             onChange={(e) => setName(e.target.value)}
                             placeholder={t('epic.epic_name')}
                         />
+                        <InputError message={errors.name} />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -158,6 +163,7 @@ export function EpicDialog({
                             onChange={(e) => setSummary(e.target.value)}
                             placeholder={t('epic.brief_description')}
                         />
+                        <InputError message={errors.summary} />
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -235,6 +241,7 @@ export function EpicDialog({
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                             />
+                            <InputError message={errors.start_date} />
                         </div>
 
                         <div className="flex flex-col gap-2">
@@ -247,6 +254,7 @@ export function EpicDialog({
                                 value={dueDate}
                                 onChange={(e) => setDueDate(e.target.value)}
                             />
+                            <InputError message={errors.due_date} />
                         </div>
                     </div>
                 </div>

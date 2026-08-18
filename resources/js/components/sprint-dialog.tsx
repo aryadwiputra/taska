@@ -11,6 +11,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -56,6 +57,7 @@ export function SprintDialog({
     const [startDate, setStartDate] = useState(sprint?.start_date ?? '');
     const [endDate, setEndDate] = useState(sprint?.end_date ?? '');
     const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
         if (!name.trim()) {
@@ -75,10 +77,12 @@ export function SprintDialog({
         const options = {
             onSuccess: () => {
                 setProcessing(false);
+                setErrors({});
                 onOpenChange(false);
             },
-            onError: () => {
+            onError: (err: Record<string, string>) => {
                 setProcessing(false);
+                setErrors(err);
             },
         };
 
@@ -129,6 +133,7 @@ export function SprintDialog({
                             onChange={(e) => setName(e.target.value)}
                             placeholder={t('sprint.sprint_name')}
                         />
+                        <InputError message={errors.name} />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -139,6 +144,7 @@ export function SprintDialog({
                             onChange={(e) => setGoal(e.target.value)}
                             placeholder={t('sprint.sprint_goal')}
                         />
+                        <InputError message={errors.goal} />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -175,6 +181,7 @@ export function SprintDialog({
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                             />
+                            <InputError message={errors.start_date} />
                         </div>
 
                         <div className="flex flex-col gap-2">
@@ -187,6 +194,7 @@ export function SprintDialog({
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
                             />
+                            <InputError message={errors.end_date} />
                         </div>
                     </div>
                 </div>

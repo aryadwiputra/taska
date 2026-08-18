@@ -11,6 +11,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -65,6 +66,7 @@ export function LabelDialog({
     const [name, setName] = useState(label?.name ?? '');
     const [color, setColor] = useState(label?.color ?? COLOR_OPTIONS[0].value);
     const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = () => {
         if (!name.trim()) {
@@ -81,10 +83,12 @@ export function LabelDialog({
         const options = {
             onSuccess: () => {
                 setProcessing(false);
+                setErrors({});
                 onOpenChange(false);
             },
-            onError: () => {
+            onError: (err: Record<string, string>) => {
                 setProcessing(false);
+                setErrors(err);
             },
         };
 
@@ -135,6 +139,7 @@ export function LabelDialog({
                             onChange={(e) => setName(e.target.value)}
                             placeholder={t('label.label_name')}
                         />
+                        <InputError message={errors.name} />
                     </div>
 
                     <div className="flex flex-col gap-2">
