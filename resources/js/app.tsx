@@ -44,12 +44,14 @@ createInertiaApp({
 
         return (
             <I18nextProvider i18n={i18n}>
-                <SocketProvider>
-                    <TooltipProvider delayDuration={0}>
-                        <ErrorBoundary>{app}</ErrorBoundary>
-                        <Toaster />
-                    </TooltipProvider>
-                </SocketProvider>
+                <ErrorBoundary>
+                    <SocketProvider>
+                        <TooltipProvider delayDuration={0}>
+                            {app}
+                            <Toaster />
+                        </TooltipProvider>
+                    </SocketProvider>
+                </ErrorBoundary>
             </I18nextProvider>
         );
     },
