@@ -125,3 +125,39 @@ test('project managers can move the only task out of a column', function () {
 
     Http::assertSent(fn ($r) => str_contains($r->url(), '/broadcast') && $r['event'] === 'tasks.reordered');
 });
+
+test('viewers cannot reorder board tasks', function () {
+    $viewer = User::factory()->create();
+    $workspace = createWorkspaceMember($viewer, 'viewer');
+    $project = createProjectForWorkspace($workspace, $viewer, 'viewer');
+    $board = $project->boards()->where('is_default', true)->first();
+    $todo = $board->columns()->where('status_key', 'todo')->first();
+    $task = createBoardTask($project, $viewer, $todo, 1000, 'Viewer Task');
+
+    $this->actingAs($viewer)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->postJson(route('projects.boards.tasks.reorder', [$workspace, $project, $board]), [
+            'columns' => [
+                ['column_id' => $todo->id, 'task_ids' => [$task->id]],
+            ],
+        ])
+        ->assertStatus(403);
+});
+
+test('members cannot reorder board tasks', function () {
+    $member = User::factory()->create();
+    $workspace = createWorkspaceMember($member, 'member');
+    $project = createProjectForWorkspace($workspace, $member, 'member');
+    $board = $project->boards()->where('is_default', true)->first();
+    $todo = $board->columns()->where('status_key', 'todo')->first();
+    $task = createBoardTask($project, $member, $todo, 1000, 'Member Task');
+
+    $this->actingAs($member)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->postJson(route('projects.boards.tasks.reorder', [$workspace, $project, $board]), [
+            'columns' => [
+                ['column_id' => $todo->id, 'task_ids' => [$task->id]],
+            ],
+        ])
+        ->assertStatus(403);
+});
