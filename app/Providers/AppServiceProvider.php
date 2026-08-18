@@ -8,6 +8,9 @@ use App\Models\Board;
 use App\Models\Doc;
 use App\Models\DocAttachment;
 use App\Models\Epic;
+use App\Models\Knowledge\Article;
+use App\Models\Knowledge\ArticleAttachment;
+use App\Models\Knowledge\Category;
 use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Task;
@@ -20,6 +23,9 @@ use App\Policies\BoardPolicy;
 use App\Policies\DocAttachmentPolicy;
 use App\Policies\DocPolicy;
 use App\Policies\EpicPolicy;
+use App\Policies\Knowledge\ArticleAttachmentPolicy;
+use App\Policies\Knowledge\ArticlePolicy;
+use App\Policies\Knowledge\CategoryPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\SprintPolicy;
 use App\Policies\TaskCommentPolicy;
@@ -74,6 +80,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AutomationRule::class, AutomationRulePolicy::class);
         Gate::policy(Doc::class, DocPolicy::class);
         Gate::policy(DocAttachment::class, DocAttachmentPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+        Gate::policy(Article::class, ArticlePolicy::class);
+        Gate::policy(ArticleAttachment::class, ArticleAttachmentPolicy::class);
 
         Gate::before(function (User $user, string $ability, mixed ...$arguments): ?bool {
             if ($user->isSuperAdmin()) {

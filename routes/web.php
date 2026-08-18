@@ -291,3 +291,4 @@ Route::scopeBindings()->post('/workspaces/{workspace:slug}/projects/{project:slu
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
+require __DIR__.'/knowledge.php';
