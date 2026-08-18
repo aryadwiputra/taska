@@ -113,7 +113,7 @@ class ArticleAttachmentController extends Controller
 
         $attachment = $article->attachments()->findOrFail($attachmentId);
 
-        if (!Storage::disk($attachment->disk)->exists($attachment->file_path)) {
+        if (! Storage::disk($attachment->disk)->exists($attachment->file_path)) {
             abort(404);
         }
 
@@ -123,7 +123,7 @@ class ArticleAttachmentController extends Controller
 
         return response()->download($path, $filename, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 }

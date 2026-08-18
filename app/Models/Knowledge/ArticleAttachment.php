@@ -72,7 +72,7 @@ class ArticleAttachment extends Model
             $size /= 1024;
         }
 
-        return round($size, 1) . ' ' . $units[$i];
+        return round($size, 1).' '.$units[$i];
     }
 
     protected static function booted(): void

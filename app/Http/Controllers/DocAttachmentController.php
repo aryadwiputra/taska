@@ -81,7 +81,7 @@ class DocAttachmentController extends Controller
             abort(404);
         }
 
-        if (!Storage::disk($attachment->disk)->exists($attachment->file_path)) {
+        if (! Storage::disk($attachment->disk)->exists($attachment->file_path)) {
             abort(404);
         }
 
@@ -92,7 +92,7 @@ class DocAttachmentController extends Controller
 
         return response()->download($path, null, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
@@ -104,7 +104,7 @@ class DocAttachmentController extends Controller
             abort(404);
         }
 
-        if (!Storage::disk($attachment->disk)->exists($attachment->file_path)) {
+        if (! Storage::disk($attachment->disk)->exists($attachment->file_path)) {
             abort(404);
         }
 

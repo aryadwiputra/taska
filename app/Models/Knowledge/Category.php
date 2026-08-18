@@ -2,7 +2,6 @@
 
 namespace App\Models\Knowledge;
 
-use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

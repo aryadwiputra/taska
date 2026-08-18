@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\File;
 
 class StoreArticleAttachmentRequest extends FormRequest
 {
@@ -29,7 +28,7 @@ class StoreArticleAttachmentRequest extends FormRequest
             'file' => [
                 'required',
                 'file',
-                'mimes:' . implode(',', $allowedExtensions),
+                'mimes:'.implode(',', $allowedExtensions),
                 function ($attribute, $value, $fail) use ($blockedExtensions) {
                     $extension = strtolower($value->getClientOriginalExtension());
                     if (in_array($extension, $blockedExtensions)) {

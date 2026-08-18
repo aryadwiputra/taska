@@ -45,11 +45,11 @@ class CategoryController extends Controller
 
         $slug = Str::slug($validated['name']);
         $count = Category::where('workspace_id', $workspace->id)
-            ->where('slug', 'like', $slug . '%')
+            ->where('slug', 'like', $slug.'%')
             ->count();
 
         if ($count > 0) {
-            $slug = $slug . '-' . ($count + 1);
+            $slug = $slug.'-'.($count + 1);
         }
 
         $category = Category::create([

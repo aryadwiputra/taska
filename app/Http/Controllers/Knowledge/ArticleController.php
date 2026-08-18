@@ -150,11 +150,11 @@ class ArticleController extends Controller
 
         $slug = Str::slug($validated['title']);
         $count = Article::where('workspace_id', $workspace->id)
-            ->where('slug', 'like', $slug . '%')
+            ->where('slug', 'like', $slug.'%')
             ->count();
 
         if ($count > 0) {
-            $slug = $slug . '-' . ($count + 1);
+            $slug = $slug.'-'.($count + 1);
         }
 
         $article = Article::create([
@@ -197,12 +197,12 @@ class ArticleController extends Controller
         if (isset($validated['title']) && $validated['title'] !== $article->title) {
             $slug = Str::slug($validated['title']);
             $count = Article::where('workspace_id', $workspace->id)
-                ->where('slug', 'like', $slug . '%')
+                ->where('slug', 'like', $slug.'%')
                 ->where('id', '!=', $article->id)
                 ->count();
 
             if ($count > 0) {
-                $slug = $slug . '-' . ($count + 1);
+                $slug = $slug.'-'.($count + 1);
             }
 
             $validated['slug'] = $slug;
