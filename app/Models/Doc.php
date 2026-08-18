@@ -76,6 +76,11 @@ class Doc extends Model
         return $this->hasMany(DocVersion::class, 'doc_id');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(DocAttachment::class, 'doc_id')->orderByDesc('created_at');
+    }
+
     public function scopeRoots(Builder $query): Builder
     {
         return $query->whereNull('parent_id');

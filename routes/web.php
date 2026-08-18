@@ -11,6 +11,7 @@ use App\Http\Controllers\CommentTypingController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\CrossProjectController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocAttachmentController;
 use App\Http\Controllers\DocController;
 use App\Http\Controllers\EpicController;
 use App\Http\Controllers\GitHubAuthController;
@@ -269,6 +270,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc:slug}/versions', [DocController::class, 'versions'])->name('projects.docs.versions');
         Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc:slug}/versions/{version}/restore', [DocController::class, 'restoreVersion'])->name('projects.docs.versions.restore');
         Route::put('/workspaces/{workspace:slug}/projects/{project:slug}/docs/reorder', [DocController::class, 'reorder'])->name('projects.docs.reorder');
+
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc}/attachments', [DocAttachmentController::class, 'index'])->name('projects.docs.attachments.index');
+        Route::post('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc}/attachments', [DocAttachmentController::class, 'store'])->name('projects.docs.attachments.store');
+        Route::delete('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc}/attachments/{attachment}', [DocAttachmentController::class, 'destroy'])->name('projects.docs.attachments.destroy');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc}/attachments/{attachment}/download', [DocAttachmentController::class, 'download'])->name('projects.docs.attachments.download');
+        Route::get('/workspaces/{workspace:slug}/projects/{project:slug}/docs/{doc}/attachments/{attachment}/preview', [DocAttachmentController::class, 'preview'])->name('projects.docs.attachments.preview');
     });
 });
 

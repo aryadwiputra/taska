@@ -5,9 +5,11 @@ import {
     ChevronDown,
     ChevronRight,
     FileText,
+    Folder,
     Plus,
     Search,
     Trash2,
+    Upload,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +31,14 @@ import {
     show as docsShow,
     store as docsStore,
 } from '@/routes/projects/docs';
+import { FileList } from '@/components/file-list';
+import { FilePreviewDialog } from '@/components/file-preview-dialog';
+import { UploadDropzone } from '@/components/file-upload-dropzone';
+import type { DocAttachment } from '@/lib/doc-attachments';
+import {
+    listAttachments,
+    previewAttachment,
+} from '@/lib/doc-attachments';
 import type { DocTreeItem } from '@/types/docs';
 
 interface Props {
@@ -48,6 +58,12 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
     const [searchResults, setSearchResults] = useState<DocTreeItem[]>([]);
     const [searching, setSearching] = useState(false);
     const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const [selectedDoc, setSelectedDoc] = useState<DocTreeItem | null>(null);
+    const [attachments, setAttachments] = useState<DocAttachment[]>([]);
+    const [attachmentsLoading, setAttachmentsLoading] = useState(false);
+    const [previewAttachment, setPreviewAttachment] = useState<DocAttachment | null>(null);
+    const [showUpload, setShowUpload] = useState(false);
 
     const handleSearch = useCallback(
         (q: string) => {
@@ -142,6 +158,26 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
         );
     };
 
+    const loadAttachments = async (doc: DocTreeItem) => {
+        setAttachmentsLoading(true);
+        try {
+            const data = await listAttachments(workspace.slug, project.slug, doc.slug);
+            setAttachments(data);
+        } catch (error) {
+            console.error('Failed to load attachments:', error);
+        } finally {
+            setAttachmentsLoading(false);
+        }
+    };
+
+    const handleUploadComplete = (attachment: DocAttachment) => {
+        setAttachments((prev) => [attachment, ...prev]);
+    };
+
+    const handleAttachmentsChange = (newAttachments: DocAttachment[]) => {
+        setAttachments(newAttachments);
+    };
+
     const DocTreeNode = ({
         node,
         depth,
@@ -175,18 +211,23 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                     )}
                     <button
                         type="button"
-                        onClick={() =>
-                            router.visit(
-                                docsShow.url({
-                                    workspace: workspace.slug,
-                                    project: project.slug,
-                                    doc: node.slug,
-                                }),
-                            )
-                        }
+                        onClick={() => {
+                            if (isCurrentUrl(docsShow.url({ workspace: workspace.slug, project: project.slug, doc: node.slug }))) {
+                                setSelectedDoc(node);
+                                loadAttachments(node);
+                            } else {
+                                router.visit(
+                                    docsShow.url({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                        doc: node.slug,
+                                    }),
+                                );
+                            }
+                        }}
                         className="flex min-w-0 flex-1 items-center gap-2 text-left"
                     >
-                        <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+                        <Folder className="size-3.5 shrink-0 text-muted-foreground" />
                         <span className="truncate">{node.title}</span>
                     </button>
                     <button
@@ -373,26 +414,72 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                     </div>
                 </div>
 
-                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border">
-                    <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                        <FileText className="size-12 text-muted-foreground/30" />
-                        <p className="text-base font-medium text-muted-foreground">
-                            {t('docs.empty_title')}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            {t('docs.empty_description')}
-                        </p>
+                <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border">
+                    <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-3">
+                        <div className="flex items-center gap-2">
+                            <Folder className="size-4 text-muted-foreground" />
+                            <span className="font-medium">Files</span>
+                        </div>
                         <Button
+                            variant="outline"
                             size="sm"
-                            className="mt-2"
-                            onClick={() => setCreating(true)}
+                            onClick={() => setShowUpload(!showUpload)}
                         >
-                            <Plus className="size-4" />
-                            <span>{t('docs.create_doc')}</span>
+                            <Upload className="size-4" />
+                            <span>Upload</span>
                         </Button>
+                    </div>
+
+                    <div className="flex-1 overflow-auto p-4">
+                        {showUpload && (
+                            <div className="mb-4">
+                                <UploadDropzone
+                                    workspaceSlug={workspace.slug}
+                                    projectSlug={project.slug}
+                                    docSlug={selectedDoc?.slug || ''}
+                                    onUploadComplete={handleUploadComplete}
+                                />
+                            </div>
+                        )}
+
+                        <FileList
+                            workspaceSlug={workspace.slug}
+                            projectSlug={project.slug}
+                            docSlug={selectedDoc?.slug || ''}
+                            attachments={attachments}
+                            onAttachmentsChange={handleAttachmentsChange}
+                            onPreview={setPreviewAttachment}
+                        />
+
+                        {!showUpload && attachments.length === 0 && (
+                            <div className="flex flex-col items-center gap-2 py-12 text-center">
+                                <FileText className="size-12 text-muted-foreground/30" />
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    No files yet
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    Upload files to this folder
+                                </p>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="mt-2"
+                                    onClick={() => setShowUpload(true)}
+                                >
+                                    <Upload className="size-4" />
+                                    <span>Upload files</span>
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            <FilePreviewDialog
+                open={previewAttachment !== null}
+                onOpenChange={(open) => !open && setPreviewAttachment(null)}
+                attachment={previewAttachment}
+            />
         </div>
     );
 }
