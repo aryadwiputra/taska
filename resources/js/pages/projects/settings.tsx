@@ -206,10 +206,12 @@ export default function ProjectSettings({
 
     const [activeTab, setActiveTab] = useState(() => {
         if (typeof window === 'undefined') {
-return 'general';
-}
+            return 'general';
+        }
 
-        return new URL(window.location.href).searchParams.get('tab') ?? 'general';
+        return (
+            new URL(window.location.href).searchParams.get('tab') ?? 'general'
+        );
     });
 
     const handleTabChange = useCallback((tab: string) => {

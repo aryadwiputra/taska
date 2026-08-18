@@ -49,31 +49,45 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
     const [searching, setSearching] = useState(false);
     const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const handleSearch = useCallback((q: string) => {
-        setSearchQuery(q);
+    const handleSearch = useCallback(
+        (q: string) => {
+            setSearchQuery(q);
 
-        if (searchTimerRef.current) {
-            clearTimeout(searchTimerRef.current);
-        }
+            if (searchTimerRef.current) {
+                clearTimeout(searchTimerRef.current);
+            }
 
-        if (!q.trim()) {
-            setSearchResults([]);
-            setSearching(false);
-            return;
-        }
+            if (!q.trim()) {
+                setSearchResults([]);
+                setSearching(false);
 
-        searchTimerRef.current = setTimeout(() => {
-            setSearching(true);
+                return;
+            }
 
-            fetch(
-                searchRoute.url({ workspace: workspace.slug, project: project.slug }) + '?q=' + encodeURIComponent(q),
-                { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } },
-            )
-                .then((r) => r.json())
-                .then(setSearchResults)
-                .finally(() => setSearching(false));
-        }, 300);
-    }, [workspace.slug, project.slug]);
+            searchTimerRef.current = setTimeout(() => {
+                setSearching(true);
+
+                fetch(
+                    searchRoute.url({
+                        workspace: workspace.slug,
+                        project: project.slug,
+                    }) +
+                        '?q=' +
+                        encodeURIComponent(q),
+                    {
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    },
+                )
+                    .then((r) => r.json())
+                    .then(setSearchResults)
+                    .finally(() => setSearching(false));
+            }, 300);
+        },
+        [workspace.slug, project.slug],
+    );
 
     const toggleCollapse = (id: number) => {
         setCollapsed((prev) => {
@@ -255,7 +269,11 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                                 type="button"
                                 onClick={() =>
                                     router.visit(
-                                        docsShow.url({ workspace: workspace.slug, project: project.slug, doc: r.slug }),
+                                        docsShow.url({
+                                            workspace: workspace.slug,
+                                            project: project.slug,
+                                            doc: r.slug,
+                                        }),
                                     )
                                 }
                                 className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent"

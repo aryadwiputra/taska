@@ -41,7 +41,14 @@ interface Props {
     onAssign: (userId: number, projectId: number, role: string) => void;
 }
 
-const PROJECT_ROLES = ['lead', 'manager', 'developer', 'qa', 'member', 'viewer'] as const;
+const PROJECT_ROLES = [
+    'lead',
+    'manager',
+    'developer',
+    'qa',
+    'member',
+    'viewer',
+] as const;
 
 export function EditAssignmentDialog({
     open,
@@ -58,7 +65,9 @@ export function EditAssignmentDialog({
         return null;
     }
 
-    const assignedProjectIds = new Set(user.assignments.map((a) => a.project_id));
+    const assignedProjectIds = new Set(
+        user.assignments.map((a) => a.project_id),
+    );
     const availableProjects = projects.filter(
         (p) => !assignedProjectIds.has(p.id),
     );
@@ -98,9 +107,7 @@ export function EditAssignmentDialog({
                                         key={a.id}
                                         className="flex items-center justify-between rounded px-2 py-1 text-sm"
                                     >
-                                        <span>
-                                            {a.project_name}
-                                        </span>
+                                        <span>{a.project_name}</span>
                                         <span className="text-muted-foreground">
                                             {t(`members.${a.role}`)}
                                         </span>

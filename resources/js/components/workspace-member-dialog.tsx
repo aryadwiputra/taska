@@ -148,10 +148,13 @@ export function WorkspaceMemberDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={(v) => {
-            reset();
-            onOpenChange(v);
-        }}>
+        <Dialog
+            open={open}
+            onOpenChange={(v) => {
+                reset();
+                onOpenChange(v);
+            }}
+        >
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{t('members.add_member')}</DialogTitle>
@@ -160,7 +163,11 @@ export function WorkspaceMemberDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Tabs value={tabMode} onValueChange={(v) => setTabMode(v as 'existing' | 'new')} className="flex flex-col gap-4">
+                <Tabs
+                    value={tabMode}
+                    onValueChange={(v) => setTabMode(v as 'existing' | 'new')}
+                    className="flex flex-col gap-4"
+                >
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="existing">
                             {t('members.existing_user')}
@@ -170,7 +177,10 @@ export function WorkspaceMemberDialog({
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="existing" className="flex flex-col gap-4">
+                    <TabsContent
+                        value="existing"
+                        className="flex flex-col gap-4"
+                    >
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="member-search">
                                 {t('members.search_users')}
@@ -231,9 +241,7 @@ export function WorkspaceMemberDialog({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="new-email">
-                                {t('auth.email')}
-                            </Label>
+                            <Label htmlFor="new-email">{t('auth.email')}</Label>
                             <Input
                                 id="new-email"
                                 type="email"
@@ -257,9 +265,7 @@ export function WorkspaceMemberDialog({
                     </TabsContent>
 
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="member-role">
-                            {t('members.role')}
-                        </Label>
+                        <Label htmlFor="member-role">{t('members.role')}</Label>
                         <Select
                             value={selectedRole}
                             onValueChange={setSelectedRole}
@@ -301,7 +307,9 @@ export function WorkspaceMemberDialog({
                                 : !name || !email || !password)
                         }
                     >
-                        {isSubmitting ? t('common.saving') : t('members.add_member')}
+                        {isSubmitting
+                            ? t('common.saving')
+                            : t('members.add_member')}
                     </Button>
                 </div>
             </DialogContent>

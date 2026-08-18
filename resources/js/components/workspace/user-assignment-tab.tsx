@@ -52,7 +52,9 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
     const [viewMode, setViewMode] = useState<'list'>('list');
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<UserAssignmentData | null>(null);
+    const [editingUser, setEditingUser] = useState<UserAssignmentData | null>(
+        null,
+    );
 
     const fetchData = useCallback(() => {
         const searchParams: Record<string, string> = {};
@@ -108,7 +110,11 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
         );
     };
 
-    const handleRemove = (assignmentId: number, _projectId: number, _userId: number) => {
+    const handleRemove = (
+        assignmentId: number,
+        _projectId: number,
+        _userId: number,
+    ) => {
         router.delete(
             destroy({ workspace: workspaceSlug, projectMember: assignmentId }),
             {
@@ -157,13 +163,21 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
             return user.assignments.length === 0;
         }
 
-        return user.assignments.some((a) => a.project_id === Number(filterProject));
+        return user.assignments.some(
+            (a) => a.project_id === Number(filterProject),
+        );
     });
 
     // Real-time updates
-    useSocketEvent(`workspace.${workspaceId}`, 'user.assigned', () => fetchData());
-    useSocketEvent(`workspace.${workspaceId}`, 'user.assignment.updated', () => fetchData());
-    useSocketEvent(`workspace.${workspaceId}`, 'user.unassigned', () => fetchData());
+    useSocketEvent(`workspace.${workspaceId}`, 'user.assigned', () =>
+        fetchData(),
+    );
+    useSocketEvent(`workspace.${workspaceId}`, 'user.assignment.updated', () =>
+        fetchData(),
+    );
+    useSocketEvent(`workspace.${workspaceId}`, 'user.unassigned', () =>
+        fetchData(),
+    );
 
     if (isLoading) {
         return (

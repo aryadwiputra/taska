@@ -44,9 +44,7 @@ export function UserAssignmentHeader({
                         <SelectValue placeholder={t('common.filter')} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">
-                            {t('common.all')}
-                        </SelectItem>
+                        <SelectItem value="all">{t('common.all')}</SelectItem>
                         {projects.map((p) => (
                             <SelectItem key={p.id} value={String(p.id)}>
                                 {p.name}

@@ -9,10 +9,12 @@ interface CanProps {
 
 export function Can({ permission, fallback = null, children }: CanProps) {
     const { props } = usePage();
-    const permissions = props.permissions as {
-        workspace?: string[];
-        project?: string[];
-    } | undefined;
+    const permissions = props.permissions as
+        | {
+              workspace?: string[];
+              project?: string[];
+          }
+        | undefined;
 
     const allowed =
         permissions?.workspace?.includes(permission) ||

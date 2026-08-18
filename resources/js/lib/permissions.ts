@@ -1,6 +1,10 @@
 import { usePage } from '@inertiajs/react';
 import { toast } from 'sonner';
-import type { Permission, ProjectRole, WorkspaceRole } from '@/types/permissions';
+import type {
+    Permission,
+    ProjectRole,
+    WorkspaceRole,
+} from '@/types/permissions';
 
 export function canAccessWorkspaceSettings(role?: WorkspaceRole): boolean {
     return role === 'owner' || role === 'admin';
@@ -77,7 +81,9 @@ export function canManageLabels(
 ): boolean {
     return (
         (wsRole === 'owner' || wsRole === 'admin' || wsRole === 'manager') &&
-        (projectRole === null || projectRole === 'lead' || projectRole === 'manager')
+        (projectRole === null ||
+            projectRole === 'lead' ||
+            projectRole === 'manager')
     );
 }
 
@@ -100,10 +106,12 @@ export function toastNoAccess(): void {
 
 export function useHasPermission() {
     const { props } = usePage();
-    const permissions = props.permissions as {
-        workspace?: string[];
-        project?: string[];
-    } | undefined;
+    const permissions = props.permissions as
+        | {
+              workspace?: string[];
+              project?: string[];
+          }
+        | undefined;
 
     return (permission: Permission): boolean =>
         Boolean(

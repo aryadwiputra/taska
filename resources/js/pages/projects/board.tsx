@@ -986,19 +986,19 @@ function BoardClient({
                                 <span>{t('board.columns')}</span>
                             </Button>
                             {canCreateTask(wsRole) && (
-                            <TaskCreateDialog
-                                workspaceSlug={workspace.slug}
-                                projectSlug={project.slug}
-                                taskTypes={taskTypes}
-                                priorities={priorities}
-                                epics={epics}
-                                sprints={sprints}
-                                open={newTaskOpen}
-                                onOpenChange={setNewTaskOpen}
-                                onCreated={() => {
-                                    setNewTaskOpen(false);
-                                }}
-                            />
+                                <TaskCreateDialog
+                                    workspaceSlug={workspace.slug}
+                                    projectSlug={project.slug}
+                                    taskTypes={taskTypes}
+                                    priorities={priorities}
+                                    epics={epics}
+                                    sprints={sprints}
+                                    open={newTaskOpen}
+                                    onOpenChange={setNewTaskOpen}
+                                    onCreated={() => {
+                                        setNewTaskOpen(false);
+                                    }}
+                                />
                             )}
                             <FeatureGuide content={boardGuide} />
                         </>

@@ -109,7 +109,8 @@ export default function EpicShow({
 }: Props) {
     const { t, i18n } = useTranslation();
     const { props } = usePage();
-    const wsRole = (props.currentWorkspace as { role?: string } | null)?.role as WorkspaceRole | undefined;
+    const wsRole = (props.currentWorkspace as { role?: string } | null)
+        ?.role as WorkspaceRole | undefined;
     const canEdit = canManageEpics(wsRole);
     const [addTaskId, setAddTaskId] = useState<string>('none');
 
@@ -210,16 +211,16 @@ export default function EpicShow({
                     }
                     actions={
                         canEdit ? (
-                        <Link
-                            href={projectSettings({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                            })}
-                        >
-                            <Button variant="outline" size="sm">
-                                {t('epic.edit_epic')}
-                            </Button>
-                        </Link>
+                            <Link
+                                href={projectSettings({
+                                    workspace: workspace.slug,
+                                    project: project.slug,
+                                })}
+                            >
+                                <Button variant="outline" size="sm">
+                                    {t('epic.edit_epic')}
+                                </Button>
+                            </Link>
                         ) : null
                     }
                 />
@@ -369,17 +370,19 @@ export default function EpicShow({
                                                 </div>
                                             </div>
                                             {canEdit && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-                                                onClick={() =>
-                                                    handleRemoveTask(task.id)
-                                                }
-                                            >
-                                                <X className="size-4" />
-                                            </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                                                    onClick={() =>
+                                                        handleRemoveTask(
+                                                            task.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <X className="size-4" />
+                                                </Button>
                                             )}
                                         </div>
                                     ))}

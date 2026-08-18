@@ -184,7 +184,8 @@ export default function SprintShow({
     const { t } = useTranslation();
     const sprintGuide = useSprintGuide(t);
     const { props } = usePage();
-    const wsRole = (props.currentWorkspace as { role?: string } | null)?.role as WorkspaceRole | undefined;
+    const wsRole = (props.currentWorkspace as { role?: string } | null)
+        ?.role as WorkspaceRole | undefined;
     const canManage = canManageSprints(wsRole);
     const [addTaskId, setAddTaskId] = useState<string>('none');
     const [drawerTaskId, setDrawerTaskId] = useState<number | null>(null);
@@ -361,16 +362,16 @@ export default function SprintShow({
                                 </Button>
                             </Link>
                             {canManage && (
-                            <Link
-                                href={projectSettings({
-                                    workspace: workspace.slug,
-                                    project: project.slug,
-                                })}
-                            >
-                                <Button variant="outline" size="sm">
-                                    {t('sprint_page.edit_sprint')}
-                                </Button>
-                            </Link>
+                                <Link
+                                    href={projectSettings({
+                                        workspace: workspace.slug,
+                                        project: project.slug,
+                                    })}
+                                >
+                                    <Button variant="outline" size="sm">
+                                        {t('sprint_page.edit_sprint')}
+                                    </Button>
+                                </Link>
                             )}
                         </>
                     }
@@ -525,17 +526,19 @@ export default function SprintShow({
                                                 </div>
                                             </div>
                                             {canManage && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-                                                onClick={() =>
-                                                    handleRemoveTask(task.id)
-                                                }
-                                            >
-                                                <X className="size-4" />
-                                            </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                                                    onClick={() =>
+                                                        handleRemoveTask(
+                                                            task.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <X className="size-4" />
+                                                </Button>
                                             )}
                                         </div>
                                     ))}

@@ -389,7 +389,9 @@ export default function DocsShow({
                                         onClick={() => setVersionsOpen(true)}
                                     >
                                         <History className="size-3.5" />
-                                        <span className="hidden sm:inline">{t('docs.version_history')}</span>
+                                        <span className="hidden sm:inline">
+                                            {t('docs.version_history')}
+                                        </span>
                                     </Button>
                                     <Button
                                         size="sm"

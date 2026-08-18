@@ -3,17 +3,34 @@
 
 export type Permission =
     | '*'
-    | 'workspace.view' | 'workspace.edit' | 'workspace.delete' | 'workspace.manage-members' | 'workspace.manage-labels' | 'workspace.manage-task-types' | 'workspace.manage-priorities' | 'project.create' | 'project.view-any' | 'project.edit' | 'project.delete' | 'project.manage-members' | 'task.create' | 'task.edit-any' | 'task.delete-any' | 'task.comment' | 'task.delete-comment-any' | 'epic.create' | 'epic.edit' | 'epic.delete' | 'sprint.create' | 'sprint.edit' | 'sprint.delete' | 'board.manage';
+    | 'workspace.view'
+    | 'workspace.edit'
+    | 'workspace.delete'
+    | 'workspace.manage-members'
+    | 'workspace.manage-labels'
+    | 'workspace.manage-task-types'
+    | 'workspace.manage-priorities'
+    | 'project.create'
+    | 'project.view-any'
+    | 'project.edit'
+    | 'project.delete'
+    | 'project.manage-members'
+    | 'task.create'
+    | 'task.edit-any'
+    | 'task.delete-any'
+    | 'task.comment'
+    | 'task.delete-comment-any'
+    | 'epic.create'
+    | 'epic.edit'
+    | 'epic.delete'
+    | 'sprint.create'
+    | 'sprint.edit'
+    | 'sprint.delete'
+    | 'board.manage';
 
-export type WorkspaceRole =
-    | 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
+export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
 
-export type ProjectRole =
-    | 'lead'
-    | 'manager'
-    | 'developer'
-    | 'qa'
-    | 'member';
+export type ProjectRole = 'lead' | 'manager' | 'developer' | 'qa' | 'member';
 
 export const WORKSPACE_PERMISSIONS: Permission[] = [
     'workspace.view',
@@ -39,15 +56,91 @@ export const WORKSPACE_PERMISSIONS: Permission[] = [
     'sprint.create',
     'sprint.edit',
     'sprint.delete',
-    'board.manage'
+    'board.manage',
 ];
 
 export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
-    'owner': (['*', 'workspace.view', 'workspace.edit', 'workspace.delete', 'workspace.manage-members', 'workspace.manage-labels', 'workspace.manage-task-types', 'workspace.manage-priorities', 'project.create', 'project.view-any', 'project.edit', 'project.delete', 'project.manage-members', 'task.create', 'task.edit-any', 'task.delete-any', 'task.comment', 'task.delete-comment-any', 'epic.create', 'epic.edit', 'epic.delete', 'sprint.create', 'sprint.edit', 'sprint.delete', 'board.manage'] as Permission[]),
-    'admin': ['workspace.view', 'workspace.edit', 'workspace.manage-members', 'workspace.manage-labels', 'workspace.manage-task-types', 'workspace.manage-priorities', 'project.create', 'project.view-any', 'project.edit', 'project.delete', 'project.manage-members', 'task.create', 'task.edit-any', 'task.delete-any', 'task.comment', 'task.delete-comment-any', 'epic.create', 'epic.edit', 'epic.delete', 'sprint.create', 'sprint.edit', 'sprint.delete', 'board.manage'],
-    'manager': ['workspace.view', 'workspace.manage-labels', 'workspace.manage-task-types', 'workspace.manage-priorities', 'project.create', 'project.view-any', 'project.edit', 'project.manage-members', 'task.create', 'task.edit-any', 'task.delete-any', 'task.comment', 'task.delete-comment-any', 'epic.create', 'epic.edit', 'epic.delete', 'sprint.create', 'sprint.edit', 'sprint.delete', 'board.manage'],
-    'member': ['workspace.view', 'project.view-any', 'task.create', 'task.comment'],
-    'viewer': ['workspace.view', 'project.view-any'],
+    owner: [
+        '*',
+        'workspace.view',
+        'workspace.edit',
+        'workspace.delete',
+        'workspace.manage-members',
+        'workspace.manage-labels',
+        'workspace.manage-task-types',
+        'workspace.manage-priorities',
+        'project.create',
+        'project.view-any',
+        'project.edit',
+        'project.delete',
+        'project.manage-members',
+        'task.create',
+        'task.edit-any',
+        'task.delete-any',
+        'task.comment',
+        'task.delete-comment-any',
+        'epic.create',
+        'epic.edit',
+        'epic.delete',
+        'sprint.create',
+        'sprint.edit',
+        'sprint.delete',
+        'board.manage',
+    ] as Permission[],
+    admin: [
+        'workspace.view',
+        'workspace.edit',
+        'workspace.manage-members',
+        'workspace.manage-labels',
+        'workspace.manage-task-types',
+        'workspace.manage-priorities',
+        'project.create',
+        'project.view-any',
+        'project.edit',
+        'project.delete',
+        'project.manage-members',
+        'task.create',
+        'task.edit-any',
+        'task.delete-any',
+        'task.comment',
+        'task.delete-comment-any',
+        'epic.create',
+        'epic.edit',
+        'epic.delete',
+        'sprint.create',
+        'sprint.edit',
+        'sprint.delete',
+        'board.manage',
+    ],
+    manager: [
+        'workspace.view',
+        'workspace.manage-labels',
+        'workspace.manage-task-types',
+        'workspace.manage-priorities',
+        'project.create',
+        'project.view-any',
+        'project.edit',
+        'project.manage-members',
+        'task.create',
+        'task.edit-any',
+        'task.delete-any',
+        'task.comment',
+        'task.delete-comment-any',
+        'epic.create',
+        'epic.edit',
+        'epic.delete',
+        'sprint.create',
+        'sprint.edit',
+        'sprint.delete',
+        'board.manage',
+    ],
+    member: [
+        'workspace.view',
+        'project.view-any',
+        'task.create',
+        'task.comment',
+    ],
+    viewer: ['workspace.view', 'project.view-any'],
 };
 
 export function hasPermission(
@@ -64,8 +157,8 @@ export function hasWorkspacePermission(
     const perms = ROLE_PERMISSIONS[role];
 
     if (!perms) {
-return false;
-}
+        return false;
+    }
 
     return perms.includes('*') || perms.includes(permission);
 }

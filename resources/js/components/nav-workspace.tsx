@@ -7,10 +7,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import {
-    canAccessGoals,
-    toastNoAccess,
-} from '@/lib/permissions';
+import { canAccessGoals, toastNoAccess } from '@/lib/permissions';
 import { settings as workspaceSettings } from '@/routes/workspaces';
 import {
     board as crossBoard,
@@ -62,10 +59,12 @@ export function NavWorkspace({ workspaceSlug }: Props) {
             return true;
         }
 
-        const permissions = props.permissions as {
-            workspace?: string[];
-            project?: string[];
-        } | undefined;
+        const permissions = props.permissions as
+            | {
+                  workspace?: string[];
+                  project?: string[];
+              }
+            | undefined;
 
         return Boolean(
             permissions?.workspace?.includes(item.permission) ||

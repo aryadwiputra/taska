@@ -61,10 +61,7 @@ export function UserAssignmentListView({
                 const isExpanded = expandedUsers.has(user.user_id);
 
                 return (
-                    <div
-                        key={user.user_id}
-                        className="rounded-lg border"
-                    >
+                    <div key={user.user_id} className="rounded-lg border">
                         <div className="flex items-center gap-3 px-4 py-3">
                             <Checkbox
                                 checked={selectedUsers.includes(user.user_id)}

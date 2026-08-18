@@ -16,7 +16,14 @@ interface Props {
     onClear: () => void;
 }
 
-const PROJECT_ROLES = ['lead', 'manager', 'developer', 'qa', 'member', 'viewer'] as const;
+const PROJECT_ROLES = [
+    'lead',
+    'manager',
+    'developer',
+    'qa',
+    'member',
+    'viewer',
+] as const;
 
 export function UserBulkAssignBar({
     selectedCount,
@@ -66,14 +73,20 @@ export function UserBulkAssignBar({
             </Select>
             <Select value={targetProject} onValueChange={setTargetProject}>
                 <SelectTrigger className="h-8 w-[160px] text-xs">
-                    <SelectValue placeholder={t('assignments.select_project')} />
+                    <SelectValue
+                        placeholder={t('assignments.select_project')}
+                    />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="__all__" className="text-xs">
                         {t('assignments.all_projects')}
                     </SelectItem>
                     {projects.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)} className="text-xs">
+                        <SelectItem
+                            key={p.id}
+                            value={String(p.id)}
+                            className="text-xs"
+                        >
                             {p.name}
                         </SelectItem>
                     ))}
