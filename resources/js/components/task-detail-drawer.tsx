@@ -1079,9 +1079,8 @@ export function TaskDetailDrawer({
                                         {canDel && (
                                             <Button
                                                 type="button"
-                                                variant="ghost"
+                                                variant="destructive"
                                                 size="icon"
-                                                className="text-muted-foreground hover:text-destructive"
                                                 onClick={handleDeleteTask}
                                                 aria-label={t(
                                                     'task.aria_delete_task',
@@ -1632,28 +1631,28 @@ export function TaskDetailDrawer({
                                 )}
 
                                 {canEdit && (
-                                <form
-                                    onSubmit={handleAddSubTask}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Input
-                                        value={subTaskTitle}
-                                        onChange={(e) =>
-                                            setSubTaskTitle(e.target.value)
-                                        }
-                                        placeholder={t('task.add_sub_task')}
-                                        className="h-8 text-sm"
-                                    />
-                                    <Button
-                                        type="submit"
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={!subTaskTitle.trim()}
+                                    <form
+                                        onSubmit={handleAddSubTask}
+                                        className="flex items-center gap-2"
                                     >
-                                        <Plus className="size-3" />
-                                        <span>{t('common.add')}</span>
-                                    </Button>
-                                </form>
+                                        <Input
+                                            value={subTaskTitle}
+                                            onChange={(e) =>
+                                                setSubTaskTitle(e.target.value)
+                                            }
+                                            placeholder={t('task.add_sub_task')}
+                                            className="h-8 text-sm"
+                                        />
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={!subTaskTitle.trim()}
+                                        >
+                                            <Plus className="size-3" />
+                                            <span>{t('common.add')}</span>
+                                        </Button>
+                                    </form>
                                 )}
                             </div>
 
@@ -1777,28 +1776,29 @@ export function TaskDetailDrawer({
                                 </div>
 
                                 {canEdit && (
-                                <form
-                                    onSubmit={handleUploadAttachment}
-                                    className="mb-4 flex flex-col gap-2 sm:flex-row"
-                                >
-                                    <Input
-                                        type="file"
-                                        onChange={(event) =>
-                                            setAttachmentFile(
-                                                event.target.files?.[0] ?? null,
-                                            )
-                                        }
-                                        className="text-sm"
-                                    />
-                                    <Button
-                                        type="submit"
-                                        variant="outline"
-                                        disabled={!attachmentFile}
+                                    <form
+                                        onSubmit={handleUploadAttachment}
+                                        className="mb-4 flex flex-col gap-2 sm:flex-row"
                                     >
-                                        <Upload className="size-4" />
-                                        <span>{t('common.upload')}</span>
-                                    </Button>
-                                </form>
+                                        <Input
+                                            type="file"
+                                            onChange={(event) =>
+                                                setAttachmentFile(
+                                                    event.target.files?.[0] ??
+                                                        null,
+                                                )
+                                            }
+                                            className="text-sm"
+                                        />
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            disabled={!attachmentFile}
+                                        >
+                                            <Upload className="size-4" />
+                                            <span>{t('common.upload')}</span>
+                                        </Button>
+                                    </form>
                                 )}
 
                                 {attachments.length > 0 ? (
@@ -1829,19 +1829,19 @@ export function TaskDetailDrawer({
                                                     </span>
                                                 </a>
                                                 {canEdit && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-8 text-muted-foreground hover:text-destructive"
-                                                    onClick={() =>
-                                                        handleDeleteAttachment(
-                                                            attachment.id,
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-8 text-muted-foreground hover:text-destructive"
+                                                        onClick={() =>
+                                                            handleDeleteAttachment(
+                                                                attachment.id,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                    </Button>
                                                 )}
                                                 {attachment.is_previewable && (
                                                     <Button
@@ -1896,19 +1896,19 @@ export function TaskDetailDrawer({
                                                     {rel.related_task.title}
                                                 </span>
                                                 {canEdit && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-6 text-muted-foreground hover:text-destructive"
-                                                    onClick={() =>
-                                                        handleRemoveRelation(
-                                                            rel.id,
-                                                        )
-                                                    }
-                                                >
-                                                    <X className="size-3" />
-                                                </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-6 text-muted-foreground hover:text-destructive"
+                                                        onClick={() =>
+                                                            handleRemoveRelation(
+                                                                rel.id,
+                                                            )
+                                                        }
+                                                    >
+                                                        <X className="size-3" />
+                                                    </Button>
                                                 )}
                                             </div>
                                         ))}
@@ -1920,82 +1920,96 @@ export function TaskDetailDrawer({
                                 )}
 
                                 {canEdit && (
-                                <form
-                                    onSubmit={handleAddRelation}
-                                    className="flex flex-wrap items-end gap-2"
-                                >
-                                    <div className="flex flex-col gap-1">
-                                        <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
-                                            {t('task.title')}
-                                        </Label>
-                                        <Select
-                                            value={newRelationTaskId}
-                                            onValueChange={setNewRelationTaskId}
-                                        >
-                                            <SelectTrigger className="h-8 w-40 text-xs">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">
-                                                    {t('task.select_task')}
-                                                </SelectItem>
-                                                {options.project_tasks
-                                                    .filter(
-                                                        (t) =>
-                                                            t.id !== task.id &&
-                                                            !task.relations.some(
-                                                                (r) =>
-                                                                    r
-                                                                        .related_task
-                                                                        .id ===
-                                                                    t.id,
-                                                            ),
-                                                    )
-                                                    .map((t) => (
-                                                        <SelectItem
-                                                            key={t.id}
-                                                            value={String(t.id)}
-                                                        >
-                                                            {t.code}: {t.title}
-                                                        </SelectItem>
-                                                    ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
-                                            {t('task.type')}
-                                        </Label>
-                                        <Select
-                                            value={newRelationType}
-                                            onValueChange={setNewRelationType}
-                                        >
-                                            <SelectTrigger className="h-8 w-28 text-xs">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="relates_to">
-                                                    {t('relation.relates_to')}
-                                                </SelectItem>
-                                                <SelectItem value="blocks">
-                                                    {t('relation.blocks')}
-                                                </SelectItem>
-                                                <SelectItem value="duplicates">
-                                                    {t('relation.duplicates')}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <Button
-                                        type="submit"
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={newRelationTaskId === 'none'}
+                                    <form
+                                        onSubmit={handleAddRelation}
+                                        className="flex flex-wrap items-end gap-2"
                                     >
-                                        <Plus className="size-3" />
-                                        <span>{t('common.add')}</span>
-                                    </Button>
-                                </form>
+                                        <div className="flex flex-col gap-1">
+                                            <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                                                {t('task.title')}
+                                            </Label>
+                                            <Select
+                                                value={newRelationTaskId}
+                                                onValueChange={
+                                                    setNewRelationTaskId
+                                                }
+                                            >
+                                                <SelectTrigger className="h-8 w-40 text-xs">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">
+                                                        {t('task.select_task')}
+                                                    </SelectItem>
+                                                    {options.project_tasks
+                                                        .filter(
+                                                            (t) =>
+                                                                t.id !==
+                                                                    task.id &&
+                                                                !task.relations.some(
+                                                                    (r) =>
+                                                                        r
+                                                                            .related_task
+                                                                            .id ===
+                                                                        t.id,
+                                                                ),
+                                                        )
+                                                        .map((t) => (
+                                                            <SelectItem
+                                                                key={t.id}
+                                                                value={String(
+                                                                    t.id,
+                                                                )}
+                                                            >
+                                                                {t.code}:{' '}
+                                                                {t.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <Label className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                                                {t('task.type')}
+                                            </Label>
+                                            <Select
+                                                value={newRelationType}
+                                                onValueChange={
+                                                    setNewRelationType
+                                                }
+                                            >
+                                                <SelectTrigger className="h-8 w-28 text-xs">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="relates_to">
+                                                        {t(
+                                                            'relation.relates_to',
+                                                        )}
+                                                    </SelectItem>
+                                                    <SelectItem value="blocks">
+                                                        {t('relation.blocks')}
+                                                    </SelectItem>
+                                                    <SelectItem value="duplicates">
+                                                        {t(
+                                                            'relation.duplicates',
+                                                        )}
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={
+                                                newRelationTaskId === 'none'
+                                            }
+                                        >
+                                            <Plus className="size-3" />
+                                            <span>{t('common.add')}</span>
+                                        </Button>
+                                    </form>
                                 )}
                             </div>
 
