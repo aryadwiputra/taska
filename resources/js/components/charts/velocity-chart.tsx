@@ -1,6 +1,7 @@
 'use no memo';
 
 import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from '@/components/error-boundary';
 
 interface VelocitySprint {
     name: string;
@@ -13,7 +14,7 @@ interface Props {
     avgVelocity: number;
 }
 
-export function VelocityChart({ sprints, avgVelocity }: Props) {
+function VelocityChartInner({ sprints, avgVelocity }: Props) {
     const { t } = useTranslation();
 
     if (sprints.length === 0) {
@@ -167,3 +168,19 @@ export function VelocityChart({ sprints, avgVelocity }: Props) {
         </svg>
     );
 }
+
+function VelocityChartWithBoundary(props: Props) {
+    return (
+        <ErrorBoundary
+            fallback={
+                <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+                    Chart could not be loaded
+                </div>
+            }
+        >
+            <VelocityChartInner {...props} />
+        </ErrorBoundary>
+    );
+}
+
+export { VelocityChartWithBoundary as VelocityChart };

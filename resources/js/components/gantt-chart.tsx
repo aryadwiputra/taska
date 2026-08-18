@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { cn } from '@/lib/utils';
 
 interface TaskSummary {
@@ -60,7 +61,7 @@ interface GanttChartProps {
     onTaskClick: (taskId: number) => void;
 }
 
-export function GanttChart({ tasks, onTaskClick }: GanttChartProps) {
+function GanttChartInner({ tasks, onTaskClick }: GanttChartProps) {
     const { t } = useTranslation();
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -411,3 +412,21 @@ export function GanttChart({ tasks, onTaskClick }: GanttChartProps) {
         </div>
     );
 }
+
+function GanttChartWithBoundary(props: GanttChartProps) {
+    return (
+        <ErrorBoundary
+            fallback={
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-xl border bg-card p-12 text-center text-card-foreground shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Gantt chart could not be loaded
+                    </p>
+                </div>
+            }
+        >
+            <GanttChartInner {...props} />
+        </ErrorBoundary>
+    );
+}
+
+export { GanttChartWithBoundary as GanttChart };

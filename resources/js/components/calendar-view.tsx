@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { cn } from '@/lib/utils';
 
 interface CalendarTaskRef {
@@ -72,7 +73,7 @@ function toDate(s: string | null): Date | null {
     return isNaN(d.getTime()) ? null : d;
 }
 
-export function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {
+function CalendarViewInner({ tasks, onTaskClick }: CalendarViewProps) {
     const { t } = useTranslation();
     const today = useMemo(() => {
         const d = new Date();
@@ -231,3 +232,21 @@ export function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {
         </div>
     );
 }
+
+function CalendarViewWithBoundary(props: CalendarViewProps) {
+    return (
+        <ErrorBoundary
+            fallback={
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-xl border bg-card p-12 text-center text-card-foreground shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Calendar could not be loaded
+                    </p>
+                </div>
+            }
+        >
+            <CalendarViewInner {...props} />
+        </ErrorBoundary>
+    );
+}
+
+export { CalendarViewWithBoundary as CalendarView };
