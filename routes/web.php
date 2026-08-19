@@ -17,6 +17,7 @@ use App\Http\Controllers\EpicController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubWebhookController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\Knowledge\KnowledgePageController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NotificationController;
@@ -292,3 +293,8 @@ Route::scopeBindings()->post('/workspaces/{workspace:slug}/projects/{project:slu
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/knowledge.php';
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/workspaces/{workspace:slug}/knowledge', [KnowledgePageController::class, 'index'])->name('knowledge.index');
+    Route::get('/workspaces/{workspace:slug}/knowledge/articles/{article:slug}', [KnowledgePageController::class, 'article'])->name('knowledge.article');
+});

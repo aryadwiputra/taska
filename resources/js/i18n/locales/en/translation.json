@@ -76,6 +76,7 @@
         "create_workspace_prompt": "Create a workspace to get started with projects and tasks.",
         "new_project": "New project",
         "goals": "Goals",
+        "knowledge": "Knowledge Base",
         "cross_board": "All Boards",
         "cross_timeline": "Timeline",
         "board": "Board",

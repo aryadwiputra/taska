@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Clock, Flag, Layout, Settings } from 'lucide-react';
+import { BookOpen, Clock, Flag, Layout, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
     SidebarMenu,
@@ -39,6 +39,11 @@ export function NavWorkspace({ workspaceSlug }: Props) {
             title: t('sidebar.goals'),
             href: goalsIndex({ workspace: workspaceSlug }).url,
             icon: Flag,
+        },
+        {
+            title: t('sidebar.knowledge'),
+            href: `/workspaces/${workspaceSlug}/knowledge`,
+            icon: BookOpen,
         },
         {
             title: t('sidebar.cross_board'),
