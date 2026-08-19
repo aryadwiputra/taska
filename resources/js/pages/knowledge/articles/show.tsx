@@ -14,6 +14,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import knowledgeRoutes from '@/routes/knowledge';
+import knowledgeArticlesRoutes from '@/routes/knowledge/articles';
 import type { Article } from '@/types/knowledge';
 
 interface Props {
@@ -36,13 +38,10 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handleDelete = () => {
         router.delete(
-            route('knowledge.articles.destroy', {
-                workspace: workspaceSlug,
-                article: article.slug,
-            }),
+            knowledgeArticlesRoutes.destroy.url({ workspace: workspaceSlug, article: article.slug }),
             {
                 onSuccess: () => {
-                    router.get(route('knowledge.index', { workspace: workspaceSlug }));
+                    router.get(knowledgeRoutes.index.url({ workspace: workspaceSlug }));
                 },
             },
         );
@@ -50,10 +49,7 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handleEdit = () => {
         router.patch(
-            route('knowledge.articles.update', {
-                workspace: workspaceSlug,
-                article: article.slug,
-            }),
+            knowledgeArticlesRoutes.update.url({ workspace: workspaceSlug, article: article.slug }),
             {
                 title: editTitle,
                 content: editContent,
@@ -68,10 +64,7 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handlePublish = () => {
         router.patch(
-            route('knowledge.articles.update', {
-                workspace: workspaceSlug,
-                article: article.slug,
-            }),
+            knowledgeArticlesRoutes.update.url({ workspace: workspaceSlug, article: article.slug }),
             {
                 status: article.status === 'published' ? 'draft' : 'published',
             },
@@ -87,10 +80,7 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
         try {
             const response = await fetch(
-                route('knowledge.articles.attachments.store', {
-                    workspace: workspaceSlug,
-                    article: article.slug,
-                }),
+                knowledgeArticlesRoutes.attachments.store.url({ workspace: workspaceSlug, article: article.slug }),
                 {
                     method: 'POST',
                     headers: {
@@ -123,7 +113,7 @@ export default function ArticleShow({ article, canEdit }: Props) {
                     variant="ghost"
                     size="sm"
                     onClick={() =>
-                        router.get(route('knowledge.index', { workspace: workspaceSlug }))
+                        router.get(knowledgeRoutes.index.url({ workspace: workspaceSlug }))
                     }
                 >
                     <ArrowLeft className="size-4" />

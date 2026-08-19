@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { EmptyState } from '@/components/empty-state';
+import knowledgeArticles from '@/routes/knowledge/articles';
+import knowledgeRoutes from '@/routes/knowledge';
 import type { Category, ArticleListItem } from '@/types/knowledge';
 
 interface Props {
@@ -34,10 +36,8 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
-            router.get(
-                route('knowledge.articles.search', { workspace: workspaceSlug }),
-                { q: searchQuery },
-            );
+            const url = new URL(knowledgeArticles.search.url({ workspace: workspaceSlug }, { query: { q: searchQuery } }, window.location.origin));
+            router.get(url.pathname + url.search, { q: searchQuery });
         }
     };
 
@@ -45,7 +45,7 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
         if (!newName.trim()) return;
 
         router.post(
-            route('knowledge.articles.store', { workspace: workspaceSlug }),
+            knowledgeArticles.store.url({ workspace: workspaceSlug }),
             {
                 title: newName,
                 status: 'draft',
@@ -103,10 +103,7 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                 key={category.id}
                                 onClick={() =>
                                     router.get(
-                                        route('knowledge.category', {
-                                            workspace: workspaceSlug,
-                                            category: category.slug,
-                                        }),
+                                        `/workspaces/${workspaceSlug}/knowledge/categories/${category.slug}`,
                                     )
                                 }
                                 className="group flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
@@ -145,10 +142,7 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                 key={article.id}
                                 onClick={() =>
                                     router.get(
-                                        route('knowledge.article', {
-                                            workspace: workspaceSlug,
-                                            article: article.slug,
-                                        }),
+                                        knowledgeRoutes.article.url({ workspace: workspaceSlug, article: article.slug }),
                                     )
                                 }
                                 className="group flex w-full items-center justify-between rounded-lg border p-4 text-left transition-colors hover:bg-accent"
