@@ -8,15 +8,23 @@ import {
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
     Activity as ActivityIcon,
+    Archive,
     BarChart3,
     Calendar as CalendarIcon,
     CalendarDays,
     FileText,
     Flag,
+    GanttChart as GanttChartIcon,
     LayoutGrid,
+    List,
+    Package,
+    Rocket,
     Search,
     Settings,
+    Tag,
+    Timer,
     Upload,
+    Workflow,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -851,13 +859,16 @@ export default function ProjectShow({
                             <span>{t('board.board')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="list">
-                            {t('project_show.tabs_list')}
+                            <List className="size-4" />
+                            <span>{t('project_show.tabs_list')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="epics">
-                            {t('settings.epics')}
+                            <Flag className="size-4" />
+                            <span>{t('settings.epics')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="sprints">
-                            {t('settings.sprints')}
+                            <Timer className="size-4" />
+                            <span>{t('settings.sprints')}</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="backlog"
@@ -870,7 +881,8 @@ export default function ProjectShow({
                                 )
                             }
                         >
-                            Backlog
+                            <Archive className="size-4" />
+                            <span>Backlog</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="releases"
@@ -883,10 +895,12 @@ export default function ProjectShow({
                                 )
                             }
                         >
-                            {t('release.title')}
+                            <Rocket className="size-4" />
+                            <span>{t('release.title')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="labels">
-                            {t('task.labels')}
+                            <Tag className="size-4" />
+                            <span>{t('task.labels')}</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="components"
@@ -899,10 +913,12 @@ export default function ProjectShow({
                                 )
                             }
                         >
-                            {t('component.title')}
+                            <Package className="size-4" />
+                            <span>{t('component.title')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="timeline">
-                            {t('workspace.timeline')}
+                            <GanttChartIcon className="size-4" />
+                            <span>{t('workspace.timeline')}</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="workload"
@@ -915,15 +931,21 @@ export default function ProjectShow({
                                 )
                             }
                         >
-                            Workload
+                            <BarChart3 className="size-4" />
+                            <span>Workload</span>
                         </TabsTrigger>
                         <TabsTrigger value="files">
-                            {t('project_show.tabs_files')}
+                            <Upload className="size-4" />
+                            <span>{t('project_show.tabs_files')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="reports">
-                            {t('reports.title')}
+                            <ActivityIcon className="size-4" />
+                            <span>{t('reports.title')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="activity">Activity</TabsTrigger>
+                        <TabsTrigger value="activity">
+                            <Settings className="size-4" />
+                            Activity
+                        </TabsTrigger>
                         <TabsTrigger
                             value="docs"
                             onClick={() =>
@@ -945,11 +967,12 @@ export default function ProjectShow({
                                     automationIndex({
                                         workspace: workspace.slug,
                                         project: project.slug,
-                                    }).url,
+                                    }                            ).url,
                                 )
                             }
                         >
-                            Automation
+                            <Workflow className="size-4" />
+                            <span>Automation</span>
                         </TabsTrigger>
                     </TabsList>
 
