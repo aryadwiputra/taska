@@ -14,9 +14,11 @@ import {
     CalendarDays,
     FileText,
     Flag,
+    FolderOpen,
     GanttChart as GanttChartIcon,
     LayoutGrid,
     List,
+    MoreHorizontal,
     Package,
     Rocket,
     Search,
@@ -45,6 +47,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
@@ -843,7 +853,7 @@ export default function ProjectShow({
                     onValueChange={setActiveTab}
                     className="mx-auto w-full max-w-7xl flex-col gap-4"
                 >
-                    <TabsList>
+                    <TabsList className="flex-wrap">
                         <TabsTrigger
                             value="board"
                             onClick={() =>
@@ -862,14 +872,6 @@ export default function ProjectShow({
                             <List className="size-4" />
                             <span>{t('project_show.tabs_list')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="epics">
-                            <Flag className="size-4" />
-                            <span>{t('settings.epics')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="sprints">
-                            <Timer className="size-4" />
-                            <span>{t('settings.sprints')}</span>
-                        </TabsTrigger>
                         <TabsTrigger
                             value="backlog"
                             onClick={() =>
@@ -885,68 +887,6 @@ export default function ProjectShow({
                             <span>Backlog</span>
                         </TabsTrigger>
                         <TabsTrigger
-                            value="releases"
-                            onClick={() =>
-                                router.visit(
-                                    releaseIndex.url({
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                    }),
-                                )
-                            }
-                        >
-                            <Rocket className="size-4" />
-                            <span>{t('release.title')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="labels">
-                            <Tag className="size-4" />
-                            <span>{t('task.labels')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="components"
-                            onClick={() =>
-                                router.visit(
-                                    componentIndex.url({
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                    }),
-                                )
-                            }
-                        >
-                            <Package className="size-4" />
-                            <span>{t('component.title')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="timeline">
-                            <GanttChartIcon className="size-4" />
-                            <span>{t('workspace.timeline')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="workload"
-                            onClick={() =>
-                                router.visit(
-                                    workloadIndex.url({
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                    }),
-                                )
-                            }
-                        >
-                            <BarChart3 className="size-4" />
-                            <span>Workload</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="files">
-                            <Upload className="size-4" />
-                            <span>{t('project_show.tabs_files')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="reports">
-                            <ActivityIcon className="size-4" />
-                            <span>{t('reports.title')}</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="activity">
-                            <Settings className="size-4" />
-                            Activity
-                        </TabsTrigger>
-                        <TabsTrigger
                             value="docs"
                             onClick={() =>
                                 router.visit(
@@ -960,20 +900,109 @@ export default function ProjectShow({
                             <FileText className="size-4" />
                             <span>{t('docs.title')}</span>
                         </TabsTrigger>
-                        <TabsTrigger
-                            value="automation"
-                            onClick={() =>
-                                router.visit(
-                                    automationIndex({
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                    }                            ).url,
-                                )
-                            }
-                        >
-                            <Workflow className="size-4" />
-                            <span>Automation</span>
+                        <TabsTrigger value="files">
+                            <FolderOpen className="size-4" />
+                            <span>{t('project_show.tabs_files')}</span>
                         </TabsTrigger>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="inline-flex h-[calc(100%-1px)] items-center justify-center gap-1.5 rounded-sm border border-transparent px-2.5 py-0.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+                                >
+                                    <MoreHorizontal className="size-4" />
+                                    <span>More</span>
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-48">
+                                <DropdownMenuLabel>Planning</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('epics')}
+                                >
+                                    <Flag className="size-4" />
+                                    <span>{t('settings.epics')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('sprints')}
+                                >
+                                    <Timer className="size-4" />
+                                    <span>{t('settings.sprints')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('timeline')}
+                                >
+                                    <GanttChartIcon className="size-4" />
+                                    <span>{t('workspace.timeline')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('workload')}
+                                >
+                                    <BarChart3 className="size-4" />
+                                    <span>Workload</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Delivery</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.visit(
+                                            releaseIndex.url({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                            }),
+                                        )
+                                    }
+                                >
+                                    <Rocket className="size-4" />
+                                    <span>{t('release.title')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.visit(
+                                            componentIndex.url({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                            }),
+                                        )
+                                    }
+                                >
+                                    <Package className="size-4" />
+                                    <span>{t('component.title')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.visit(
+                                            automationIndex.url({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                            }),
+                                        )
+                                    }
+                                >
+                                    <Workflow className="size-4" />
+                                    <span>Automation</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Organization</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('labels')}
+                                >
+                                    <Tag className="size-4" />
+                                    <span>{t('task.labels')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('reports')}
+                                >
+                                    <BarChart3 className="size-4" />
+                                    <span>{t('reports.title')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setActiveTab('activity')}
+                                >
+                                    <ActivityIcon className="size-4" />
+                                    <span>Activity</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </TabsList>
 
                     <TabsContent value="list">
