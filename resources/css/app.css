@@ -199,4 +199,14 @@
     ::selection {
         @apply bg-primary text-primary-foreground;
     }
+
+    .doc-task-ref {
+        @apply inline-flex items-center gap-0.5 rounded bg-muted px-1 py-0.5 text-xs font-mono font-medium;
+    }
+    .doc-task-ref--found {
+        @apply text-primary underline-offset-2 hover:underline;
+    }
+    .doc-task-ref--pending {
+        @apply text-muted-foreground;
+    }
 }

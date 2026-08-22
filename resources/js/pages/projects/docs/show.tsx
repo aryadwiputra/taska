@@ -2,9 +2,8 @@
 
 import { Head, router } from '@inertiajs/react';
 import {
-    ChevronDown,
-    ChevronRight,
     Clock,
+    Download,
     FileText,
     History,
     Pencil,
@@ -13,9 +12,10 @@ import {
     User,
     X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ConfirmDialog } from '@/components/confirm-dialog';
+import { TaskEmbedRenderer } from '@/components/doc-task-embed';
+import { DocTreeSortable } from '@/components/doc-tree-sortable';
 import { RichEditor } from '@/components/rich-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,11 +28,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { VersionHistory } from '@/components/version-history';
-import { cn } from '@/lib/utils';
-import { show as projectShow } from '@/routes/projects';
 import {
     destroy as docsDestroy,
     index as docsIndex,
+    pdf as docsPdf,
     show as docsShow,
     store as docsStore,
     update as docsUpdate,
@@ -53,38 +52,17 @@ export default function DocsShow({
     docsTree,
 }: Props) {
     const { t } = useTranslation();
-    const [doc, setDoc] = useState(initialDoc);
+    const [doc] = useState(initialDoc);
     const [editing, setEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(doc.title);
     const [editContent, setEditContent] = useState(doc.content || '');
     const [editParentId, setEditParentId] = useState<string>(
         String(doc.parent_id ?? 'none'),
     );
-    const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+    const [editVisibility, setEditVisibility] = useState(doc.visibility);
     const [creating, setCreating] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [versionsOpen, setVersionsOpen] = useState(false);
-
-    useEffect(() => {
-        setDoc(initialDoc);
-        setEditTitle(initialDoc.title);
-        setEditContent(initialDoc.content || '');
-        setEditParentId(String(initialDoc.parent_id ?? 'none'));
-    }, [initialDoc]);
-
-    const toggleCollapse = (id: number) => {
-        setCollapsed((prev) => {
-            const next = new Set(prev);
-
-            if (next.has(id)) {
-                next.delete(id);
-            } else {
-                next.add(id);
-            }
-
-            return next;
-        });
-    };
 
     const handleSave = () => {
         router.patch(
@@ -98,6 +76,7 @@ export default function DocsShow({
                 content: editContent,
                 parent_id:
                     editParentId !== 'none' ? Number(editParentId) : null,
+                visibility: editVisibility,
             },
             {
                 preserveScroll: true,
@@ -137,72 +116,6 @@ export default function DocsShow({
                     setNewTitle('');
                 },
             },
-        );
-    };
-
-    const DocTreeNode = ({
-        node,
-        depth,
-    }: {
-        node: DocTreeItem;
-        depth: number;
-    }) => {
-        const hasChildren = (node.children ?? []).length > 0;
-        const isCollapsed = collapsed.has(node.id);
-        const isActive = node.id === doc.id;
-
-        return (
-            <div>
-                <button
-                    type="button"
-                    onClick={() =>
-                        router.visit(
-                            docsShow.url({
-                                workspace: workspace.slug,
-                                project: project.slug,
-                                doc: node.slug,
-                            }),
-                        )
-                    }
-                    className={cn(
-                        'flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent',
-                        isActive &&
-                            'bg-accent font-medium text-accent-foreground',
-                    )}
-                    style={{ paddingLeft: `${depth * 16 + 8}px` }}
-                >
-                    {hasChildren ? (
-                        <span
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleCollapse(node.id);
-                            }}
-                            className="shrink-0 text-muted-foreground hover:text-foreground"
-                        >
-                            {isCollapsed ? (
-                                <ChevronRight className="size-3.5" />
-                            ) : (
-                                <ChevronDown className="size-3.5" />
-                            )}
-                        </span>
-                    ) : (
-                        <span className="size-3.5 shrink-0" />
-                    )}
-                    <FileText className="size-3.5 shrink-0 text-muted-foreground" />
-                    <span className="truncate">{node.title}</span>
-                </button>
-                {hasChildren && !isCollapsed && (
-                    <div>
-                        {node.children.map((child) => (
-                            <DocTreeNode
-                                key={child.id}
-                                node={child}
-                                depth={depth + 1}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
         );
     };
 
@@ -267,13 +180,12 @@ export default function DocsShow({
                 <div className="w-72 shrink-0">
                     <div className="rounded-lg border border-border bg-card p-2">
                         {docsTree.length > 0 ? (
-                            docsTree.map((node) => (
-                                <DocTreeNode
-                                    key={node.id}
-                                    node={node}
-                                    depth={0}
-                                />
-                            ))
+                            <DocTreeSortable
+                                workspaceSlug={workspace.slug}
+                                projectSlug={project.slug}
+                                nodes={docsTree}
+                                activeDocId={doc.id}
+                            />
                         ) : (
                             <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
                                 <FileText className="size-8 text-muted-foreground/40" />
@@ -332,6 +244,24 @@ export default function DocsShow({
                                 </Select>
                             </div>
                             <div>
+                                <Label htmlFor="edit-visibility">
+                                    {t('docs.visibility')}
+                                </Label>
+                                <Select
+                                    value={editVisibility}
+                                    onValueChange={(value) => setEditVisibility(value as DocDetail['visibility'])}
+                                >
+                                    <SelectTrigger id="edit-visibility">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="workspace">{t('docs.visibility_workspace')}</SelectItem>
+                                        <SelectItem value="project">{t('docs.visibility_project')}</SelectItem>
+                                        <SelectItem value="restricted">{t('docs.visibility_restricted')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
                                 <Label>{t('docs.doc_content')}</Label>
                                 <RichEditor
                                     content={editContent}
@@ -351,6 +281,7 @@ export default function DocsShow({
                                         setEditParentId(
                                             String(doc.parent_id ?? 'none'),
                                         );
+                                        setEditVisibility(doc.visibility);
                                     }}
                                 >
                                     {t('docs.cancel')}
@@ -386,6 +317,22 @@ export default function DocsShow({
                                     <Button
                                         size="sm"
                                         variant="outline"
+                                        onClick={() => {
+                                            window.location.href = docsPdf.url({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                                doc: doc.slug,
+                                            });
+                                        }}
+                                    >
+                                        <Download className="size-3.5" />
+                                        <span className="hidden sm:inline">
+                                             {t('docs.download_pdf')}
+                                        </span>
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
                                         onClick={() => setVersionsOpen(true)}
                                     >
                                         <History className="size-3.5" />
@@ -411,12 +358,12 @@ export default function DocsShow({
                                 </div>
                             </div>
 
-                            <div
-                                className="prose prose-sm max-w-none rounded-lg border border-border bg-card px-6 py-4"
-                                dangerouslySetInnerHTML={{
-                                    __html: doc.content || '',
-                                }}
-                            />
+                            <div className="rounded-lg border border-border bg-card px-6 py-4">
+                                <TaskEmbedRenderer
+                                    content={doc.content || ''}
+                                    workspaceSlug={workspace.slug}
+                                />
+                            </div>
 
                             {(doc.children ?? []).length > 0 && (
                                 <div>

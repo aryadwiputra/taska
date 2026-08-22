@@ -2,17 +2,19 @@
 
 import { Head, router } from '@inertiajs/react';
 import {
-    ChevronDown,
-    ChevronRight,
     FileText,
     Folder,
     Plus,
     Search,
-    Trash2,
     Upload,
+    Wand2,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DocTreeSortable } from '@/components/doc-tree-sortable';
+import { FileList } from '@/components/file-list';
+import { FilePreviewDialog } from '@/components/file-preview-dialog';
+import { UploadDropzone } from '@/components/file-upload-dropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,22 +25,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useCurrentUrl } from '@/hooks/use-current-url';
+import type { DocAttachment } from '@/lib/doc-attachments';
 import { show as projectShow } from '@/routes/projects';
 import {
     destroy as docsDestroy,
     search as searchRoute,
     show as docsShow,
     store as docsStore,
+    seedTemplates as seedTemplatesRoute,
 } from '@/routes/projects/docs';
-import { FileList } from '@/components/file-list';
-import { FilePreviewDialog } from '@/components/file-preview-dialog';
-import { UploadDropzone } from '@/components/file-upload-dropzone';
-import type { DocAttachment } from '@/lib/doc-attachments';
-import {
-    listAttachments,
-    previewAttachment,
-} from '@/lib/doc-attachments';
 import type { DocTreeItem } from '@/types/docs';
 
 interface Props {
@@ -49,19 +44,15 @@ interface Props {
 
 export default function DocsIndex({ workspace, project, docsTree }: Props) {
     const { t } = useTranslation();
-    const { isCurrentUrl } = useCurrentUrl();
     const [creating, setCreating] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newParentId, setNewParentId] = useState<string>('none');
-    const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<DocTreeItem[]>([]);
-    const [searching, setSearching] = useState(false);
     const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [selectedDoc, setSelectedDoc] = useState<DocTreeItem | null>(null);
     const [attachments, setAttachments] = useState<DocAttachment[]>([]);
-    const [attachmentsLoading, setAttachmentsLoading] = useState(false);
     const [previewAttachment, setPreviewAttachment] = useState<DocAttachment | null>(null);
     const [showUpload, setShowUpload] = useState(false);
 
@@ -75,13 +66,11 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
 
             if (!q.trim()) {
                 setSearchResults([]);
-                setSearching(false);
 
                 return;
             }
 
             searchTimerRef.current = setTimeout(() => {
-                setSearching(true);
 
                 fetch(
                     searchRoute.url({
@@ -99,25 +88,10 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                 )
                     .then((r) => r.json())
                     .then(setSearchResults)
-                    .finally(() => setSearching(false));
             }, 300);
         },
         [workspace.slug, project.slug],
     );
-
-    const toggleCollapse = (id: number) => {
-        setCollapsed((prev) => {
-            const next = new Set(prev);
-
-            if (next.has(id)) {
-                next.delete(id);
-            } else {
-                next.add(id);
-            }
-
-            return next;
-        });
-    };
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -158,102 +132,12 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
         );
     };
 
-    const loadAttachments = async (doc: DocTreeItem) => {
-        setAttachmentsLoading(true);
-        try {
-            const data = await listAttachments(workspace.slug, project.slug, doc.slug);
-            setAttachments(data);
-        } catch (error) {
-            console.error('Failed to load attachments:', error);
-        } finally {
-            setAttachmentsLoading(false);
-        }
-    };
-
     const handleUploadComplete = (attachment: DocAttachment) => {
         setAttachments((prev) => [attachment, ...prev]);
     };
 
     const handleAttachmentsChange = (newAttachments: DocAttachment[]) => {
         setAttachments(newAttachments);
-    };
-
-    const DocTreeNode = ({
-        node,
-        depth,
-    }: {
-        node: DocTreeItem;
-        depth: number;
-    }) => {
-        const hasChildren = (node.children ?? []).length > 0;
-        const isCollapsed = collapsed.has(node.id);
-
-        return (
-            <div>
-                <div
-                    className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
-                    style={{ paddingLeft: `${depth * 16 + 8}px` }}
-                >
-                    {hasChildren ? (
-                        <button
-                            type="button"
-                            onClick={() => toggleCollapse(node.id)}
-                            className="shrink-0 text-muted-foreground hover:text-foreground"
-                        >
-                            {isCollapsed ? (
-                                <ChevronRight className="size-3.5" />
-                            ) : (
-                                <ChevronDown className="size-3.5" />
-                            )}
-                        </button>
-                    ) : (
-                        <span className="size-3.5 shrink-0" />
-                    )}
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (isCurrentUrl(docsShow.url({ workspace: workspace.slug, project: project.slug, doc: node.slug }))) {
-                                setSelectedDoc(node);
-                                loadAttachments(node);
-                            } else {
-                                router.visit(
-                                    docsShow.url({
-                                        workspace: workspace.slug,
-                                        project: project.slug,
-                                        doc: node.slug,
-                                    }),
-                                );
-                            }
-                        }}
-                        className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                    >
-                        <Folder className="size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="truncate">{node.title}</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(node);
-                        }}
-                        className="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                    >
-                        <Trash2 className="size-3" />
-                    </button>
-                </div>
-                {hasChildren && !isCollapsed && (
-                    <div>
-                        {node.children.map((child) => (
-                            <DocTreeNode
-                                key={child.id}
-                                node={child}
-                                depth={depth + 1}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
     };
 
     const flattenForSelect = (
@@ -393,22 +277,47 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                 <div className="w-72 shrink-0">
                     <div className="rounded-lg border border-border bg-card p-2">
                         {docsTree.length > 0 ? (
-                            docsTree.map((node) => (
-                                <DocTreeNode
-                                    key={node.id}
-                                    node={node}
-                                    depth={0}
-                                />
-                            ))
+                            <DocTreeSortable
+                                workspaceSlug={workspace.slug}
+                                projectSlug={project.slug}
+                                nodes={docsTree}
+                                activeDocId={selectedDoc?.id}
+                                showDelete
+                                onDelete={handleDelete}
+                                onSelect={setSelectedDoc}
+                            />
                         ) : (
-                            <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                            <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                                 <FileText className="size-8 text-muted-foreground/40" />
-                                <p className="text-sm text-muted-foreground">
-                                    {t('docs.empty_title')}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t('docs.empty_description')}
-                                </p>
+                                <div>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('docs.empty_title')}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {t('docs.empty_description')}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!confirm(t('docs.seed_templates_confirm'))) {
+return;
+}
+
+                                        router.post(
+                                            seedTemplatesRoute.url({
+                                                workspace: workspace.slug,
+                                                project: project.slug,
+                                            }),
+                                            {},
+                                            { preserveScroll: true },
+                                        );
+                                    }}
+                                    className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                                >
+                                    <Wand2 className="size-3.5" />
+                                    {t('docs.seed_templates')}
+                                </button>
                             </div>
                         )}
                     </div>

@@ -8,6 +8,7 @@ export interface DocTreeItem {
     updated_at: string;
     author: { id: number; name: string; avatar: string | null } | null;
     children: DocTreeItem[];
+    visibility: 'workspace' | 'project' | 'restricted';
 }
 
 export interface DocDetail extends DocTreeItem {
@@ -21,4 +22,5 @@ export interface DocForm {
     content: string;
     parent_id: number | null;
     slug: string;
+    visibility: 'workspace' | 'project' | 'restricted';
 }
