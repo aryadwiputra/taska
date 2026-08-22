@@ -22,6 +22,7 @@ class UpdateDocRequest extends FormRequest
                 Rule::exists('docs', 'id')->where('project_id', $this->route('project')->id),
             ],
             'slug' => ['nullable', 'string', 'max:200', 'alpha_dash'],
+            'visibility' => ['required', 'string', Rule::in(['workspace', 'project', 'restricted'])],
         ];
     }
 }

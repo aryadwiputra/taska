@@ -7,8 +7,10 @@ use App\Http\Requests\UpdateDocRequest;
 use App\Models\Doc;
 use App\Models\DocVersion;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\Workspace;
 use App\Support\DocTreeBuilder;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class DocController extends Controller
 {
@@ -77,6 +80,7 @@ class DocController extends Controller
             'title' => $validated['title'],
             'slug' => $validated['slug'] ?? Str::slug($validated['title']),
             'content' => $validated['content'] ?? '',
+            'visibility' => $validated['visibility'] ?? 'project',
             'sort_order' => $project->docs()->max('sort_order') + 1,
         ]);
 
@@ -89,7 +93,7 @@ class DocController extends Controller
     {
         Gate::authorize('update', $doc);
 
-        $doc->update($request->safe()->only(['title', 'parent_id', 'slug', 'content']));
+        $doc->update($request->safe()->only(['title', 'parent_id', 'slug', 'content', 'visibility']));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Doc updated.']);
 
@@ -103,6 +107,37 @@ class DocController extends Controller
         $doc->delete();
 
         Inertia::flash('toast', ['type' => 'info', 'message' => 'Doc deleted.']);
+
+        return to_route('projects.docs.index', [$workspace, $project]);
+    }
+
+    public function seedTemplates(Request $request, Workspace $workspace, Project $project): RedirectResponse
+    {
+        Gate::authorize('update', $project);
+
+        if ($project->docs()->exists()) {
+            return back()->with('error', 'Project already has docs.');
+        }
+
+        $user = $request->user();
+        $templates = [
+            ['title' => 'Meeting Notes', 'slug' => 'meeting-notes', 'content' => '<h1>Meeting Notes</h1><p><em>Use this template to document meeting outcomes and action items.</em></p><h2>Meeting Details</h2><ul><li><strong>Date:</strong> </li><li><strong>Attendees:</strong> </li><li><strong>Facilitator:</strong> </li></ul><h2>Agenda</h2><ol><li>Item 1</li><li>Item 2</li></ol><h2>Discussion Notes</h2><p>Record key points here.</p><h2>Decisions Made</h2><ul><li>Decision 1</li></ul><h2>Action Items</h2><ul><li>[Owner] — [Action] — Due: [Date]</li></ul>', 'sort_order' => 1],
+            ['title' => 'Technical Specification', 'slug' => 'technical-specification', 'content' => '<h1>Technical Specification</h1><p><em>Document technical design and implementation details.</em></p><h2>Overview</h2><p>Brief description of the feature or system.</p><h2>Goals</h2><ul><li>Goal 1</li><li>Goal 2</li></ul><h2>Background</h2><p>Why is this needed?</p><h2>Detailed Design</h2><h3>Architecture</h3><p>System architecture description.</p><h3>Data Model</h3><p>Database schema changes.</p><h2>Alternatives Considered</h2><p>Other approaches evaluated.</p><h2>Risks</h2><ul><li>[Risk] — [Mitigation]</li></ul>', 'sort_order' => 2],
+            ['title' => 'Standard Operating Procedure', 'slug' => 'standard-operating-procedure', 'content' => '<h1>Standard Operating Procedure</h1><p><em>Document a repeatable process for your team.</em></p><h2>Purpose</h2><p>Why does this SOP exist?</p><h2>Scope</h2><p>Who does this apply to?</p><h2>Prerequisites</h2><ul><li>Requirement 1</li></ul><h2>Procedure</h2><ol><li><strong>Step 1:</strong> Description</li><li><strong>Step 2:</strong> Description</li></ol><h2>Troubleshooting</h2><ul><li>[Problem] — [Solution]</li></ul>', 'sort_order' => 3],
+        ];
+
+        foreach ($templates as $i => $t) {
+            $project->docs()->create([
+                'created_by' => $user?->id,
+                'title' => $t['title'],
+                'slug' => $t['slug'],
+                'content' => $t['content'],
+                'sort_order' => $t['sort_order'],
+                'visibility' => 'project',
+            ]);
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Templates created.']);
 
         return to_route('projects.docs.index', [$workspace, $project]);
     }
@@ -162,6 +197,54 @@ class DocController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Version restored.']);
 
         return back(303);
+    }
+
+    public function pdf(Workspace $workspace, Project $project, Doc $doc): SymfonyResponse
+    {
+        Gate::authorize('view', $doc);
+
+        $doc->load(['author:id,name']);
+
+        $pdf = Pdf::loadView('docs.pdf', [
+            'doc' => $doc,
+            'project' => $project,
+        ]);
+
+        $filename = Str::slug($doc->title).'-'.$doc->id.'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function embed(Request $request, Workspace $workspace): JsonResponse
+    {
+        $q = $request->query('q', '');
+
+        if (! str_contains($q, '-')) {
+            return response()->json(['found' => false]);
+        }
+
+        [$code, $taskNumber] = explode('-', $q, 2);
+
+        $task = Task::query()
+            ->whereHas('project', fn ($p) => $p->where('workspace_id', $workspace->id))
+            ->where('code', $code)
+            ->where('task_number', $taskNumber)
+            ->with('project:id,slug')
+            ->first(['id', 'code', 'task_number', 'title', 'project_id']);
+
+        if (! $task) {
+            return response()->json(['found' => false]);
+        }
+
+        $projectSlug = $task->project->slug;
+
+        return response()->json([
+            'found' => true,
+            'task_id' => $task->id,
+            'task_code' => $task->code.'-'.$task->task_number,
+            'task_title' => $task->title,
+            'url' => "/workspaces/{$workspace->slug}/projects/{$projectSlug}/tasks/{$task->id}",
+        ]);
     }
 
     private function buildBreadcrumbs(Doc $doc): array

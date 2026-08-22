@@ -24,6 +24,7 @@ class StoreDocRequest extends FormRequest
                 Rule::exists('docs', 'id')->where('project_id', $this->project->id),
             ],
             'slug' => ['nullable', 'string', 'max:200', 'alpha_dash'],
+            'visibility' => ['nullable', 'string', Rule::in(['workspace', 'project', 'restricted'])],
         ];
     }
 

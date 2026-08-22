@@ -16,7 +16,21 @@ class DocPolicy
 
     public function view(User $user, Doc $doc): bool
     {
-        return $user->can('view', $doc->project);
+        if (! $user->can('view', $doc->project)) {
+            return false;
+        }
+
+        if ($doc->visibility === 'workspace') {
+            return true;
+        }
+
+        if ($doc->visibility === 'restricted') {
+            return $doc->created_by === $user->id
+                || in_array(Rbac::projectRole($user, $doc->project), ['lead', 'manager'], true);
+        }
+
+        return Rbac::projectRole($user, $doc->project) !== null
+            || Rbac::canManageWorkspaceProjects($user, $doc->project->workspace);
     }
 
     public function create(User $user, Project $project): bool

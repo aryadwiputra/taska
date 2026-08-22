@@ -21,6 +21,7 @@ class Doc extends Model
         'title',
         'slug',
         'content',
+        'visibility',
         'sort_order',
     ];
 
@@ -28,6 +29,7 @@ class Doc extends Model
     {
         return [
             'sort_order' => 'integer',
+            'visibility' => 'string',
         ];
     }
 
