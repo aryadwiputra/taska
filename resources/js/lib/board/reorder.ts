@@ -75,7 +75,12 @@ export function reorderSameColumnTasks(
     if (typeof overId === 'string' && overId.startsWith('col:')) {
         insertPos = filtered.length;
     } else {
-        const overIdx = filtered.findIndex((t) => t.id === overId);
+        // Handle task: prefix if present
+        const overTaskId = typeof overId === 'string' && overId.startsWith('task:')
+            ? Number(overId.slice(5))
+            : overId;
+
+        const overIdx = filtered.findIndex((t) => t.id === overTaskId);
         insertPos = Math.max(0, overIdx);
 
         if (edge === 'bottom') {
@@ -108,7 +113,12 @@ export function calcSameColumnPosition(
         return column.tasks.length - 1;
     }
 
-    const overIdx = column.tasks.findIndex((t) => t.id === overId);
+    // Handle task: prefix if present
+    const overTaskId = typeof overId === 'string' && overId.startsWith('task:')
+        ? Number(overId.slice(5))
+        : overId;
+
+    const overIdx = column.tasks.findIndex((t) => t.id === overTaskId);
     const activeIdx = column.tasks.findIndex((t) => t.id === taskId);
 
     let position: number;
@@ -278,7 +288,11 @@ export function calculateTaskDropPosition(
         };
     }
 
-    const taskId = Number(overId);
+    // Handle task: prefix if present
+    const taskId = typeof overId === 'string' && overId.startsWith('task:')
+        ? Number(overId.slice(5))
+        : Number(overId);
+
     const column = findColumnByTaskId(columns, taskId);
 
     if (!column) {

@@ -412,15 +412,53 @@ function BoardClient({
             setOverTaskId(taskId);
             setOverColumnId(null);
 
-            const overRect = over.rect;
-            const pointerY = pointerYRef.current;
+            // Index-based edge detection - more reliable than pointer position
+            // Find the column that contains the over task
+            const overColumn = columns.find((col) =>
+                col.tasks.some((t) => `task:${t.id}` === overId),
+            );
 
-            if (overRect && pointerY > 0) {
-                setClosestEdge(
-                    pointerY < overRect.top + overRect.height / 2
-                        ? 'top'
-                        : 'bottom',
+            if (overColumn) {
+                const activeTaskId = parseTaskId(active.id);
+                const overTaskIndex = overColumn.tasks.findIndex(
+                    (t) => `task:${t.id}` === overId,
                 );
+                const activeTaskIndex = overColumn.tasks.findIndex(
+                    (t) => t.id === activeTaskId,
+                );
+
+                // If dragging task is BELOW the target task in the list,
+                // show 'top' indicator (to insert above)
+                // If dragging task is ABOVE the target task in the list,
+                // show 'bottom' indicator (to insert below)
+                let edge: 'top' | 'bottom' | null = null;
+
+                if (activeTaskIndex >= 0 && overTaskIndex >= 0) {
+                    // Same column drag
+                    if (activeTaskId !== taskId) {
+                        edge = activeTaskIndex > overTaskIndex ? 'top' : 'bottom';
+                    }
+                } else {
+                    // Cross-column drag - use pointer position as fallback
+                    const sourceEvent = event.sourceEvent;
+                    let pointerY: number | undefined;
+
+                    if (sourceEvent && 'clientY' in sourceEvent) {
+                        pointerY = (sourceEvent as PointerEvent).clientY;
+                    }
+
+                    if (pointerY === undefined) {
+                        pointerY = pointerYRef.current;
+                    }
+
+                    if (pointerY !== undefined) {
+                        const rectTop = over.rect.current?.top ?? over.rect.initial?.top ?? 0;
+                        const rectHeight = over.rect.current?.height ?? over.rect.initial?.height ?? 100;
+                        edge = pointerY < rectTop + rectHeight / 2 ? 'top' : 'bottom';
+                    }
+                }
+
+                setClosestEdge(edge);
             }
         }
     };
