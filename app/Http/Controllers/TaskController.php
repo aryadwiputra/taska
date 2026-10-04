@@ -262,7 +262,7 @@ class TaskController extends Controller
         }
 
         app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.created', [
-            'task' => $this->formatTaskForRealtime($task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])),
+            'task' => $task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])->toRealtimeArray(),
             'column_id' => $task->board_column_id,
         ]);
 
@@ -471,7 +471,7 @@ class TaskController extends Controller
 
             app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.moved', [
                 'taskId' => $task->id,
-                'task' => $this->formatTaskForRealtime($task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])),
+                'task' => $task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])->toRealtimeArray(),
                 'fromColumnId' => $oldColumnId,
                 'toColumnId' => $toColumn->id,
                 'position' => $task->position,
@@ -550,7 +550,7 @@ class TaskController extends Controller
 
                 if (! $existingApproval) {
                     // Create approval requests
-                    $approvers = $this->resolveApprovers($approvalFlow->required_approvers, $workspace);
+                    $approvers = $approvalFlow->resolveApprovers($workspace);
 
                     foreach ($approvers as $approverId) {
                         TaskApproval::create([
@@ -629,7 +629,7 @@ class TaskController extends Controller
 
         app(RealtimeGatewayService::class)->broadcast("project.{$project->id}", 'task.moved', [
             'taskId' => $task->id,
-            'task' => $this->formatTaskForRealtime($task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])),
+            'task' => $task->load(['assignees:id,name,avatar', 'priority', 'taskType', 'epics', 'sprints', 'boardColumn'])->toRealtimeArray(),
             'fromColumnId' => $oldColumnId,
             'toColumnId' => $targetColumn->id,
             'position' => $task->position,
@@ -637,28 +637,6 @@ class TaskController extends Controller
         ]);
 
         return back(303);
-    }
-
-    protected function resolveApprovers(array $requiredApprovers, Workspace $workspace): array
-    {
-        $approverIds = [];
-
-        foreach ($requiredApprovers as $approver) {
-            $type = $approver['type'] ?? '';
-            $value = $approver['value'] ?? null;
-
-            if ($type === 'user') {
-                $approverIds[] = (int) str_replace('user:', '', $value);
-            } elseif ($type === 'role') {
-                $roleMembers = $workspace->members()
-                    ->where('role', $value)
-                    ->pluck('user_id')
-                    ->all();
-                $approverIds = array_merge($approverIds, $roleMembers);
-            }
-        }
-
-        return array_unique($approverIds);
     }
 
     public function createBranch(Workspace $workspace, Project $project, Task $task): JsonResponse
@@ -719,47 +697,4 @@ class TaskController extends Controller
         }
     }
 
-    private function formatTaskForRealtime(Task $task): array
-    {
-        return [
-            'id' => $task->id,
-            'task_number' => $task->task_number,
-            'code' => $task->code,
-            'title' => $task->title,
-            'status' => $task->status,
-            'position' => $task->position,
-            'due_date' => $task->due_date,
-            'story_points' => $task->story_points,
-            'priority' => $task->priority ? [
-                'id' => $task->priority->id,
-                'name' => $task->priority->name,
-                'key' => $task->priority->key,
-                'color' => $task->priority->color,
-            ] : null,
-            'task_type' => [
-                'id' => $task->taskType->id,
-                'name' => $task->taskType->name,
-                'key' => $task->taskType->key,
-                'color' => $task->taskType->color,
-            ],
-            'assignees' => $task->assignees->map(fn ($u) => [
-                'id' => $u->id,
-                'name' => $u->name,
-                'avatar' => $u->avatar,
-            ])->values()->all(),
-            'epics' => $task->epics->map(fn ($e) => [
-                'id' => $e->id,
-                'name' => $e->name,
-                'color' => $e->color,
-                'status' => $e->status,
-            ])->values()->all(),
-            'sprints' => $task->sprints->map(fn ($s) => [
-                'id' => $s->id,
-                'name' => $s->name,
-                'status' => $s->status,
-                'start_date' => $s->start_date,
-                'end_date' => $s->end_date,
-            ])->values()->all(),
-        ];
-    }
 }

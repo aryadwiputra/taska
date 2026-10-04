@@ -160,4 +160,48 @@ class Task extends Model
 
         return strtolower($this->code.'-'.$slug);
     }
+
+    public function toRealtimeArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'task_number' => $this->task_number,
+            'code' => $this->code,
+            'title' => $this->title,
+            'status' => $this->status,
+            'position' => $this->position,
+            'due_date' => $this->due_date,
+            'story_points' => $this->story_points,
+            'priority' => $this->priority ? [
+                'id' => $this->priority->id,
+                'name' => $this->priority->name,
+                'key' => $this->priority->key,
+                'color' => $this->priority->color,
+            ] : null,
+            'task_type' => [
+                'id' => $this->taskType->id,
+                'name' => $this->taskType->name,
+                'key' => $this->taskType->key,
+                'color' => $this->taskType->color,
+            ],
+            'assignees' => $this->assignees->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'avatar' => $u->avatar,
+            ])->values()->all(),
+            'epics' => $this->epics->map(fn ($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'color' => $e->color,
+                'status' => $e->status,
+            ])->values()->all(),
+            'sprints' => $this->sprints->map(fn ($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+                'status' => $s->status,
+                'start_date' => $s->start_date,
+                'end_date' => $s->end_date,
+            ])->values()->all(),
+        ];
+    }
 }

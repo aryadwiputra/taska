@@ -1,4 +1,97 @@
 <laravel-boost-guidelines>
+
+# Project Overview
+
+**Taska** is a modern project management tool built on Laravel 13, Inertia 3, and React 19. It provides Kanban boards, sprints, approvals, automation rules, goals/OKRs, and real-time collaboration via Socket.IO.
+
+## Quick Commands
+
+```bash
+# Full dev environment (server + queue + logs + vite + gateways)
+composer run dev
+
+# All checks + tests (lint → format → types → tests)
+composer test
+
+# PHP lint + tests only (CI uses this)
+./vendor/bin/pest
+
+# PHP formatting (REQUIRED after PHP changes)
+vendor/bin/pint --dirty --format agent
+
+# Single test
+php artisan test --compact --filter=testName
+
+# Frontend checks
+bun run lint && bun run format && bun run types:check
+```
+
+## Architecture
+
+### Backend (Laravel)
+
+| Directory | Purpose |
+|-----------|---------|
+| `app/Http/Controllers/` | Request handling |
+| `app/Models/` | Eloquent models (Task, Project, Workspace, Sprint, Epic, etc.) |
+| `app/Services/` | Business logic (AutomationEngine, NotificationService, TaskBulkOperationService) |
+| `app/Policies/` | Authorization policies |
+| `app/Jobs/` | Queue jobs |
+| `app/Mail/` | Email notifications |
+| `app/Notifications/` | Laravel notifications |
+
+**Key Models:**
+- `Workspace` — Top-level organization with members and projects
+- `Project` — Belongs to a workspace, contains boards, sprints, epics
+- `Board` / `BoardColumn` — Kanban structure
+- `Task` — Core entity with assignees, labels, priorities, comments, attachments
+
+### Frontend (React + Inertia)
+
+| Directory | Purpose |
+|-----------|---------|
+| `resources/js/pages/` | Inertia page components (dashboard, projects/*, workspaces/*, settings/*) |
+| `resources/js/components/` | UI components (board/, dashboard/, ui/) |
+| `resources/js/hooks/` | Custom React hooks |
+| `resources/js/layouts/` | AppLayout, AuthLayout, SettingsLayout |
+
+**Layout Pattern** (`resources/js/app.tsx`):
+- `welcome` → no layout
+- `auth/*` → AuthLayout
+- `settings/*` → AppLayout + SettingsLayout
+- Default → AppLayout
+
+### Standalone Gateways
+
+| Directory | Purpose |
+|-----------|---------|
+| `realtime-gateway/` | Socket.IO for live board updates (port 3002) |
+| `whatsapp-gateway/` | WhatsApp notifications via whatsapp-web.js (port 3001) |
+
+Both start automatically with `composer run dev`. Each gateway needs its own `.env` file (copy from `.env.example` in each directory).
+
+## Key Conventions
+
+### PHP
+- Use constructor property promotion for dependencies
+- Explicit return types on all methods
+- `TitleCase` for Enum keys
+- Use helpers from `app/helpers.php` (e.g., `settings()`, `currentWorkspace()`)
+
+### Frontend
+- Tailwind CSS v4 (uses `@tailwindcss/vite`, not PostCSS)
+- shadcn/ui + Radix UI + Lucide React icons
+- React Compiler enabled via `babel-plugin-react-compiler`
+- Wayfinder generates typed route helpers → use `@/routes/` and `@/actions/`
+- ESLint ignores `resources/js/actions/**`, `resources/js/routes/**`, `resources/js/components/ui/*`
+
+### Testing
+- **Pest v4** with `test()`, `it()`, `expect()` syntax
+- `RefreshDatabase` NOT auto-applied — add `->use(RefreshDatabase::class)` per test
+- Use factories: `Task::factory()`, `Project::factory()`, etc.
+
+===
+
 === foundation rules ===
 
 # Laravel Boost Guidelines

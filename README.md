@@ -79,9 +79,9 @@ cd taska
 composer install
 
 # Install Node.js dependencies (frontend + gateways)
-npm install
-cd whatsapp-gateway && npm install && cd ..
-cd realtime-gateway && npm install && cd ..
+bun install
+cd whatsapp-gateway && bun install && cd ..
+cd realtime-gateway && bun install && cd ..
 
 # Set up environment
 cp .env.example .env
@@ -92,7 +92,7 @@ php artisan storage:link
 php artisan migrate
 
 # Build frontend
-npm run build
+bun run build
 
 # Start development
 composer run dev

@@ -42,4 +42,26 @@ class ApprovalFlow extends Model
     {
         return $this->hasMany(TaskApproval::class);
     }
+
+    public function resolveApprovers(Workspace $workspace): array
+    {
+        $approverIds = [];
+
+        foreach ($this->required_approvers as $approver) {
+            $type = $approver['type'] ?? '';
+            $value = $approver['value'] ?? null;
+
+            if ($type === 'user') {
+                $approverIds[] = (int) str_replace('user:', '', $value);
+            } elseif ($type === 'role') {
+                $roleMembers = $workspace->members()
+                    ->where('role', $value)
+                    ->pluck('user_id')
+                    ->all();
+                $approverIds = array_merge($approverIds, $roleMembers);
+            }
+        }
+
+        return array_unique($approverIds);
+    }
 }
