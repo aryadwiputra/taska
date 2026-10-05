@@ -1,4 +1,3 @@
-// Components
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
