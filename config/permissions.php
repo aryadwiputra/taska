@@ -16,6 +16,8 @@ return [
         'project.manage-members',
         'task.create',
         'task.edit-any',
+        'task.edit-own',
+        'task.assign',
         'task.delete-any',
         'task.comment',
         'task.delete-comment-any',
@@ -81,11 +83,19 @@ return [
             'workspace.view',
             'project.view-any',
             'task.create',
+            'task.edit-own',
+            'task.assign',
             'task.comment',
         ],
         'viewer' => [
             'workspace.view',
             'project.view-any',
+        ],
+        'guest' => [
+            'workspace.view',
+            'project.view-any',
+            'task.view-own',
+            'task.comment-own',
         ],
     ],
 ];

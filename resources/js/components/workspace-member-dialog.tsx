@@ -286,6 +286,9 @@ export function WorkspaceMemberDialog({
                                 <SelectItem value="viewer">
                                     {t('members.viewer')}
                                 </SelectItem>
+                                <SelectItem value="guest">
+                                    {t('members.guest')}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

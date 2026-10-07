@@ -18,7 +18,13 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -31,8 +37,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserAssignmentTab } from '@/components/workspace/user-assignment-tab';
 import { WhatsAppSettingsTab } from '@/components/whatsapp-settings-tab';
+import { UserAssignmentTab } from '@/components/workspace/user-assignment-tab';
 import { WorkspaceMemberDialog } from '@/components/workspace-member-dialog';
 import { WorkspaceNotificationChannels } from '@/components/workspace-notification-channels';
 import { WorkspaceRolesPermissions } from '@/components/workspace-roles-permissions';
@@ -167,6 +173,7 @@ export default function WorkspaceSettings({
         manager: t('members.manager'),
         member: t('members.member'),
         viewer: t('members.viewer'),
+        guest: t('members.guest'),
     };
     const permissionLabels: Record<string, string> = {
         'workspace.view': t('roles.permissions.workspace_view'),
@@ -191,8 +198,12 @@ export default function WorkspaceSettings({
         'project.manage-members': t('roles.permissions.project_manage_members'),
         'task.create': t('roles.permissions.task_create'),
         'task.edit-any': t('roles.permissions.task_edit'),
+        'task.edit-own': t('roles.permissions.task_edit_own'),
+        'task.assign': t('roles.permissions.task_assign'),
+        'task.view-own': t('roles.permissions.task_view_own'),
         'task.delete-any': t('roles.permissions.task_delete'),
         'task.comment': t('roles.permissions.task_comment'),
+        'task.comment-own': t('roles.permissions.task_comment_own'),
         'task.delete-comment-any': t('roles.permissions.task_delete_comment'),
         'epic.create': t('roles.permissions.epic_create'),
         'epic.edit': t('roles.permissions.epic_edit'),
@@ -1256,6 +1267,9 @@ export default function WorkspaceSettings({
                                                     <SelectItem value="viewer">
                                                         {t('members.viewer')}
                                                     </SelectItem>
+                                                    <SelectItem value="guest">
+                                                        {t('members.guest')}
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -1361,6 +1375,9 @@ export default function WorkspaceSettings({
                                     <CardTitle>
                                         {t('workspace.roles_title')}
                                     </CardTitle>
+                                    <CardDescription>
+                                        {t('roles.intro_description')}
+                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <WorkspaceRolesPermissions

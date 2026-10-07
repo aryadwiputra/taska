@@ -133,6 +133,9 @@ export function StepInvite({ workspaceSlug, onSkip, onDone }: StepInviteProps) {
                                 <SelectItem value="viewer">
                                     {t('onboarding.viewer')}
                                 </SelectItem>
+                                <SelectItem value="guest">
+                                    {t('onboarding.guest')}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                         <Button

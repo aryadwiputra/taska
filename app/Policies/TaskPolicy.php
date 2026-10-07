@@ -48,8 +48,19 @@ class TaskPolicy
             true,
         );
 
-        return ($isReporterOrAssignee || $canEditByProjectRole || Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.edit-any'))
+        $canEditOwn = $isReporterOrAssignee && Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.edit-own');
+
+        return ($isReporterOrAssignee || $canEditByProjectRole || $canEditOwn || Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.edit-any'))
             && Rbac::projectRoleAllows($user, $task->project, ['lead', 'manager', 'developer', 'qa', 'member']);
+    }
+
+    /**
+     * Determine whether the user can assign the model.
+     */
+    public function assign(User $user, Task $task): bool
+    {
+        return Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.assign')
+            || Rbac::userCanInWorkspace($user, $task->project->workspace, 'task.edit-any');
     }
 
     /**

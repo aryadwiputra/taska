@@ -50,7 +50,8 @@ export function canComment(
         (wsRole === 'owner' ||
             wsRole === 'admin' ||
             wsRole === 'manager' ||
-            wsRole === 'member') &&
+            wsRole === 'member' ||
+            wsRole === 'guest') &&
         (projectRole === null ||
             projectRole === 'lead' ||
             projectRole === 'manager' ||
@@ -61,6 +62,15 @@ export function canComment(
 }
 
 export function canCreateTask(wsRole?: WorkspaceRole): boolean {
+    return (
+        wsRole === 'owner' ||
+        wsRole === 'admin' ||
+        wsRole === 'manager' ||
+        wsRole === 'member'
+    );
+}
+
+export function canAssignTask(wsRole?: WorkspaceRole): boolean {
     return (
         wsRole === 'owner' ||
         wsRole === 'admin' ||

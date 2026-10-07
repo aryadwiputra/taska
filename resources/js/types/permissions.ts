@@ -17,8 +17,12 @@ export type Permission =
     | 'project.manage-members'
     | 'task.create'
     | 'task.edit-any'
+    | 'task.edit-own'
+    | 'task.assign'
+    | 'task.view-own'
     | 'task.delete-any'
     | 'task.comment'
+    | 'task.comment-own'
     | 'task.delete-comment-any'
     | 'epic.create'
     | 'epic.edit'
@@ -28,7 +32,7 @@ export type Permission =
     | 'sprint.delete'
     | 'board.manage';
 
-export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
+export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer' | 'guest';
 
 export type ProjectRole = 'lead' | 'manager' | 'developer' | 'qa' | 'member';
 
@@ -47,8 +51,12 @@ export const WORKSPACE_PERMISSIONS: Permission[] = [
     'project.manage-members',
     'task.create',
     'task.edit-any',
+    'task.edit-own',
+    'task.assign',
+    'task.view-own',
     'task.delete-any',
     'task.comment',
+    'task.comment-own',
     'task.delete-comment-any',
     'epic.create',
     'epic.edit',
@@ -76,8 +84,12 @@ export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
         'project.manage-members',
         'task.create',
         'task.edit-any',
+        'task.edit-own',
+        'task.assign',
+        'task.view-own',
         'task.delete-any',
         'task.comment',
+        'task.comment-own',
         'task.delete-comment-any',
         'epic.create',
         'epic.edit',
@@ -101,8 +113,12 @@ export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
         'project.manage-members',
         'task.create',
         'task.edit-any',
+        'task.edit-own',
+        'task.assign',
+        'task.view-own',
         'task.delete-any',
         'task.comment',
+        'task.comment-own',
         'task.delete-comment-any',
         'epic.create',
         'epic.edit',
@@ -123,8 +139,12 @@ export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
         'project.manage-members',
         'task.create',
         'task.edit-any',
+        'task.edit-own',
+        'task.assign',
+        'task.view-own',
         'task.delete-any',
         'task.comment',
+        'task.comment-own',
         'task.delete-comment-any',
         'epic.create',
         'epic.edit',
@@ -138,9 +158,12 @@ export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
         'workspace.view',
         'project.view-any',
         'task.create',
+        'task.edit-own',
+        'task.assign',
         'task.comment',
     ],
     viewer: ['workspace.view', 'project.view-any'],
+    guest: ['workspace.view', 'project.view-any', 'task.view-own', 'task.comment-own'],
 };
 
 export function hasPermission(

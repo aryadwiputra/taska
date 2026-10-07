@@ -13,7 +13,7 @@ use App\Models\Workspace;
 
 class Rbac
 {
-    public const WORKSPACE_ROLES = ['owner', 'admin', 'manager', 'member', 'viewer'];
+    public const WORKSPACE_ROLES = ['owner', 'admin', 'manager', 'member', 'viewer', 'guest'];
 
     public const PROJECT_ROLES = ['lead', 'manager', 'developer', 'qa', 'member', 'viewer'];
 
