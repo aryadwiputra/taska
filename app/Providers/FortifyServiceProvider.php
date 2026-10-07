@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\LoginResponse;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -40,8 +41,7 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
-        // Registration is disabled — see config/fortify.php Features::registration()
-        // Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::createUsersUsing(CreateNewUser::class);
     }
 
     /**
@@ -49,6 +49,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
+        Fortify::registerView(fn (Request $request) => Inertia::render('auth/register', [
+            'passwordRules' => Password::defaults()->toPasswordRulesString(),
+        ]));
+
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
