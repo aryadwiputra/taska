@@ -71,9 +71,12 @@ export function NavWorkspace({ workspaceSlug }: Props) {
               }
             | undefined;
 
-        return Boolean(
-            permissions?.workspace?.includes(item.permission) ||
-            permissions?.project?.includes(item.permission),
+        const workspacePerms = permissions?.workspace ?? [];
+
+        return (
+            workspacePerms.includes('*') ||
+            workspacePerms.includes(item.permission) ||
+            Boolean(permissions?.project?.includes(item.permission))
         );
     };
 

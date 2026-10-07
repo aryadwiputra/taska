@@ -113,9 +113,13 @@ export function useHasPermission() {
           }
         | undefined;
 
-    return (permission: Permission): boolean =>
-        Boolean(
-            permissions?.workspace?.includes(permission) ||
-            permissions?.project?.includes(permission),
+    return (permission: Permission): boolean => {
+        const workspacePerms = permissions?.workspace ?? [];
+
+        return (
+            workspacePerms.includes('*') ||
+            workspacePerms.includes(permission) ||
+            Boolean(permissions?.project?.includes(permission))
         );
+    };
 }
