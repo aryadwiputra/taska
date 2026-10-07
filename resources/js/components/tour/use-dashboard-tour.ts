@@ -33,6 +33,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.switch_workspace_title'),
                 description: t('tour.switch_workspace_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -40,6 +41,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.board_title'),
                 description: t('tour.board_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -47,6 +49,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.create_task_title'),
                 description: t('tour.create_task_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -54,6 +57,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.assign_members_title'),
                 description: t('tour.assign_members_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -61,6 +65,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.labels_title'),
                 description: t('tour.labels_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -68,6 +73,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.sprints_title'),
                 description: t('tour.sprints_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
@@ -75,6 +81,7 @@ function createTourDriver(t: (key: string) => string) {
             popover: {
                 title: t('tour.knowledge_title'),
                 description: t('tour.knowledge_description'),
+                showButtons: ['next', 'previous', 'close'],
             },
         },
         {
