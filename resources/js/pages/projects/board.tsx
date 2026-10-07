@@ -436,7 +436,8 @@ function BoardClient({
                 if (activeTaskIndex >= 0 && overTaskIndex >= 0) {
                     // Same column drag
                     if (activeTaskId !== taskId) {
-                        edge = activeTaskIndex > overTaskIndex ? 'top' : 'bottom';
+                        edge =
+                            activeTaskIndex > overTaskIndex ? 'top' : 'bottom';
                     }
                 } else {
                     // Cross-column drag - use pointer position as fallback
@@ -452,9 +453,18 @@ function BoardClient({
                     }
 
                     if (pointerY !== undefined) {
-                        const rectTop = over.rect.current?.top ?? over.rect.initial?.top ?? 0;
-                        const rectHeight = over.rect.current?.height ?? over.rect.initial?.height ?? 100;
-                        edge = pointerY < rectTop + rectHeight / 2 ? 'top' : 'bottom';
+                        const rectTop =
+                            over.rect.current?.top ??
+                            over.rect.initial?.top ??
+                            0;
+                        const rectHeight =
+                            over.rect.current?.height ??
+                            over.rect.initial?.height ??
+                            100;
+                        edge =
+                            pointerY < rectTop + rectHeight / 2
+                                ? 'top'
+                                : 'bottom';
                     }
                 }
 
@@ -1025,6 +1035,7 @@ function BoardClient({
                             </Button>
                             {canCreateTask(wsRole) && (
                                 <TaskCreateDialog
+                                    dataTour="new-task"
                                     workspaceSlug={workspace.slug}
                                     projectSlug={project.slug}
                                     taskTypes={taskTypes}

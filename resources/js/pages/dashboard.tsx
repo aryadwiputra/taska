@@ -20,6 +20,7 @@ import {
 } from '@/components/dashboard/upcoming-deadlines-widget';
 import { PageHeader } from '@/components/page-header';
 import { SurfaceSection } from '@/components/surface-section';
+import { TourButton } from '@/components/tour/tour-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { dashboard } from '@/routes';
 import type {
@@ -141,6 +142,8 @@ export default function Dashboard({
                 >
                     <RecentActivityWidget activities={recentActivity ?? []} />
                 </WhenVisible>
+
+                <TourButton />
             </div>
         </>
     );

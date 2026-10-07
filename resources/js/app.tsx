@@ -1,3 +1,5 @@
+import 'driver.js/dist/driver.css';
+
 import { createInertiaApp } from '@inertiajs/react';
 import { I18nextProvider } from 'react-i18next';
 import { ErrorBoundary } from '@/components/error-boundary';

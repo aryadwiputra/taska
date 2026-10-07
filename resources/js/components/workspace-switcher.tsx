@@ -45,6 +45,7 @@ export function WorkspaceSwitcher() {
                     variant="outline"
                     size="sm"
                     className="max-w-[14rem] min-w-0 justify-start border-sidebar-border/60 sm:max-w-[18rem]"
+                    data-tour="workspace-switcher"
                 >
                     <span className="truncate">
                         {currentWorkspace?.name ??

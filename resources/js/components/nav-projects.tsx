@@ -134,6 +134,7 @@ export function NavProjects() {
                                             <button
                                                 type="button"
                                                 className="group/project flex w-full items-center gap-2 group-data-[collapsible=icon]:!flex"
+                                                data-tour="sidebar-board"
                                                 onClick={() =>
                                                     router.visit(
                                                         projectBoard.url({

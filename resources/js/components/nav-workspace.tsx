@@ -111,12 +111,29 @@ export function NavWorkspace({ workspaceSlug }: Props) {
                                 type="button"
                                 className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => handleClick(item)}
+                                data-tour={
+                                    item.title === t('sidebar.sprints')
+                                        ? 'sidebar-sprints'
+                                        : item.title === t('sidebar.knowledge')
+                                            ? 'sidebar-knowledge'
+                                            : undefined
+                                }
                             >
                                 <item.icon />
                                 <span>{item.title}</span>
                             </button>
                         ) : (
-                            <Link href={item.href} prefetch>
+                            <Link
+                                href={item.href}
+                                prefetch
+                                data-tour={
+                                    item.title === t('sidebar.sprints')
+                                        ? 'sidebar-sprints'
+                                        : item.title === t('sidebar.knowledge')
+                                            ? 'sidebar-knowledge'
+                                            : undefined
+                                }
+                            >
                                 <item.icon />
                                 <span>{item.title}</span>
                             </Link>

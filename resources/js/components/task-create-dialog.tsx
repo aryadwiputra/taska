@@ -48,6 +48,7 @@ interface Props {
     onCreated?: () => void;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    dataTour?: string;
 }
 
 const NO_PRIORITY_VALUE = 'none';
@@ -64,6 +65,7 @@ export function TaskCreateDialog({
     onCreated,
     open: controlledOpen,
     onOpenChange: controlledOnOpenChange,
+    dataTour,
 }: Props) {
     const { t } = useTranslation();
     const [internalOpen, setInternalOpen] = useState(false);
@@ -114,7 +116,7 @@ export function TaskCreateDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" data-tour={dataTour}>
                     <Plus className="size-3.5" />
                     <span>{t('task.new_task')}</span>
                 </Button>
