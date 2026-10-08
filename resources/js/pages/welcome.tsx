@@ -25,10 +25,10 @@ const navItems = [
 ] as const;
 
 const techLogos = [
-    { name: 'Laravel', src: 'https://cdn.simpleicons.org/laravel/FF2D20', label: 'Laravel' },
-    { name: 'React', src: 'https://cdn.simpleicons.org/react/61DAFB', label: 'React' },
-    { name: 'TypeScript', src: 'https://cdn.simpleicons.org/typescript/3178C6', label: 'TypeScript' },
-    { name: 'MySQL', src: 'https://cdn.simpleicons.org/mysql/4479A1', label: 'MySQL' },
+    { name: 'Laravel', src: '/images/tech/laravel.svg', label: 'Laravel' },
+    { name: 'React', src: '/images/tech/react.svg', label: 'React' },
+    { name: 'TypeScript', src: '/images/tech/typescript.svg', label: 'TypeScript' },
+    { name: 'MySQL', src: '/images/tech/mysql.svg', label: 'MySQL' },
 ] as const;
 
 const featureCards = [
