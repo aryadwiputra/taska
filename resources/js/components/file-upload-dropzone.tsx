@@ -1,13 +1,10 @@
 import { Upload, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { uploadAttachment } from '@/lib/doc-attachments';
+import type { DocAttachment } from '@/lib/doc-attachments';
 import { cn } from '@/lib/utils';
-import {
-    type DocAttachment,
-    uploadAttachment,
-} from '@/lib/doc-attachments';
 
 interface UploadDropzoneProps {
     workspaceSlug: string;
@@ -30,9 +27,52 @@ export function UploadDropzone({
     onUploadComplete,
     onUploadError,
 }: UploadDropzoneProps) {
-    const { t } = useTranslation();
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+
+    const uploadFiles = useCallback(
+        async (files: File[]) => {
+            for (const file of files) {
+                const uploadingFile: UploadingFile = { file, progress: 0 };
+                setUploadingFiles((prev) => [...prev, uploadingFile]);
+
+                try {
+                    const attachment = await uploadAttachment(
+                        workspaceSlug,
+                        projectSlug,
+                        docSlug,
+                        file,
+                        (progress) => {
+                            setUploadingFiles((prev) =>
+                                prev.map((uf) =>
+                                    uf.file === file
+                                        ? { ...uf, progress }
+                                        : uf,
+                                ),
+                            );
+                        },
+                    );
+
+                    setUploadingFiles((prev) =>
+                        prev.filter((uf) => uf.file !== file),
+                    );
+                    onUploadComplete(attachment);
+                    toast.success(`${file.name} uploaded successfully`);
+                } catch (error) {
+                    const message =
+                        error instanceof Error ? error.message : 'Upload failed';
+                    setUploadingFiles((prev) =>
+                        prev.map((uf) =>
+                            uf.file === file ? { ...uf, error: message } : uf,
+                        ),
+                    );
+                    onUploadError?.(message);
+                    toast.error(`Failed to upload ${file.name}: ${message}`);
+                }
+            }
+        },
+        [workspaceSlug, projectSlug, docSlug, onUploadComplete, onUploadError],
+    );
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -53,66 +93,26 @@ export function UploadDropzone({
             setIsDragOver(false);
 
             const files = Array.from(e.dataTransfer.files);
+
             if (files.length > 0) {
                 await uploadFiles(files);
             }
         },
-        [workspaceSlug, projectSlug, docSlug],
+        [uploadFiles],
     );
 
     const handleFileSelect = useCallback(
         async (e: React.ChangeEvent<HTMLInputElement>) => {
             const files = Array.from(e.target.files || []);
+
             if (files.length > 0) {
                 await uploadFiles(files);
             }
+
             e.target.value = '';
         },
-        [workspaceSlug, projectSlug, docSlug],
+        [uploadFiles],
     );
-
-    const uploadFiles = async (files: File[]) => {
-        for (const file of files) {
-            const uploadingFile: UploadingFile = { file, progress: 0 };
-            setUploadingFiles((prev) => [...prev, uploadingFile]);
-
-            try {
-                const attachment = await uploadAttachment(
-                    workspaceSlug,
-                    projectSlug,
-                    docSlug,
-                    file,
-                    (progress) => {
-                        setUploadingFiles((prev) =>
-                            prev.map((uf) =>
-                                uf.file === file
-                                    ? { ...uf, progress }
-                                    : uf,
-                            ),
-                        );
-                    },
-                );
-
-                setUploadingFiles((prev) =>
-                    prev.filter((uf) => uf.file !== file),
-                );
-                onUploadComplete(attachment);
-                toast.success(`${file.name} uploaded successfully`);
-            } catch (error) {
-                const message =
-                    error instanceof Error
-                        ? error.message
-                        : 'Upload failed';
-                setUploadingFiles((prev) =>
-                    prev.map((uf) =>
-                        uf.file === file ? { ...uf, error: message } : uf,
-                    ),
-                );
-                onUploadError?.(message);
-                toast.error(`Failed to upload ${file.name}: ${message}`);
-            }
-        }
-    };
 
     const removeUploadingFile = (file: File) => {
         setUploadingFiles((prev) => prev.filter((uf) => uf.file !== file));

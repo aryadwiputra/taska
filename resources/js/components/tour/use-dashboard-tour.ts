@@ -1,7 +1,7 @@
 'use client';
 
 import { driver } from 'driver.js';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n/config';
 
@@ -9,7 +9,7 @@ export const TOUR_SEEN_KEY = 'tour_seen_dashboard';
 
 let driverInstance: ReturnType<typeof driver> | null = null;
 
-function createTourDriver(t: (key: string) => string) {
+function createTourDriver(t: (key: string, options?: Record<string, string>) => string) {
     if (driverInstance) {
         driverInstance.destroy();
     }
@@ -129,6 +129,7 @@ function createTourDriver(t: (key: string) => string) {
 
 export function resetTourState() {
     localStorage.removeItem(TOUR_SEEN_KEY);
+
     if (driverInstance) {
         driverInstance.destroy();
         driverInstance = null;
@@ -136,25 +137,26 @@ export function resetTourState() {
 }
 
 export function startTour() {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+        return;
+    }
 
-    const t = (key: string) => i18n.t(key);
+    const t = (key: string, options?: Record<string, string>) =>
+        i18n.t(key, options);
     const tourDriver = createTourDriver(t);
     tourDriver.drive();
 }
 
 export function useDashboardTour(isEnabled = true) {
-    const [mounted, setMounted] = useState(false);
+    const [mounted] = useState(() => typeof window !== 'undefined');
     const { t } = useTranslation();
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const shouldRun = mounted && isEnabled && !localStorage.getItem(TOUR_SEEN_KEY);
 
     useEffect(() => {
-        if (!shouldRun) return;
+        if (!shouldRun) {
+            return;
+        }
 
         const tourDriver = createTourDriver(t);
         tourDriver.drive();

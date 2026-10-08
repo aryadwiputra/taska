@@ -36,7 +36,6 @@ import {
 import {
     canManageBoard,
     canManageSprints,
-    toastNoAccess,
 } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import { show as projectShow } from '@/routes/projects';
@@ -45,6 +44,7 @@ import {
     reorder as backlogReorder,
     addToSprint as backlogAddToSprint,
 } from '@/routes/projects/backlog';
+import type { ProjectRole, WorkspaceRole } from '@/types/permissions';
 
 interface Assignee {
     id: number;
@@ -385,8 +385,11 @@ export default function BacklogIndex({
     const currentWorkspace = pageProps.currentWorkspace as {
         role?: string;
     } | null;
-    const wsRole = currentWorkspace?.role;
-    const canReorder = canManageBoard(wsRole, userProjectRole);
+    const wsRole = currentWorkspace?.role as WorkspaceRole | undefined;
+    const canReorder = canManageBoard(
+        wsRole,
+        userProjectRole as ProjectRole | null | undefined,
+    );
     const backlogGuide = useBacklogGuide(t);
     const [tasks, setTasks] = useState<TaskItem[]>(initialTasks);
     const [activeTask, setActiveTask] = useState<TaskItem | null>(null);

@@ -30,19 +30,31 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [createType, setCreateType] = useState<'category' | 'article'>('article');
+    const [createType, setCreateType] = useState<'category' | 'article'>(
+        'article',
+    );
     const [newName, setNewName] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+        null,
+    );
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
-            const url = new URL(knowledgeArticles.search.url({ workspace: workspaceSlug }, { query: { q: searchQuery } }, window.location.origin));
+            const url = new URL(
+                knowledgeArticles.search.url(
+                    { workspace: workspaceSlug },
+                    { query: { q: searchQuery } },
+                ),
+                window.location.origin,
+            );
             router.get(url.pathname + url.search, { q: searchQuery });
         }
     };
 
     const handleCreateArticle = () => {
-        if (!newName.trim()) return;
+        if (!newName.trim()) {
+            return;
+        }
 
         router.post(
             knowledgeArticles.store.url({ workspace: workspaceSlug }),

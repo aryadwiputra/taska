@@ -3,17 +3,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useSocketEvent } from '@/hooks/use-socket';
-import { UserAssignmentListView } from './user-assignment-list-view';
-import { UserAssignmentHeader } from './user-assignment-header';
-import { UserBulkAssignBar } from './user-bulk-assign-bar';
-import { EditAssignmentDialog } from './edit-assignment-dialog';
 import {
     bulkStore,
     destroy,
     index,
     store,
-    update,
 } from '@/routes/workspaces/user-assignments';
+import { EditAssignmentDialog } from './edit-assignment-dialog';
+import { UserAssignmentHeader } from './user-assignment-header';
+import { UserAssignmentListView } from './user-assignment-list-view';
+import { UserBulkAssignBar } from './user-bulk-assign-bar';
 
 interface UserAssignmentData {
     user_id: number;
@@ -49,7 +48,6 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterProject, setFilterProject] = useState('all');
-    const [viewMode, setViewMode] = useState<'list'>('list');
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<UserAssignmentData | null>(
@@ -100,21 +98,7 @@ export function UserAssignmentTab({ workspaceSlug, workspaceId }: Props) {
         );
     };
 
-    const handleUpdateRole = (assignmentId: number, role: string) => {
-        router.put(
-            update({ workspace: workspaceSlug, projectMember: assignmentId }),
-            { role },
-            {
-                onSuccess: () => fetchData(),
-            },
-        );
-    };
-
-    const handleRemove = (
-        assignmentId: number,
-        _projectId: number,
-        _userId: number,
-    ) => {
+    const handleRemove = (assignmentId: number) => {
         router.delete(
             destroy({ workspace: workspaceSlug, projectMember: assignmentId }),
             {

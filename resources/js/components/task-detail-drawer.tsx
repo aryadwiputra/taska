@@ -43,7 +43,6 @@ import {
     canComment,
     canDeleteTask,
     canEditTask,
-    toastNoAccess,
 } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import {
@@ -66,6 +65,7 @@ import {
     destroy as destroyRelation,
     store as storeRelation,
 } from '@/routes/projects/tasks/relations';
+import type { ProjectRole, WorkspaceRole } from '@/types/permissions';
 
 interface UserRef {
     id: number;
@@ -276,10 +276,19 @@ export function TaskDetailDrawer({
     const user = usePage().props.auth?.user as { id: number } | null;
     const { props } = usePage();
     const currentWorkspace = props.currentWorkspace as { role?: string } | null;
-    const wsRole = currentWorkspace?.role;
-    const canEdit = canEditTask(wsRole, userProjectRole);
-    const canDel = canDeleteTask(wsRole, userProjectRole);
-    const canWriteComment = canComment(wsRole, userProjectRole);
+    const wsRole = currentWorkspace?.role as WorkspaceRole | undefined;
+    const canEdit = canEditTask(
+        wsRole,
+        userProjectRole as ProjectRole | null | undefined,
+    );
+    const canDel = canDeleteTask(
+        wsRole,
+        userProjectRole as ProjectRole | null | undefined,
+    );
+    const canWriteComment = canComment(
+        wsRole,
+        userProjectRole as ProjectRole | null | undefined,
+    );
     const [loading, setLoading] = useState(false);
     const [task, setTask] = useState<TaskDetail | null>(null);
     const [options, setOptions] = useState<TaskOptions>({
@@ -449,7 +458,6 @@ export function TaskDetailDrawer({
 
             refreshTaskDetails();
         },
-        [projectId, taskId, user],
     );
 
     useSocketEvent(
@@ -462,7 +470,6 @@ export function TaskDetailDrawer({
 
             refreshTaskDetails();
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -475,7 +482,6 @@ export function TaskDetailDrawer({
 
             refreshTaskDetails();
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -490,7 +496,6 @@ export function TaskDetailDrawer({
             setTask(null);
             onDelete?.();
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -523,7 +528,6 @@ export function TaskDetailDrawer({
 
             setActivities((prev) => [newItem, ...prev].slice(0, 20));
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -540,7 +544,6 @@ export function TaskDetailDrawer({
                 ),
             );
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -553,7 +556,6 @@ export function TaskDetailDrawer({
 
             setComments((prev) => prev.filter((c) => c.id !== e.commentId));
         },
-        [projectId, taskId],
     );
 
     useSocketEvent(
@@ -588,7 +590,6 @@ export function TaskDetailDrawer({
                 }, 4000),
             );
         },
-        [projectId, taskId, user?.id],
     );
 
     const handleAssigneeToggle = (assignee: UserRef, checked: boolean) => {

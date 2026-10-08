@@ -80,7 +80,6 @@ import {
     show as sprintShow,
 } from '@/routes/projects/sprints';
 import { update as taskUpdate } from '@/routes/projects/tasks';
-import { index as workloadIndex } from '@/routes/projects/workload';
 
 interface Member {
     id: number;
@@ -316,7 +315,6 @@ export default function ProjectShow({
                 ),
             );
         },
-        [project.id],
     );
 
     useSocketEvent(
@@ -329,7 +327,6 @@ export default function ProjectShow({
                 setLocalTasks((prev) => prev.filter((t) => t.id !== e.task_id));
             }
         },
-        [project.id],
     );
     const [epicDialogOpen, setEpicDialogOpen] = useState(false);
     const [editingEpic, setEditingEpic] = useState<EpicRow | null>(null);

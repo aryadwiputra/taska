@@ -67,6 +67,7 @@ import type {
     BoardTaskItem,
     BoardWorkspace,
 } from '@/types/board';
+import type { ProjectRole, WorkspaceRole } from '@/types/permissions';
 
 function useBoardGuide(t: (key: string) => string): GuideContent {
     return {
@@ -255,7 +256,7 @@ function BoardClient({
     const currentWorkspace = pageProps.currentWorkspace as {
         role?: string;
     } | null;
-    const wsRole = currentWorkspace?.role;
+    const wsRole = currentWorkspace?.role as WorkspaceRole | undefined;
     const boardGuide = useBoardGuide(t);
     const [columns, setColumns] = useState(initialColumns);
     const columnsSnapshotRef = useRef(columns);
@@ -441,7 +442,7 @@ function BoardClient({
                     }
                 } else {
                     // Cross-column drag - use pointer position as fallback
-                    const sourceEvent = event.sourceEvent;
+                    const sourceEvent = event.activatorEvent;
                     let pointerY: number | undefined;
 
                     if (sourceEvent && 'clientY' in sourceEvent) {
@@ -453,14 +454,8 @@ function BoardClient({
                     }
 
                     if (pointerY !== undefined) {
-                        const rectTop =
-                            over.rect.current?.top ??
-                            over.rect.initial?.top ??
-                            0;
-                        const rectHeight =
-                            over.rect.current?.height ??
-                            over.rect.initial?.height ??
-                            100;
+                        const rectTop = over.rect.top ?? 0;
+                        const rectHeight = over.rect.height ?? 100;
                         edge =
                             pointerY < rectTop + rectHeight / 2
                                 ? 'top'
@@ -533,9 +528,7 @@ function BoardClient({
         [activeTask],
     );
 
-    useSocketEvent(`project.${project.id}`, 'task.moved', handleTaskMoved, [
-        activeTask,
-    ]);
+    useSocketEvent(`project.${project.id}`, 'task.moved', handleTaskMoved);
 
     interface TaskCreatedEvent {
         task: BoardTaskItem;
@@ -561,7 +554,6 @@ function BoardClient({
         `project.${project.id}`,
         'task.created',
         handleTaskCreated,
-        [],
     );
 
     interface TaskFieldUpdatedEvent {
@@ -584,7 +576,6 @@ function BoardClient({
         `project.${project.id}`,
         'task.field.updated',
         handleTaskFieldUpdated,
-        [],
     );
 
     interface TaskDeletedEvent {
@@ -604,7 +595,6 @@ function BoardClient({
         `project.${project.id}`,
         'task.deleted',
         handleTaskDeleted,
-        [],
     );
 
     interface TasksReorderedEvent {
@@ -626,7 +616,6 @@ function BoardClient({
         `project.${project.id}`,
         'tasks.reordered',
         handleTasksReordered,
-        [activeTask],
     );
 
     interface ColumnsReorderedEvent {
@@ -661,7 +650,6 @@ function BoardClient({
         `project.${project.id}`,
         'columns.reordered',
         handleColumnsReordered,
-        [activeColumn],
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -1020,7 +1008,7 @@ function BoardClient({
                                 size="sm"
                                 onClick={() => {
                                     if (
-                                        !canManageBoard(wsRole, userProjectRole)
+                                        !canManageBoard(wsRole, userProjectRole as ProjectRole | null | undefined)
                                     ) {
                                         toastNoAccess();
 

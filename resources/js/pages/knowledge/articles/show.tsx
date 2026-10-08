@@ -1,10 +1,14 @@
-import { ArrowLeft, BookOpen, Edit, Eye, FileText, Plus, Trash2 } from 'lucide-react';
-import { router, usePage, useForm } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import {
+    ArrowLeft,
+    Edit,
+    Eye,
+    FileText,
+    Plus,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -13,6 +17,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import knowledgeRoutes from '@/routes/knowledge';
 import knowledgeArticlesRoutes from '@/routes/knowledge/articles';
@@ -24,7 +30,6 @@ interface Props {
 }
 
 export default function ArticleShow({ article, canEdit }: Props) {
-    const { t } = useTranslation();
     const { props } = usePage();
     const workspaceSlug = (props.currentWorkspace as { slug: string })?.slug;
 

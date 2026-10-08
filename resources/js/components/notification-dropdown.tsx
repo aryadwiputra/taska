@@ -153,7 +153,6 @@ export function NotificationDropdown() {
                 duration: 5000,
             });
         },
-        [userId, workspaceSlug],
     );
 
     const handleClick = (item: NotificationItem) => {

@@ -32,7 +32,6 @@ interface Props {
 
 export function UserAssignmentListView({
     users,
-    projects,
     selectedUsers,
     onSelectUser,
     onEditAssignment,

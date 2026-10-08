@@ -55,7 +55,8 @@ export type ProjectRole =
     | 'manager'
     | 'developer'
     | 'qa'
-    | 'member';
+    | 'member'
+    | 'viewer';
 
 export const WORKSPACE_PERMISSIONS: Permission[] = [
 {$this->indentPermissions($permissions)}

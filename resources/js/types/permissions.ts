@@ -34,7 +34,7 @@ export type Permission =
 
 export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer' | 'guest';
 
-export type ProjectRole = 'lead' | 'manager' | 'developer' | 'qa' | 'member';
+export type ProjectRole = 'lead' | 'manager' | 'developer' | 'qa' | 'member' | 'viewer';
 
 export const WORKSPACE_PERMISSIONS: Permission[] = [
     'workspace.view',

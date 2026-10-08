@@ -130,7 +130,6 @@ export default function ActivityIndex({
                 to: Math.min((prev.to ?? 0) + 1, prev.total + 1),
             }));
         },
-        [project.id, activities.current_page],
     );
 
     const updateFilter = (key: string, value: string) => {

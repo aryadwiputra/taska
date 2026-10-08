@@ -66,6 +66,7 @@ import {
     destroy as sprintDestroy,
     show as sprintShow,
 } from '@/routes/projects/sprints';
+import type { ProjectRole, WorkspaceRole } from '@/types/permissions';
 
 interface Member {
     id: number;
@@ -224,8 +225,8 @@ export default function ProjectSettings({
     const currentWorkspace = pageProps.currentWorkspace as {
         role?: string;
     } | null;
-    const wsRole = currentWorkspace?.role;
-    const canDelete = canDeleteProject(wsRole, userProjectRole);
+    const wsRole = currentWorkspace?.role as WorkspaceRole | undefined;
+    const canDelete = canDeleteProject(wsRole, userProjectRole as ProjectRole | null | undefined);
     const [addMemberOpen, setAddMemberOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null);

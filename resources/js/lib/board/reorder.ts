@@ -364,7 +364,7 @@ export function boardCollisionDetection(
     for (const container of containers) {
         const rect = container.rect.current;
 
-        if (!rect || rect.initial === null) {
+        if (!rect) {
             continue;
         }
 

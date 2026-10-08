@@ -44,14 +44,21 @@ export function VersionHistory({
     const [versions, setVersions] = useState<VersionItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [prevOpen, setPrevOpen] = useState(open);
+
+    if (open !== prevOpen) {
+        setPrevOpen(open);
+
+        if (open) {
+            setLoading(true);
+            setError(false);
+        }
+    }
 
     useEffect(() => {
         if (!open) {
             return;
         }
-
-        setLoading(true);
-        setError(false);
 
         fetch(
             versionsRoute.url({

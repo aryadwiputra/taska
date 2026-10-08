@@ -1,7 +1,7 @@
 import { HelpCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
 import { resetTourState, startTour } from '@/components/tour/use-dashboard-tour';
+import { Button } from '@/components/ui/button';
 
 export function TourButton() {
     const { t } = useTranslation();

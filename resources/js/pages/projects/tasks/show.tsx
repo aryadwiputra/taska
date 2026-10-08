@@ -705,7 +705,6 @@ export default function TaskShow({
 
             refreshTaskDetails();
         },
-        [projectId, task.id, user],
     );
 
     useSocketEvent(
@@ -718,7 +717,6 @@ export default function TaskShow({
 
             refreshTaskDetails();
         },
-        [projectId, task.id],
     );
 
     useSocketEvent(
@@ -731,7 +729,6 @@ export default function TaskShow({
 
             refreshTaskDetails();
         },
-        [projectId, task.id],
     );
 
     useSocketEvent(
@@ -767,7 +764,6 @@ export default function TaskShow({
                 ...prev,
             ]);
         },
-        [projectId, task.id],
     );
 
     useSocketEvent(
@@ -780,7 +776,6 @@ export default function TaskShow({
 
             setTaskDeleted(true);
         },
-        [projectId, task.id],
     );
 
     useSocketEvent(
@@ -815,7 +810,6 @@ export default function TaskShow({
                 }, 4000),
             );
         },
-        [projectId, task.id, user?.id],
     );
 
     useSocketEvent(
@@ -832,7 +826,6 @@ export default function TaskShow({
                 ),
             );
         },
-        [projectId, task.id],
     );
 
     useSocketEvent(
@@ -845,7 +838,6 @@ export default function TaskShow({
 
             setComments((prev) => prev.filter((c) => c.id !== e.commentId));
         },
-        [projectId, task.id],
     );
 
     return (

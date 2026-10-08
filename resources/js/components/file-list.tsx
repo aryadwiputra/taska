@@ -1,24 +1,13 @@
 import {
     File,
-    FileAudio,
-    FileCode,
     FileImage,
     FileSpreadsheet,
     FileText,
-    FileVideo,
     MoreHorizontal,
     Sheet,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -29,14 +18,20 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { DocAttachment } from '@/lib/doc-attachments';
 import {
     deleteAttachment,
     downloadAttachment,
     getFileTypeCategory,
-    previewAttachment,
 } from '@/lib/doc-attachments';
+import { cn } from '@/lib/utils';
 
 interface FileListProps {
     workspaceSlug: string;
@@ -55,7 +50,6 @@ export function FileList({
     onAttachmentsChange,
     onPreview,
 }: FileListProps) {
-    const { t } = useTranslation();
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
     const [deleting, setDeleting] = useState(false);
