@@ -1098,18 +1098,64 @@
     },
     "welcome": {
         "title": "Taska",
-        "eyebrow": "Project work, clearly connected",
         "hero_title": "Plan work without losing context",
         "hero_description": "Taska brings boards, sprints, approvals, releases, and automation into one focused workspace.",
         "primary_cta": "Get started",
         "secondary_cta": "Log in",
         "hero_image_alt": "Focused workspace with planning boards and team notes",
         "hero_image_caption": "A focused workspace for planning, delivery, and review.",
-        "proof_description": "Built on a modern Laravel, Inertia, React, Tailwind, and MySQL stack for teams that care about maintainable product systems.",
+        "proof_description": "Built on a modern tech stack for teams that care about maintainable product systems.",
         "nav": {
             "features": "Features",
             "workflow": "Workflow",
+            "stack": "Stack",
             "security": "Control"
+        },
+        "features_title": "Everything you need to run projects",
+        "features_description": "From backlog to release, Taska keeps every project detail organized and accessible.",
+        "features": {
+            "board": {
+                "title": "Kanban Board",
+                "description": "Drag tasks across columns to reflect current status. See realtime updates without refreshing."
+            },
+            "backlog": {
+                "title": "Backlog",
+                "description": "Prioritize tasks with labels, epics, and sprint assignments before they reach the board."
+            },
+            "sprints": {
+                "title": "Sprint Planning",
+                "description": "Time-boxed iterations with goals, story points, and velocity tracking."
+            },
+            "automation": {
+                "title": "Automation",
+                "description": "Rules handle assignment, labels, and notifications when patterns are predictable."
+            },
+            "releases": {
+                "title": "Releases",
+                "description": "Group finished work into releases so delivery stays visible after the sprint ends."
+            },
+            "reports": {
+                "title": "Reports",
+                "description": "Burndown charts, velocity trends, and workload distribution for informed decisions."
+            }
+        },
+        "workflow_steps": {
+            "plan": {
+                "title": "Plan",
+                "description": "Capture everything in the backlog — scope, priority, and context in one place."
+            },
+            "build": {
+                "title": "Build",
+                "description": "Work through the board and sprint views; status stays visible as cards move."
+            },
+            "review": {
+                "title": "Review",
+                "description": "Route work through approval gates so nothing critical slips past."
+            },
+            "ship": {
+                "title": "Ship",
+                "description": "Group finished work into releases and keep delivery visible after done."
+            }
         },
         "workflow_title": "One workspace for the full delivery loop",
         "workflow_description": "Move from backlog to release with fewer tabs, fewer handoffs, and fewer missing decisions.",
@@ -1188,8 +1234,49 @@
                 "description": "Track important task changes so decisions are easier to audit later."
             }
         },
+        "showcase_title": "See Taska in action",
+        "showcase_description": "Real screens from a real workspace — boards, sprints, timelines, workload, releases, and goals.",
+        "showcase": {
+            "board": {
+                "title": "Boards that stay readable",
+                "description": "Columns, cards, and status visible at a glance as work moves."
+            },
+            "sprint": {
+                "title": "Sprint reports that tell the truth",
+                "description": "Planned versus completed points, with a burndown of what actually shipped."
+            },
+            "timeline": {
+                "title": "Timelines across projects",
+                "description": "Every dated task mapped across the whole workspace."
+            },
+            "workload": {
+                "title": "Workload without guesswork",
+                "description": "Story points per person, per sprint — spot overload early."
+            },
+            "releases": {
+                "title": "Releases with receipts",
+                "description": "Group finished work and watch each release fill up."
+            },
+            "goals": {
+                "title": "Goals tied to delivery",
+                "description": "OKRs linked to epics, with progress that updates itself."
+            }
+        },
         "final_title": "Bring the board, sprint, and release into one place",
-        "final_description": "Start with a workspace, invite your team, and run project work without losing the thread."
+        "final_description": "Start with a workspace, invite your team, and run project work without losing the thread.",
+        "stack_title": "Built with modern tools",
+        "stack_description": "A stack your team can understand, extend, and deploy without fighting the framework.",
+        "stack": {
+            "laravel": "Backend framework",
+            "react": "User interface",
+            "inertia": "Full-stack routing",
+            "typescript": "Type safety",
+            "tailwind": "Utility-first CSS",
+            "mysql": "Relational database"
+        },
+        "footer": {
+            "copyright": "© {{year}} Taska. All rights reserved."
+        }
     },
     "empty_state": {
         "no_data": "No data.",

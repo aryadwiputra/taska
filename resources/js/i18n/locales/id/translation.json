@@ -1064,18 +1064,64 @@
     },
     "welcome": {
         "title": "Taska",
-        "eyebrow": "Kerja proyek jadi lebih rapi",
         "hero_title": "Atur pekerjaan tim tanpa kehilangan konteks",
         "hero_description": "Taska membantu tim mengelola board, sprint, approval, rilis, dan otomasi di satu tempat.",
         "primary_cta": "Mulai",
         "secondary_cta": "Masuk",
         "hero_image_alt": "Ruang kerja tim dengan board rencana dan catatan proyek",
         "hero_image_caption": "Tempat kerja yang rapi untuk merencanakan, mengerjakan, dan mengevaluasi proyek.",
-        "proof_description": "Dibangun dengan Laravel, Inertia, React, Tailwind, dan MySQL untuk tim yang ingin produknya mudah dirawat dan dikembangkan.",
+        "proof_description": "Dibangun dengan stack modern untuk tim yang ingin produknya mudah dirawat dan dikembangkan.",
         "nav": {
             "features": "Fitur",
             "workflow": "Alur kerja",
+            "stack": "Stack",
             "security": "Kontrol"
+        },
+        "features_title": "Semua yang kamu butuhkan untuk mengelola proyek",
+        "features_description": "Dari backlog sampai rilis, Taska menjaga setiap detail proyek tetap rapi dan mudah diakses.",
+        "features": {
+            "board": {
+                "title": "Board Kanban",
+                "description": "Pindahkan tugas antar kolom untuk menunjukkan status terkini. Lihat update realtime tanpa perlu refresh."
+            },
+            "backlog": {
+                "title": "Backlog",
+                "description": "Atur prioritas tugas dengan label, epic, dan assignment sprint sebelum masuk board."
+            },
+            "sprints": {
+                "title": "Perencanaan Sprint",
+                "description": "Iterasi dengan waktu tertentu yang dilengkapi tujuan, story point, dan pelacakan velocity."
+            },
+            "automation": {
+                "title": "Otomasi",
+                "description": "Buat aturan untuk assignment, label, dan notifikasi saat polanya sudah jelas."
+            },
+            "releases": {
+                "title": "Rilis",
+                "description": "Kelompokkan pekerjaan yang sudah selesai ke dalam rilis supaya progres tetap terlihat setelah sprint selesai."
+            },
+            "reports": {
+                "title": "Laporan",
+                "description": "Grafik burndown, tren velocity, dan distribusi beban kerja untuk keputusan yang lebih tepat."
+            }
+        },
+        "workflow_steps": {
+            "plan": {
+                "title": "Rencana",
+                "description": "Tampung semua pekerjaan di backlog — scope, prioritas, dan konteksnya tercatat rapi."
+            },
+            "build": {
+                "title": "Kerjakan",
+                "description": "Kerjakan lewat board dan sprint; status selalu terlihat saat kartu berpindah."
+            },
+            "review": {
+                "title": "Evaluasi",
+                "description": "Lewatkan pekerjaan ke approval agar tidak ada yang lolos tanpa pemeriksaan."
+            },
+            "ship": {
+                "title": "Rilis",
+                "description": "Kelompokkan yang selesai ke dalam rilis supaya progres tetap terpantau."
+            }
         },
         "workflow_title": "Satu tempat untuk mengurus pekerjaan dari awal sampai rilis",
         "workflow_description": "Dari backlog sampai rilis, semuanya lebih mudah dipantau tanpa pindah-pindah banyak tab.",
@@ -1154,8 +1200,49 @@
                 "description": "Lihat perubahan penting pada tugas supaya keputusan lebih mudah ditelusuri nanti."
             }
         },
+        "showcase_title": "Lihat Taska beraksi",
+        "showcase_description": "Tangkapan layar asli dari workspace sungguhan — board, sprint, timeline, workload, rilis, dan goals.",
+        "showcase": {
+            "board": {
+                "title": "Board yang tetap terbaca",
+                "description": "Kolom, kartu, dan status terlihat sekilas saat pekerjaan bergerak."
+            },
+            "sprint": {
+                "title": "Laporan sprint yang jujur",
+                "description": "Poin rencana versus selesai, plus burndown dari yang benar-benar terkirim."
+            },
+            "timeline": {
+                "title": "Timeline lintas proyek",
+                "description": "Setiap tugas ber-tanggal terpetakan di seluruh workspace."
+            },
+            "workload": {
+                "title": "Workload tanpa tebak-tebakan",
+                "description": "Story points per orang per sprint — tahu overload lebih awal."
+            },
+            "releases": {
+                "title": "Rilis yang terbukti",
+                "description": "Kelompokkan pekerjaan selesai dan pantau tiap rilis terisi."
+            },
+            "goals": {
+                "title": "Goals yang nyambung ke eksekusi",
+                "description": "OKR tertaut ke epic, progresnya terupdate sendiri."
+            }
+        },
         "final_title": "Kelola board, sprint, dan rilis dari satu tempat",
-        "final_description": "Buat workspace, undang tim, lalu jalankan proyek dengan alur yang lebih jelas."
+        "final_description": "Buat workspace, undang tim, lalu jalankan proyek dengan alur yang lebih jelas.",
+        "stack_title": "Dibangun dengan tools modern",
+        "stack_description": "Stack yang mudah dipahami, dikembangkan, dan dideploy tanpa perlu melawan framework.",
+        "stack": {
+            "laravel": "Backend framework",
+            "react": "User interface",
+            "inertia": "Full-stack routing",
+            "typescript": "Type safety",
+            "tailwind": "Utility-first CSS",
+            "mysql": "Relational database"
+        },
+        "footer": {
+            "copyright": "© {{year}} Taska. Hak cipta dilindungi."
+        }
     },
     "empty_state": {
         "no_data": "Tidak ada data.",
