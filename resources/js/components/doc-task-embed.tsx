@@ -5,8 +5,16 @@ import { embed as embedTask } from '@/routes/projects/tasks';
 const TASK_REF_REGEX = /\/task:([A-Z]+-\d+)\b/g;
 
 function escapeHtml(value: string) {
-    return value.replace(/[&<>"']/g, (character) =>
-        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character] ?? character,
+    return value.replace(
+        /[&<>"']/g,
+        (character) =>
+            ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+            })[character] ?? character,
     );
 }
 
@@ -36,7 +44,10 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
         Promise.all(
             uniqueCodes.map((code) =>
                 fetch(
-                    embedTask.url({ workspace: workspaceSlug }, { query: { q: code } }),
+                    embedTask.url(
+                        { workspace: workspaceSlug },
+                        { query: { q: code } },
+                    ),
                     {
                         headers: {
                             Accept: 'application/json',
@@ -61,27 +72,26 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
                 if (info) {
                     map[code] = info;
                 }
-
             }
 
             setTaskMap(map);
         });
     }, [content, workspaceSlug]);
 
-    const htmlWithLinks = content.replace(
-        TASK_REF_REGEX,
-        (match, code) => {
-            const info = taskMap[code];
+    const htmlWithLinks = content.replace(TASK_REF_REGEX, (match, code) => {
+        const info = taskMap[code];
 
-            if (info) {
-                return `<a href="${escapeHtml(info.url)}" class="doc-task-ref doc-task-ref--found" data-task-id="${info.task_id}">${match}</a>`;
-            }
+        if (info) {
+            return `<a href="${escapeHtml(info.url)}" class="doc-task-ref doc-task-ref--found" data-task-id="${info.task_id}">${match}</a>`;
+        }
 
-            return `<span class="doc-task-ref doc-task-ref--pending" data-task-code="${code}">${match}</span>`;
-        },
-    );
+        return `<span class="doc-task-ref doc-task-ref--pending" data-task-code="${code}">${match}</span>`;
+    });
 
-    if (Object.keys(taskMap).length === 0 && ![...content.matchAll(TASK_REF_REGEX)].length) {
+    if (
+        Object.keys(taskMap).length === 0 &&
+        ![...content.matchAll(TASK_REF_REGEX)].length
+    ) {
         return (
             <div
                 className="prose prose-sm max-w-none"

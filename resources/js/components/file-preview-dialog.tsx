@@ -1,6 +1,6 @@
 import { Download, FileText, X } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import type { DocAttachment } from '@/lib/doc-attachments';
 
 interface FilePreviewDialogProps {

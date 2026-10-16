@@ -33,6 +33,22 @@ test('workspace viewers cannot update workspace settings', function () {
         ->assertForbidden();
 });
 
+test('updating a workspace slug redirects to the settings page with the new slug', function () {
+    $owner = User::factory()->create();
+    $workspace = createWorkspaceMember($owner, 'owner');
+
+    $this->actingAs($owner)
+        ->withSession(['current_workspace_id' => $workspace->id])
+        ->put(route('workspaces.update', $workspace), [
+            'name' => 'Renamed workspace',
+            'slug' => 'renamed-workspace',
+            'description' => 'Updated.',
+        ])
+        ->assertRedirect(route('workspaces.settings', ['workspace' => 'renamed-workspace']));
+
+    expect($workspace->fresh()->slug)->toBe('renamed-workspace');
+});
+
 test('authenticated users can visit workspace show page', function () {
     $user = User::factory()->create();
     $workspace = createWorkspaceMember($user, 'owner');

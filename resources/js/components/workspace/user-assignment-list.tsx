@@ -1,7 +1,8 @@
 import { FolderX, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -9,8 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface UserAssignmentData {
     user_id: number;

@@ -59,8 +59,8 @@ test('task search applies project status assignee reporter priority label and da
         'status' => 'review',
         'priority_id' => $priority->id,
         'due_date' => '2026-06-20',
-        'created_at' => '2026-06-10 10:00:00',
     ]);
+    $match->forceFill(['created_at' => '2026-06-10 10:00:00'])->save();
     $match->assignees()->attach($assignee);
     $match->labels()->attach($label);
     $other = createTaskForProject($project, $user);

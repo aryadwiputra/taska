@@ -29,7 +29,11 @@ export async function listAttachments(
     projectSlug: string,
     docSlug: string,
 ): Promise<DocAttachment[]> {
-    const docUrl = docShow.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug });
+    const docUrl = docShow.url({
+        workspace: workspaceSlug,
+        project: projectSlug,
+        doc: docSlug,
+    });
     const response = await fetch(`${docUrl}/attachments`, {
         headers: {
             Accept: 'application/json',
@@ -42,6 +46,7 @@ export async function listAttachments(
     }
 
     const data: ListAttachmentsResponse = await response.json();
+
     return data.attachments;
 }
 
@@ -52,7 +57,11 @@ export async function uploadAttachment(
     file: File,
     onProgress?: (percent: number) => void,
 ): Promise<DocAttachment> {
-    const docUrl = docShow.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug });
+    const docUrl = docShow.url({
+        workspace: workspaceSlug,
+        project: projectSlug,
+        doc: docSlug,
+    });
 
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -73,7 +82,13 @@ export async function uploadAttachment(
             } else {
                 try {
                     const errorData = JSON.parse(xhr.responseText);
-                    reject(new Error(errorData.message || errorData.errors?.file?.[0] || 'Upload failed'));
+                    reject(
+                        new Error(
+                            errorData.message ||
+                                errorData.errors?.file?.[0] ||
+                                'Upload failed',
+                        ),
+                    );
                 } catch {
                     reject(new Error('Upload failed'));
                 }
@@ -101,7 +116,11 @@ export async function deleteAttachment(
     docSlug: string,
     attachmentId: number,
 ): Promise<void> {
-    const docUrl = docShow.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug });
+    const docUrl = docShow.url({
+        workspace: workspaceSlug,
+        project: projectSlug,
+        doc: docSlug,
+    });
     const csrfToken = decodeURIComponent(
         document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
     );
@@ -125,7 +144,11 @@ export function downloadAttachment(
     docSlug: string,
     attachmentId: number,
 ): void {
-    const docUrl = docShow.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug });
+    const docUrl = docShow.url({
+        workspace: workspaceSlug,
+        project: projectSlug,
+        doc: docSlug,
+    });
     window.open(`${docUrl}/attachments/${attachmentId}/download`, '_blank');
 }
 
@@ -135,7 +158,12 @@ export function previewAttachment(
     docSlug: string,
     attachmentId: number,
 ): string {
-    const docUrl = docShow.url({ workspace: workspaceSlug, project: projectSlug, doc: docSlug });
+    const docUrl = docShow.url({
+        workspace: workspaceSlug,
+        project: projectSlug,
+        doc: docSlug,
+    });
+
     return `${docUrl}/attachments/${attachmentId}/preview`;
 }
 
@@ -153,10 +181,13 @@ export function formatBytes(bytes: number): string {
 
 export function getFileExtension(filename: string): string {
     const parts = filename.split('.');
-    return parts.length > 1 ? parts.pop()?.toLowerCase() ?? '' : '';
+
+    return parts.length > 1 ? (parts.pop()?.toLowerCase() ?? '') : '';
 }
 
-export function getFileTypeCategory(mimeType: string | null): 'image' | 'pdf' | 'document' | 'spreadsheet' | 'presentation' | 'other' {
+export function getFileTypeCategory(
+    mimeType: string | null,
+): 'image' | 'pdf' | 'document' | 'spreadsheet' | 'presentation' | 'other' {
     if (!mimeType) {
         return 'other';
     }
@@ -169,7 +200,11 @@ export function getFileTypeCategory(mimeType: string | null): 'image' | 'pdf' | 
         return 'pdf';
     }
 
-    if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType.includes('csv')) {
+    if (
+        mimeType.includes('spreadsheet') ||
+        mimeType.includes('excel') ||
+        mimeType.includes('csv')
+    ) {
         return 'spreadsheet';
     }
 
@@ -177,7 +212,11 @@ export function getFileTypeCategory(mimeType: string | null): 'image' | 'pdf' | 
         return 'presentation';
     }
 
-    if (mimeType.includes('document') || mimeType.includes('word') || mimeType.includes('text')) {
+    if (
+        mimeType.includes('document') ||
+        mimeType.includes('word') ||
+        mimeType.includes('text')
+    ) {
         return 'document';
     }
 

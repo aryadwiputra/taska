@@ -181,7 +181,7 @@ class WorkspaceController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Workspace updated.']);
 
-        return back();
+        return to_route('workspaces.settings', $workspace);
     }
 
     public function destroy(Workspace $workspace): RedirectResponse

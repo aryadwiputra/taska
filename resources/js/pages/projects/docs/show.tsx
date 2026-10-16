@@ -249,15 +249,25 @@ export default function DocsShow({
                                 </Label>
                                 <Select
                                     value={editVisibility}
-                                    onValueChange={(value) => setEditVisibility(value as DocDetail['visibility'])}
+                                    onValueChange={(value) =>
+                                        setEditVisibility(
+                                            value as DocDetail['visibility'],
+                                        )
+                                    }
                                 >
                                     <SelectTrigger id="edit-visibility">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="workspace">{t('docs.visibility_workspace')}</SelectItem>
-                                        <SelectItem value="project">{t('docs.visibility_project')}</SelectItem>
-                                        <SelectItem value="restricted">{t('docs.visibility_restricted')}</SelectItem>
+                                        <SelectItem value="workspace">
+                                            {t('docs.visibility_workspace')}
+                                        </SelectItem>
+                                        <SelectItem value="project">
+                                            {t('docs.visibility_project')}
+                                        </SelectItem>
+                                        <SelectItem value="restricted">
+                                            {t('docs.visibility_restricted')}
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -327,7 +337,7 @@ export default function DocsShow({
                                     >
                                         <Download className="size-3.5" />
                                         <span className="hidden sm:inline">
-                                             {t('docs.download_pdf')}
+                                            {t('docs.download_pdf')}
                                         </span>
                                     </Button>
                                     <Button

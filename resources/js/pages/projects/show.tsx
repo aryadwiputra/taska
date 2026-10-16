@@ -979,7 +979,9 @@ export default function ProjectShow({
                                     <span>Automation</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuLabel>Organization</DropdownMenuLabel>
+                                <DropdownMenuLabel>
+                                    Organization
+                                </DropdownMenuLabel>
                                 <DropdownMenuItem
                                     onClick={() => setActiveTab('labels')}
                                 >

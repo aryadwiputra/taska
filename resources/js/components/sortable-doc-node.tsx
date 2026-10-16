@@ -27,7 +27,14 @@ export function SortableDocNode({
     onDelete,
     onSelect,
 }: Props) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
         id: node.id,
     });
     const isActive = node.id === activeDocId;
@@ -38,13 +45,17 @@ export function SortableDocNode({
     };
 
     return (
-        <div ref={setNodeRef} style={style} className={cn(isDragging && 'opacity-50')}>
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn(isDragging && 'opacity-50')}
+        >
             <div className="group flex w-full items-center gap-1">
                 <button
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className="cursor-grab shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100 active:cursor-grabbing"
+                    className="shrink-0 cursor-grab rounded p-0.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-accent active:cursor-grabbing"
                 >
                     <GripVertical className="size-3" />
                 </button>
@@ -53,20 +64,21 @@ export function SortableDocNode({
 
                 <button
                     type="button"
-                     onClick={() => {
-                         onSelect?.(node);
-                         router.visit(
-                             docsShow.url({
-                                 workspace: workspaceSlug,
-                                 project: projectSlug,
-                                 doc: node.slug,
-                             }),
-                         );
-                     }}
+                    onClick={() => {
+                        onSelect?.(node);
+                        router.visit(
+                            docsShow.url({
+                                workspace: workspaceSlug,
+                                project: projectSlug,
+                                doc: node.slug,
+                            }),
+                        );
+                    }}
                     style={{ marginLeft: `${(node.depth ?? 0) * 16}px` }}
                     className={cn(
                         'flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-sm transition-colors',
-                        isActive && 'bg-accent font-medium text-accent-foreground',
+                        isActive &&
+                            'bg-accent font-medium text-accent-foreground',
                         !isActive && 'hover:bg-accent',
                     )}
                 >
@@ -83,7 +95,7 @@ export function SortableDocNode({
                         <Trash2 className="size-3" />
                     </button>
                 )}
-                </div>
+            </div>
         </div>
     );
 }

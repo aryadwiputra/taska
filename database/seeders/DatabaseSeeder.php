@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\SettingService;
 use App\Services\WorkspaceRoleService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -30,9 +31,9 @@ class DatabaseSeeder extends Seeder
 
         $workspace = Workspace::create([
             'owner_id' => $createdUsers[0]['user']->id,
-            'name' => 'Datakelola',
-            'slug' => 'datakelola',
-            'description' => 'Platform pengelolaan project Datakelola.',
+            'name' => 'Pribadi',
+            'slug' => 'pribadi',
+            'description' => 'Workspace pribadi Arya.',
         ]);
 
         $roleService->ensureRoles($workspace);
@@ -48,16 +49,28 @@ class DatabaseSeeder extends Seeder
             $roleService->syncRole($u, $workspace, $data['ws_role']);
         }
 
-        app()->call(TaskTypeAndPrioritySeeder::class);
-
         $projects = [
-            ['key' => 'DTKL', 'slug' => 'datakelola', 'name' => 'Datakelola', 'color' => '#2563EB'],
-            ['key' => 'DTAH', 'slug' => 'datakelola-ahu', 'name' => 'Datakelola AHU', 'color' => '#EA580C'],
-            ['key' => 'BCK', 'slug' => 'beacukai', 'name' => 'Beacukai', 'color' => '#7C3AED'],
-            ['key' => 'PLN', 'slug' => 'pelni', 'name' => 'Pelni', 'color' => '#059669'],
-            ['key' => 'CRM', 'slug' => 'crm', 'name' => 'CRM', 'color' => '#0891B2'],
-            ['key' => 'SPC', 'slug' => 'space', 'name' => 'Space', 'color' => '#D946EF'],
-            ['key' => 'WAC', 'slug' => 'whatsapp-centralized', 'name' => 'WhatsApp Centralized', 'color' => '#16A34A'],
+            [
+                'key' => 'HATTI',
+                'slug' => 'hatti',
+                'name' => 'Hatti',
+                'color' => '#2563EB',
+                'description' => 'Website company profile Hatti.',
+            ],
+            [
+                'key' => 'KMVG',
+                'slug' => 'komodo-voyage',
+                'name' => 'Komodo Voyage',
+                'color' => '#0891B2',
+                'description' => 'Platform online travel agency (OTA) Komodo Voyage.',
+            ],
+            [
+                'key' => 'TIBS',
+                'slug' => 'taruna-insani',
+                'name' => 'Taruna Insani Boarding School',
+                'color' => '#16A34A',
+                'description' => 'Sistem informasi sekolah & PPDB Taruna Insani Boarding School.',
+            ],
         ];
 
         $createdBy = $createdUsers[0]['user'];
@@ -69,7 +82,7 @@ class DatabaseSeeder extends Seeder
                 'key' => $pd['key'],
                 'slug' => $pd['slug'],
                 'color' => $pd['color'],
-                'description' => "Project {$pd['name']}.",
+                'description' => $pd['description'],
                 'visibility' => 'workspace',
                 'status' => 'active',
             ]);
@@ -102,9 +115,9 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            $project->settings()->createMany([
-                ['key' => 'default_board_id', 'value' => json_encode(['value' => $board->id])],
-                ['key' => 'auto_assign_reporter', 'value' => json_encode(['value' => false])],
+            app(SettingService::class)->bulk($project, [
+                'default_board_id' => $board->id,
+                'auto_assign_reporter' => false,
             ]);
         }
 

@@ -1,8 +1,17 @@
 'use no memo';
 
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { reorder as reorderDocs } from '@/routes/projects/docs';
@@ -19,7 +28,11 @@ interface Props {
     onSelect?: (node: DocTreeItem) => void;
 }
 
-function flattenNodes(items: DocTreeItem[], depth = 0, result: Array<DocTreeItem & { depth: number }> = []) {
+function flattenNodes(
+    items: DocTreeItem[],
+    depth = 0,
+    result: Array<DocTreeItem & { depth: number }> = [],
+) {
     for (const item of items) {
         result.push({ ...item, depth });
 
@@ -31,7 +44,15 @@ function flattenNodes(items: DocTreeItem[], depth = 0, result: Array<DocTreeItem
     return result;
 }
 
-export function DocTreeSortable({ workspaceSlug, projectSlug, nodes, activeDocId, showDelete, onDelete, onSelect }: Props) {
+export function DocTreeSortable({
+    workspaceSlug,
+    projectSlug,
+    nodes,
+    activeDocId,
+    showDelete,
+    onDelete,
+    onSelect,
+}: Props) {
     const [flatItems, setFlatItems] = useState(() => flattenNodes(nodes));
 
     const sensors = useSensors(

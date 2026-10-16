@@ -43,10 +43,15 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handleDelete = () => {
         router.delete(
-            knowledgeArticlesRoutes.destroy.url({ workspace: workspaceSlug, article: article.slug }),
+            knowledgeArticlesRoutes.destroy.url({
+                workspace: workspaceSlug,
+                article: article.slug,
+            }),
             {
                 onSuccess: () => {
-                    router.get(knowledgeRoutes.index.url({ workspace: workspaceSlug }));
+                    router.get(
+                        knowledgeRoutes.index.url({ workspace: workspaceSlug }),
+                    );
                 },
             },
         );
@@ -54,7 +59,10 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handleEdit = () => {
         router.patch(
-            knowledgeArticlesRoutes.update.url({ workspace: workspaceSlug, article: article.slug }),
+            knowledgeArticlesRoutes.update.url({
+                workspace: workspaceSlug,
+                article: article.slug,
+            }),
             {
                 title: editTitle,
                 content: editContent,
@@ -69,7 +77,10 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
     const handlePublish = () => {
         router.patch(
-            knowledgeArticlesRoutes.update.url({ workspace: workspaceSlug, article: article.slug }),
+            knowledgeArticlesRoutes.update.url({
+                workspace: workspaceSlug,
+                article: article.slug,
+            }),
             {
                 status: article.status === 'published' ? 'draft' : 'published',
             },
@@ -77,7 +88,9 @@ export default function ArticleShow({ article, canEdit }: Props) {
     };
 
     const handleUpload = async () => {
-        if (!uploadingFile) return;
+        if (!uploadingFile) {
+            return;
+        }
 
         setUploadError(null);
         const formData = new FormData();
@@ -85,13 +98,17 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
         try {
             const response = await fetch(
-                knowledgeArticlesRoutes.attachments.store.url({ workspace: workspaceSlug, article: article.slug }),
+                knowledgeArticlesRoutes.attachments.store.url({
+                    workspace: workspaceSlug,
+                    article: article.slug,
+                }),
                 {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-XSRF-TOKEN': decodeURIComponent(
-                            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '',
+                            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ??
+                                '',
                         ),
                     },
                     body: formData,
@@ -100,14 +117,19 @@ export default function ArticleShow({ article, canEdit }: Props) {
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.errors?.file?.[0] || data.message || 'Upload failed');
+
+                throw new Error(
+                    data.errors?.file?.[0] || data.message || 'Upload failed',
+                );
             }
 
             setShowUploadDialog(false);
             setUploadingFile(null);
             router.reload();
         } catch (error) {
-            setUploadError(error instanceof Error ? error.message : 'Upload failed');
+            setUploadError(
+                error instanceof Error ? error.message : 'Upload failed',
+            );
         }
     };
 
@@ -118,7 +140,11 @@ export default function ArticleShow({ article, canEdit }: Props) {
                     variant="ghost"
                     size="sm"
                     onClick={() =>
-                        router.get(knowledgeRoutes.index.url({ workspace: workspaceSlug }))
+                        router.get(
+                            knowledgeRoutes.index.url({
+                                workspace: workspaceSlug,
+                            }),
+                        )
                     }
                 >
                     <ArrowLeft className="size-4" />
@@ -132,7 +158,9 @@ export default function ArticleShow({ article, canEdit }: Props) {
                             size="sm"
                             onClick={handlePublish}
                         >
-                            {article.status === 'published' ? 'Unpublish' : 'Publish'}
+                            {article.status === 'published'
+                                ? 'Unpublish'
+                                : 'Publish'}
                         </Button>
                         <Button
                             variant="outline"
@@ -197,7 +225,9 @@ export default function ArticleShow({ article, canEdit }: Props) {
                         </span>
                         <span>&middot;</span>
                         <span>
-                            {new Date(article.published_at ?? article.created_at).toLocaleDateString()}
+                            {new Date(
+                                article.published_at ?? article.created_at,
+                            ).toLocaleDateString()}
                         </span>
                     </div>
                 </header>
@@ -205,7 +235,7 @@ export default function ArticleShow({ article, canEdit }: Props) {
                 <Separator className="my-6" />
 
                 <div
-                    className="prose prose-sm max-w-none dark:prose-invert"
+                    className="prose prose-sm dark:prose-invert max-w-none"
                     dangerouslySetInnerHTML={{ __html: article.content ?? '' }}
                 />
             </article>
@@ -258,8 +288,8 @@ export default function ArticleShow({ article, canEdit }: Props) {
                     <DialogHeader>
                         <DialogTitle>Delete Article</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete this article? This action
-                            cannot be undone.
+                            Are you sure you want to delete this article? This
+                            action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -318,7 +348,8 @@ export default function ArticleShow({ article, canEdit }: Props) {
                     <DialogHeader>
                         <DialogTitle>Upload Attachment</DialogTitle>
                         <DialogDescription>
-                            Upload a file to attach to this article. Max size: 50MB.
+                            Upload a file to attach to this article. Max size:
+                            50MB.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -329,7 +360,9 @@ export default function ArticleShow({ article, canEdit }: Props) {
                             }
                         />
                         {uploadError && (
-                            <p className="text-sm text-destructive">{uploadError}</p>
+                            <p className="text-sm text-destructive">
+                                {uploadError}
+                            </p>
                         )}
                     </div>
                     <DialogFooter>
@@ -339,7 +372,10 @@ export default function ArticleShow({ article, canEdit }: Props) {
                         >
                             Cancel
                         </Button>
-                        <Button onClick={handleUpload} disabled={!uploadingFile}>
+                        <Button
+                            onClick={handleUpload}
+                            disabled={!uploadingFile}
+                        >
                             Upload
                         </Button>
                     </DialogFooter>

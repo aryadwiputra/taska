@@ -26,6 +26,15 @@ vi.mock('@inertiajs/react', () => ({
         reset: vi.fn(),
     })),
     Form: vi.fn(({ children }) => children({ processing: false, errors: {} })),
+    Head: vi.fn(() => null),
+    setLayoutProps: vi.fn(),
+    Link: vi.fn(
+        ({ children, href, ...props }: { children?: React.ReactNode; href?: string }) => (
+            <a href={typeof href === 'string' ? href : '#'} {...props}>
+                {children}
+            </a>
+        ),
+    ),
 }));
 
 vi.mock('react-i18next', () => ({

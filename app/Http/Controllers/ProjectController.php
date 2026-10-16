@@ -433,7 +433,7 @@ class ProjectController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Project updated.']);
 
-        return back();
+        return to_route('projects.settings', [$workspace, $project]);
     }
 
     public function destroy(Workspace $workspace, Project $project): RedirectResponse

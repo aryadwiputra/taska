@@ -59,11 +59,13 @@ export function FileList({
     const toggleSelect = (id: number) => {
         setSelectedIds((prev) => {
             const next = new Set(prev);
+
             if (next.has(id)) {
                 next.delete(id);
             } else {
                 next.add(id);
             }
+
             return next;
         });
     };
@@ -86,12 +88,21 @@ export function FileList({
         }
 
         setDeleting(true);
+
         try {
-            await deleteAttachment(workspaceSlug, projectSlug, docSlug, deleteConfirmId);
-            onAttachmentsChange(attachments.filter((a) => a.id !== deleteConfirmId));
+            await deleteAttachment(
+                workspaceSlug,
+                projectSlug,
+                docSlug,
+                deleteConfirmId,
+            );
+            onAttachmentsChange(
+                attachments.filter((a) => a.id !== deleteConfirmId),
+            );
             setSelectedIds((prev) => {
                 const next = new Set(prev);
                 next.delete(deleteConfirmId);
+
                 return next;
             });
             toast.success('File deleted successfully');
@@ -109,11 +120,15 @@ export function FileList({
         }
 
         setDeleting(true);
+
         try {
             for (const id of selectedIds) {
                 await deleteAttachment(workspaceSlug, projectSlug, docSlug, id);
             }
-            onAttachmentsChange(attachments.filter((a) => !selectedIds.has(a.id)));
+
+            onAttachmentsChange(
+                attachments.filter((a) => !selectedIds.has(a.id)),
+            );
             setSelectedIds(new Set());
             toast.success(`${selectedCount} files deleted`);
         } catch {
@@ -136,7 +151,8 @@ export function FileList({
             {selectedCount > 0 && (
                 <div className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
                     <span className="text-sm">
-                        {selectedCount} file{selectedCount > 1 ? 's' : ''} selected
+                        {selectedCount} file{selectedCount > 1 ? 's' : ''}{' '}
+                        selected
                     </span>
                     <Button
                         variant="destructive"
@@ -160,7 +176,8 @@ export function FileList({
                 <div className="flex items-center gap-3 border-b bg-muted/30 px-4 py-2">
                     <Checkbox
                         checked={
-                            selectedCount > 0 && selectedCount === attachments.length
+                            selectedCount > 0 &&
+                            selectedCount === attachments.length
                         }
                         onCheckedChange={toggleSelectAll}
                     />
@@ -222,11 +239,15 @@ export function FileList({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 {attachment.is_previewable && (
-                                    <DropdownMenuItem onClick={() => onPreview(attachment)}>
+                                    <DropdownMenuItem
+                                        onClick={() => onPreview(attachment)}
+                                    >
                                         Preview
                                     </DropdownMenuItem>
                                 )}
-                                <DropdownMenuItem onClick={() => handleDownload(attachment)}>
+                                <DropdownMenuItem
+                                    onClick={() => handleDownload(attachment)}
+                                >
                                     Download
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -291,7 +312,9 @@ function FileTypeIcon({
         case 'spreadsheet':
             return <Sheet className={cn('text-green-600', className)} />;
         case 'presentation':
-            return <FileSpreadsheet className={cn('text-orange-500', className)} />;
+            return (
+                <FileSpreadsheet className={cn('text-orange-500', className)} />
+            );
         case 'document':
             return <FileText className={className} />;
         default:
@@ -308,9 +331,11 @@ function formatDate(dateString: string): string {
     if (days === 0) {
         return 'Today';
     }
+
     if (days === 1) {
         return 'Yesterday';
     }
+
     if (days < 7) {
         return `${days} days ago`;
     }

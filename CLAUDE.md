@@ -1,94 +1,100 @@
-<laravel-boost-guidelines>
+# CLAUDE.md
 
-# Project Overview
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Taska** is a modern project management tool built on Laravel 13, Inertia 3, and React 19. It provides Kanban boards, sprints, approvals, automation rules, goals/OKRs, and real-time collaboration via Socket.IO.
+# Taska
 
-## Quick Commands
+Open-source project management tool: Kanban boards, sprints, epics, approvals, automation rules, SLA policies, releases, goals/OKRs, a knowledge base, and cross-project views. Laravel 13 + Inertia v3 + React 19 SPA, with two standalone Node.js gateways for realtime and WhatsApp.
+
+## Commands
 
 ```bash
-# Full dev environment (server + queue + logs + vite + gateways)
+# Full dev environment: server + queue + logs + vite + both gateways
 composer run dev
 
-# All checks + tests (lint → format → types → tests)
+# All checks + tests (pint --test → php artisan test)
 composer test
 
-# PHP lint + tests only (CI uses this)
-./vendor/bin/pest
+# Full CI gate locally: lint:check + format:check + types:check + tests
+composer run ci:check
 
-# PHP formatting (REQUIRED after PHP changes)
-vendor/bin/pint --dirty --format agent
+# PHP only (what CI actually runs — no lint first)
+./vendor/bin/pest
 
 # Single test
 php artisan test --compact --filter=testName
 
+# PHP formatting — REQUIRED after any PHP change
+vendor/bin/pint --dirty --format agent
+
 # Frontend checks
 bun run lint && bun run format && bun run types:check
+
+# Regenerate Wayfinder TS route helpers after route/controller changes
+php artisan wayfinder:generate
 ```
+
+Local dev uses **bun** (`bun.lock` is the root lockfile). CI (`.github/workflows/`) uses `npm i` + `npm run build` + `./vendor/bin/pest` directly on PHP 8.3/8.4/8.5. Don't introduce a second JS package manager at the root.
 
 ## Architecture
 
-### Backend (Laravel)
+### Domain hierarchy
 
-| Directory | Purpose |
-|-----------|---------|
-| `app/Http/Controllers/` | Request handling |
-| `app/Models/` | Eloquent models (Task, Project, Workspace, Sprint, Epic, etc.) |
-| `app/Services/` | Business logic (AutomationEngine, NotificationService, TaskBulkOperationService) |
-| `app/Policies/` | Authorization policies |
-| `app/Jobs/` | Queue jobs |
-| `app/Mail/` | Email notifications |
-| `app/Notifications/` | Laravel notifications |
+```
+Workspace (top-level org; members, settings, task types, priorities, labels)
+└── Project (boards, sprints, epics, components, releases, goals, automation,
+             approval flows, SLA policies, saved filters, notification rules)
+    └── Board → BoardColumn (Kanban; tasks grouped by column, ordered by position)
+    └── Task  ← Sprint, Epic, Release
+```
 
-**Key Models:**
-- `Workspace` — Top-level organization with members and projects
-- `Project` — Belongs to a workspace, contains boards, sprints, epics
-- `Board` / `BoardColumn` — Kanban structure
-- `Task` — Core entity with assignees, labels, priorities, comments, attachments
+`Task` is the core entity: assignees + watchers (many-to-many users), labels, components, comments, attachments, relations, activity log, and approvals. Task identity is `code` (`{PROJECT_KEY}-{task_number}`).
 
-### Frontend (React + Inertia)
+### Backend (`app/`)
 
-| Directory | Purpose |
-|-----------|---------|
-| `resources/js/pages/` | Inertia page components (dashboard, projects/*, workspaces/*, settings/*) |
-| `resources/js/components/` | UI components (board/, dashboard/, ui/) |
-| `resources/js/hooks/` | Custom React hooks |
-| `resources/js/layouts/` | AppLayout, AuthLayout, SettingsLayout |
+- **`Services/`** holds business logic, not controllers. Key ones: `AutomationEngine` (trigger→condition→action rules), `NotificationRuleEngine` → `NotificationService` (event routing), `TaskBulkOperationService`, `TaskActivityService`, `MentionNotificationService`/`MentionParser`, `RealtimeGatewayService`, `WhatsAppGatewayService`, `SettingService` (typed workspace/project settings), `WorkspaceRoleService`.
+- **`Support/Rbac.php`** is the authorization core. Roles live in `config/permissions.php`; workspace roles are `owner|admin|manager|member|viewer`, project roles are `lead|manager|developer|qa|member|viewer`. An explicit project role *restricts* what workspace permissions allow. Policies in `app/Policies/` delegate here.
+- **`Http/Middleware/SetPermissionsTeamId`** sets the Spatie team id to the current workspace and is prepended before route-model binding — RBAC checks depend on it.
+- **`Http/Middleware/HandleInertiaRequests`** defines all Inertia shared props: `auth.user`, `auth.notifications.unreadCount`, `workspaces`, `currentWorkspace` (resolved from the `current_workspace_id` session key), `sidebarOpen`. Add new globally-available props here.
+- **Notifications** fan out through `NotificationRuleEngine` → `NotificationService` → channel classes in `app/Notifications/Channels/` (InApp, Mail, Discord, Slack, Telegram, Webhook, WhatsApp). In-app delivery also broadcasts over the realtime gateway.
+- **`Jobs/`**: `CheckSlaBreachesJob` (hourly), `ProcessGitHubWebhookJob`, `SendWhatsAppNotification`. Scheduled tasks are in `bootstrap/app.php`.
+- Controllers are organized by feature; `routes/web.php` is large — most features also have a dedicated controller (e.g. `BoardTaskReorderController`, `TaskSearchController`, `CrossProjectController`). `routes/knowledge.php` and `routes/api.php` register API-style routes.
 
-**Layout Pattern** (`resources/js/app.tsx`):
-- `welcome` → no layout
-- `auth/*` → AuthLayout
-- `settings/*` → AppLayout + SettingsLayout
-- Default → AppLayout
+### Frontend (`resources/js/`)
 
-### Standalone Gateways
+- **`app.tsx`** is the Inertia entry. Layout resolution is a `layout:` switch: `welcome` → none, `admin/*` → AdminLayout, `auth/*` → AuthLayout, `onboarding/*` → OnboardingLayout, `settings/*` → AppLayout + SettingsLayout, default → AppLayout. Providers wrap the app here: ErrorBoundary, SocketProvider, TooltipProvider, I18nextProvider, Toaster.
+- **Wayfinder** generates typed helpers into `resources/js/actions/**` and `resources/js/routes/**` (plus `wayfinder/` runtime). Import from `@/actions/` / `@/routes/` instead of hardcoding URLs. These dirs are ESLint-ignored and must be regenerated, not edited.
+- **`@/` aliases to `resources/js/*`** (`tsconfig.json` + `vite.config.ts`).
+- UI is shadcn/ui + Radix + Lucide; tables use TanStack Table; drag-and-drop uses `@dnd-kit`; rich text/task embeds use TipTap. Tailwind v4 via `@tailwindcss/vite` — there is **no `tailwind.config.js`**.
+- **i18n**: `resources/js/i18n/locales/{en,id}/translation.json`. Locale comes from `auth.user.locale` and is switched in `app.tsx`. Add strings to both locale files.
+- `DESIGN.md` is the design system (colors, type scale, spacing, layout, status/priority colors). Consult it before building UI.
 
-| Directory | Purpose |
-|-----------|---------|
-| `realtime-gateway/` | Socket.IO for live board updates (port 3002) |
-| `whatsapp-gateway/` | WhatsApp notifications via whatsapp-web.js (port 3001) |
+### Gateways
 
-Both start automatically with `composer run dev`. Each gateway needs its own `.env` file (copy from `.env.example` in each directory).
+`realtime-gateway/` (Socket.IO, port 3002) and `whatsapp-gateway/` (whatsapp-web.js, port 3001) are standalone Node apps, each with its own `.env` (copy from its `.env.example`) and its own dependencies. Laravel talks to realtime via `RealtimeGatewayService::broadcast()` (bearer token, `POST /broadcast`); browsers authenticate the socket through Sanctum at `POST /api/socket/auth`. Both start automatically with `composer run dev`.
 
-## Key Conventions
+### Data & deployment
 
-### PHP
-- Use constructor property promotion for dependencies
-- Explicit return types on all methods
-- `TitleCase` for Enum keys
-- Use helpers from `app/helpers.php` (e.g., `settings()`, `currentWorkspace()`)
+- SQLite in dev (`database/database.sqlite`), MySQL in production. Queue driver is `database`.
+- `docs/architecture.md` has C4/ER/flow diagrams worth reading before large changes; `docs/github-integration.md` covers the GitHub flow.
+- `deploy/` holds the production setup (PM2 `ecosystem.config.cjs`, `nginx.conf`, `supervisor-queue.conf`, `DEPLOY.md`).
 
-### Frontend
-- Tailwind CSS v4 (uses `@tailwindcss/vite`, not PostCSS)
-- shadcn/ui + Radix UI + Lucide React icons
-- React Compiler enabled via `babel-plugin-react-compiler`
-- Wayfinder generates typed route helpers → use `@/routes/` and `@/actions/`
-- ESLint ignores `resources/js/actions/**`, `resources/js/routes/**`, `resources/js/components/ui/*`
+## Testing
 
-### Testing
-- **Pest v4** with `test()`, `it()`, `expect()` syntax
-- `RefreshDatabase` NOT auto-applied — add `->use(RefreshDatabase::class)` per test
-- Use factories: `Task::factory()`, `Project::factory()`, etc.
+- **Pest v4** (`test()`, `it()`, `expect()`). Create with `php artisan make:test --pest SomeFeatureTest` (no `Feature/` prefix).
+- **`RefreshDatabase` is applied globally to the `Feature` suite** via `tests/Pest.php` — do not add it per-file.
+- `tests/Pest.php` provides helpers: `createWorkspaceMember($user, $role)`, `createProjectForWorkspace($workspace, $user, $role)` (creates a default board + Todo/Done columns), and `createTaskForProject($project, $reporter)`. Reuse these instead of hand-building fixtures.
+- Use model factories; check for custom states before manual setup. `skipUnlessFortifyHas()` exists on `TestCase` for Fortify-gated features.
+- `config/inertia.php` sets `ensure_pages_exist => true`, so Inertia assertions verify the page component exists on disk.
+
+## Conventions
+
+- Create files with `php artisan make:*` and `--no-interaction`; add factories/seeders alongside new models.
+- Follow `CONTRIBUTING.md`: branches off `develop` (`feature/*`, `fix/*`, `release/*`); Conventional Commits (`feat(scope): ...`).
+- Prefer named routes + `route()` server-side and Wayfinder helpers client-side.
+- Check sibling files and existing components before creating new ones.
+- Use Laravel Boost MCP tools (`search-docs`, `database-query`, `database-schema`, `browser-logs`, `get-absolute-url`) over ad-hoc shell equivalents.
+- Only create documentation files when explicitly requested.
 
 ===
 
@@ -299,3 +305,14 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - IMPORTANT: Activate `inertia-react-development` when working with Inertia React client-side patterns.
 
 </laravel-boost-guidelines>
+
+<!-- antislop:start -->
+## antislop
+For UI, copy, people, mobile layout, or code comments work, read these installed skill files directly (use these paths even if a same-named global skill exists):
+- Core filter, always on: `antislop`: `.claude/skills/antislop/SKILL.md`
+- UI / visual: `antislop-ui`: `.claude/skills/antislop-ui/SKILL.md`
+Before starting, follow the core's "Two Usage Modes" section in strict order: explicit session instruction first, then global preference, then ask. A session instruction always wins. For a resolved mode, say `antislop active: <mode> (session override).` or `antislop active: <mode> (global preference).` once before presenting findings or making edits, using the actual mode and source. Acknowledging the user's request without naming the source does not replace this notice.
+Only an explicit choice of antislop during or after selects a session mode. A request to review, audit, or avoid file edits does not select a mode; read the global preference in that case. Another skill's mode does not select antislop's mode.
+If the mode is unresolved, ask during/after and end the response; wait for the answer before any UI review, planning, or concept. For read-only tasks, put the active-mode notice only at the start of the final answer, never in progress messages. For editing tasks, announce before the first edit and omit it from the final answer.
+To update antislop later: `npx antislop-ai --update`, or run `npx antislop-ai` and pick Overwrite them.
+<!-- antislop:end -->

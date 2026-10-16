@@ -1,14 +1,7 @@
 'use no memo';
 
 import { Head, router } from '@inertiajs/react';
-import {
-    FileText,
-    Folder,
-    Plus,
-    Search,
-    Upload,
-    Wand2,
-} from 'lucide-react';
+import { FileText, Folder, Plus, Search, Upload, Wand2 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DocTreeSortable } from '@/components/doc-tree-sortable';
@@ -53,7 +46,8 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
 
     const [selectedDoc, setSelectedDoc] = useState<DocTreeItem | null>(null);
     const [attachments, setAttachments] = useState<DocAttachment[]>([]);
-    const [previewAttachment, setPreviewAttachment] = useState<DocAttachment | null>(null);
+    const [previewAttachment, setPreviewAttachment] =
+        useState<DocAttachment | null>(null);
     const [showUpload, setShowUpload] = useState(false);
 
     const handleSearch = useCallback(
@@ -71,7 +65,6 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
             }
 
             searchTimerRef.current = setTimeout(() => {
-
                 fetch(
                     searchRoute.url({
                         workspace: workspace.slug,
@@ -87,7 +80,7 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                     },
                 )
                     .then((r) => r.json())
-                    .then(setSearchResults)
+                    .then(setSearchResults);
             }, 300);
         },
         [workspace.slug, project.slug],
@@ -300,9 +293,15 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        if (!confirm(t('docs.seed_templates_confirm'))) {
-return;
-}
+                                        if (
+                                            !confirm(
+                                                t(
+                                                    'docs.seed_templates_confirm',
+                                                ),
+                                            )
+                                        ) {
+                                            return;
+                                        }
 
                                         router.post(
                                             seedTemplatesRoute.url({

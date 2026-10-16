@@ -76,9 +76,10 @@ export function reorderSameColumnTasks(
         insertPos = filtered.length;
     } else {
         // Handle task: prefix if present
-        const overTaskId = typeof overId === 'string' && overId.startsWith('task:')
-            ? Number(overId.slice(5))
-            : overId;
+        const overTaskId =
+            typeof overId === 'string' && overId.startsWith('task:')
+                ? Number(overId.slice(5))
+                : overId;
 
         const overIdx = filtered.findIndex((t) => t.id === overTaskId);
         insertPos = Math.max(0, overIdx);
@@ -114,9 +115,10 @@ export function calcSameColumnPosition(
     }
 
     // Handle task: prefix if present
-    const overTaskId = typeof overId === 'string' && overId.startsWith('task:')
-        ? Number(overId.slice(5))
-        : overId;
+    const overTaskId =
+        typeof overId === 'string' && overId.startsWith('task:')
+            ? Number(overId.slice(5))
+            : overId;
 
     const overIdx = column.tasks.findIndex((t) => t.id === overTaskId);
     const activeIdx = column.tasks.findIndex((t) => t.id === taskId);
@@ -289,9 +291,10 @@ export function calculateTaskDropPosition(
     }
 
     // Handle task: prefix if present
-    const taskId = typeof overId === 'string' && overId.startsWith('task:')
-        ? Number(overId.slice(5))
-        : Number(overId);
+    const taskId =
+        typeof overId === 'string' && overId.startsWith('task:')
+            ? Number(overId.slice(5))
+            : Number(overId);
 
     const column = findColumnByTaskId(columns, taskId);
 

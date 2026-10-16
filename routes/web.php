@@ -50,10 +50,14 @@ use App\Http\Controllers\WorkspaceNotificationChannelController;
 use App\Http\Controllers\WorkspaceSettingController;
 use App\Http\Controllers\WorkspaceUserAssignmentController;
 use App\Models\User;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login')->name('home');
+// Route::redirect('/', '/login')->name('home');
+Route::get('/', function () {
+    return Inertia::render('welcome');
+})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard');

@@ -141,15 +141,11 @@ export function UploadDropzone({
                 <Upload
                     className={cn(
                         'mb-2 size-8',
-                        isDragOver
-                            ? 'text-primary'
-                            : 'text-muted-foreground',
+                        isDragOver ? 'text-primary' : 'text-muted-foreground',
                     )}
                 />
                 <p className="mb-1 text-sm font-medium">
-                    {isDragOver
-                        ? 'Drop files here'
-                        : 'Drag & drop files here'}
+                    {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
                 </p>
                 <p className="text-xs text-muted-foreground">
                     or click to browse

@@ -7,6 +7,7 @@ function ThrowError({ shouldThrow }: { shouldThrow: boolean }) {
     if (shouldThrow) {
         throw new Error('Test error');
     }
+
     return <div>Content rendered successfully</div>;
 }
 
@@ -50,9 +51,7 @@ describe('ErrorBoundary', () => {
 
     it('uses custom fallback when provided', () => {
         render(
-            <ErrorBoundary
-                fallback={<div>Custom error message</div>}
-            >
+            <ErrorBoundary fallback={<div>Custom error message</div>}>
                 <ThrowError shouldThrow={true} />
             </ErrorBoundary>,
         );

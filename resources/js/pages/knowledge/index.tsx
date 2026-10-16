@@ -1,9 +1,9 @@
-import { BookOpen, ChevronRight, Folder, Plus, Search } from 'lucide-react';
 import { usePage, router } from '@inertiajs/react';
+import { BookOpen, ChevronRight, Folder, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     Dialog,
     DialogContent,
@@ -12,10 +12,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { EmptyState } from '@/components/empty-state';
-import knowledgeArticles from '@/routes/knowledge/articles';
 import knowledgeRoutes from '@/routes/knowledge';
+import knowledgeArticles from '@/routes/knowledge/articles';
 import type { Category, ArticleListItem } from '@/types/knowledge';
 
 interface Props {
@@ -95,7 +95,7 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
 
             <div className="flex gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Search articles..."
                         value={searchQuery}
@@ -122,7 +122,9 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                             >
                                 <div
                                     className="rounded-lg p-2"
-                                    style={{ backgroundColor: `${category.color}20` }}
+                                    style={{
+                                        backgroundColor: `${category.color}20`,
+                                    }}
                                 >
                                     <Folder
                                         className="size-5"
@@ -135,7 +137,9 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
                                         {category.articles_count} article
-                                        {category.articles_count !== 1 ? 's' : ''}
+                                        {category.articles_count !== 1
+                                            ? 's'
+                                            : ''}
                                     </p>
                                 </div>
                                 <ChevronRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
@@ -154,7 +158,10 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                 key={article.id}
                                 onClick={() =>
                                     router.get(
-                                        knowledgeRoutes.article.url({ workspace: workspaceSlug, article: article.slug }),
+                                        knowledgeRoutes.article.url({
+                                            workspace: workspaceSlug,
+                                            article: article.slug,
+                                        }),
                                     )
                                 }
                                 className="group flex w-full items-center justify-between rounded-lg border p-4 text-left transition-colors hover:bg-accent"
@@ -171,7 +178,8 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                         )}
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        {article.author?.name} &middot; {article.views} views
+                                        {article.author?.name} &middot;{' '}
+                                        {article.views} views
                                     </p>
                                 </div>
                                 <ChevronRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
@@ -204,14 +212,20 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
 
                     <div className="flex gap-2">
                         <Button
-                            variant={createType === 'article' ? 'default' : 'outline'}
+                            variant={
+                                createType === 'article' ? 'default' : 'outline'
+                            }
                             onClick={() => setCreateType('article')}
                             size="sm"
                         >
                             Article
                         </Button>
                         <Button
-                            variant={createType === 'category' ? 'default' : 'outline'}
+                            variant={
+                                createType === 'category'
+                                    ? 'default'
+                                    : 'outline'
+                            }
                             onClick={() => setCreateType('category')}
                             size="sm"
                         >
@@ -222,7 +236,9 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">
-                                {createType === 'category' ? 'Category Name' : 'Article Title'}
+                                {createType === 'category'
+                                    ? 'Category Name'
+                                    : 'Article Title'}
                             </Label>
                             <Input
                                 id="name"
@@ -243,7 +259,8 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                                     value={selectedCategory?.id ?? ''}
                                     onChange={(e) => {
                                         const cat = categories.find(
-                                            (c) => c.id === Number(e.target.value),
+                                            (c) =>
+                                                c.id === Number(e.target.value),
                                         );
                                         setSelectedCategory(cat ?? null);
                                     }}
@@ -267,7 +284,10 @@ export default function KnowledgeIndex({ categories, recentArticles }: Props) {
                         >
                             Cancel
                         </Button>
-                        <Button onClick={handleCreateArticle} disabled={!newName.trim()}>
+                        <Button
+                            onClick={handleCreateArticle}
+                            disabled={!newName.trim()}
+                        >
                             Create
                         </Button>
                     </DialogFooter>

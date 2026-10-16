@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Knowledge\Article;
+use App\Models\Knowledge\Category;
 use App\Services\WorkspaceRoleService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -64,6 +66,16 @@ class Workspace extends Model
     public function goals(): HasMany
     {
         return $this->hasMany(Goal::class);
+    }
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    public function knowledgeCategories(): HasMany
+    {
+        return $this->hasMany(Category::class);
     }
 
     public function settings(): HasMany
