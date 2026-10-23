@@ -1,6 +1,6 @@
 export function normalizeLegacyDocContent(content: string): string {
     if (!content || /<[a-z][\s\S]*>/i.test(content)) {
-        return content;
+        return content.replace(/\n/g, '<br>');
     }
 
     const escaped = content
@@ -10,12 +10,6 @@ export function normalizeLegacyDocContent(content: string): string {
 
     return escaped
         .split(/\n{2,}/)
-        .map(
-            (block) =>
-                `<p>${block
-                    .split('\n')
-                    .map((line) => line.trim() || '<br>')
-                    .join('<br>')}</p>`,
-        )
+        .map((block) => `<p>${block.replace(/\n/g, '<br>')}</p>`)
         .join('');
 }

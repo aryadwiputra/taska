@@ -105,6 +105,7 @@ export default function DocsIndex({ workspace, project, docsTree }: Props) {
                     setCreating(false);
                     setNewTitle('');
                     setNewParentId('none');
+                    router.reload({ only: ['docsTree'] });
                 },
             },
         );

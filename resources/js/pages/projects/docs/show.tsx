@@ -53,7 +53,7 @@ export default function DocsShow({
     docsTree,
 }: Props) {
     const { t } = useTranslation();
-    const [doc] = useState(initialDoc);
+    const doc = initialDoc;
     const [editing, setEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(doc.title);
     const [editContent, setEditContent] = useState(
@@ -66,6 +66,17 @@ export default function DocsShow({
     const [creating, setCreating] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [versionsOpen, setVersionsOpen] = useState(false);
+
+    const [prevDoc, setPrevDoc] = useState(initialDoc);
+
+    if (prevDoc !== initialDoc) {
+        setPrevDoc(initialDoc);
+        setEditing(false);
+        setEditTitle(initialDoc.title);
+        setEditContent(normalizeLegacyDocContent(initialDoc.content || ''));
+        setEditParentId(String(initialDoc.parent_id ?? 'none'));
+        setEditVisibility(initialDoc.visibility);
+    }
 
     const handleSave = () => {
         router.patch(
@@ -83,7 +94,10 @@ export default function DocsShow({
             },
             {
                 preserveScroll: true,
-                onSuccess: () => setEditing(false),
+                onSuccess: () => {
+                    setEditing(false);
+                    router.reload({ only: ['doc'] });
+                },
             },
         );
     };
@@ -117,6 +131,7 @@ export default function DocsShow({
                 onSuccess: () => {
                     setCreating(false);
                     setNewTitle('');
+                    router.reload({ only: ['doc', 'docsTree'] });
                 },
             },
         );
