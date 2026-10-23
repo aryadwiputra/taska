@@ -45,9 +45,7 @@ export function UploadDropzone({
                         (progress) => {
                             setUploadingFiles((prev) =>
                                 prev.map((uf) =>
-                                    uf.file === file
-                                        ? { ...uf, progress }
-                                        : uf,
+                                    uf.file === file ? { ...uf, progress } : uf,
                                 ),
                             );
                         },
@@ -60,7 +58,9 @@ export function UploadDropzone({
                     toast.success(`${file.name} uploaded successfully`);
                 } catch (error) {
                     const message =
-                        error instanceof Error ? error.message : 'Upload failed';
+                        error instanceof Error
+                            ? error.message
+                            : 'Upload failed';
                     setUploadingFiles((prev) =>
                         prev.map((uf) =>
                             uf.file === file ? { ...uf, error: message } : uf,

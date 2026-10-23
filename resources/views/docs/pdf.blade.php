@@ -17,7 +17,14 @@
         hr { border: none; border-top: 1px solid #ccc; margin: 24px 0; }
         .meta { color: #666; font-size: 11px; margin-bottom: 24px; }
         strong { font-weight: 600; }
+        u { text-decoration: underline; }
+        s { text-decoration: line-through; }
         a { color: #2563eb; }
+        img { max-width: 100%; }
+        blockquote { border-left: 3px solid #ccc; margin: 12px 0; padding: 4px 12px; color: #555; font-style: italic; }
+        pre { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px 12px; font-family: Menlo, Consolas, monospace; font-size: 11px; overflow-x: auto; white-space: pre-wrap; }
+        code { font-family: Menlo, Consolas, monospace; font-size: 11px; background: #f5f5f5; padding: 1px 4px; border-radius: 3px; }
+        pre code { background: none; padding: 0; }
     </style>
 </head>
 <body>

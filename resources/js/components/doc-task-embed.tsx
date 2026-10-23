@@ -94,7 +94,7 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
     ) {
         return (
             <div
-                className="prose prose-sm max-w-none"
+                className="doc-content text-sm"
                 dangerouslySetInnerHTML={{ __html: content }}
             />
         );
@@ -102,7 +102,7 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
 
     return (
         <div
-            className="prose prose-sm max-w-none"
+            className="doc-content text-sm"
             dangerouslySetInnerHTML={{ __html: htmlWithLinks }}
         />
     );

@@ -32,7 +32,9 @@ describe('Login', () => {
     it('links to a sign-up page', () => {
         render(<Login canResetPassword={true} />);
 
-        expect(screen.getByRole('link', { name: 'auth.sign_up' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'auth.sign_up' }),
+        ).toBeInTheDocument();
         expect(screen.getByText('auth.no_account')).toBeInTheDocument();
     });
 });

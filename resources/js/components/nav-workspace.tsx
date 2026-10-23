@@ -118,8 +118,8 @@ export function NavWorkspace({ workspaceSlug }: Props) {
                                     item.title === t('sidebar.sprints')
                                         ? 'sidebar-sprints'
                                         : item.title === t('sidebar.knowledge')
-                                            ? 'sidebar-knowledge'
-                                            : undefined
+                                          ? 'sidebar-knowledge'
+                                          : undefined
                                 }
                             >
                                 <item.icon />
@@ -133,8 +133,8 @@ export function NavWorkspace({ workspaceSlug }: Props) {
                                     item.title === t('sidebar.sprints')
                                         ? 'sidebar-sprints'
                                         : item.title === t('sidebar.knowledge')
-                                            ? 'sidebar-knowledge'
-                                            : undefined
+                                          ? 'sidebar-knowledge'
+                                          : undefined
                                 }
                             >
                                 <item.icon />

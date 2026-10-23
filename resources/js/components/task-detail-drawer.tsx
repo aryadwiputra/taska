@@ -39,11 +39,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { useSocketEvent } from '@/hooks/use-socket';
-import {
-    canComment,
-    canDeleteTask,
-    canEditTask,
-} from '@/lib/permissions';
+import { canComment, canDeleteTask, canEditTask } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import {
     destroy as destroyTask,

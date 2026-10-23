@@ -33,10 +33,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    canManageBoard,
-    canManageSprints,
-} from '@/lib/permissions';
+import { canManageBoard, canManageSprints } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import { show as projectShow } from '@/routes/projects';
 import {

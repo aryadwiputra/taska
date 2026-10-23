@@ -27,7 +27,11 @@ const navItems = [
 const techLogos = [
     { name: 'Laravel', src: '/images/tech/laravel.svg', label: 'Laravel' },
     { name: 'React', src: '/images/tech/react.svg', label: 'React' },
-    { name: 'TypeScript', src: '/images/tech/typescript.svg', label: 'TypeScript' },
+    {
+        name: 'TypeScript',
+        src: '/images/tech/typescript.svg',
+        label: 'TypeScript',
+    },
     { name: 'MySQL', src: '/images/tech/mysql.svg', label: 'MySQL' },
 ] as const;
 
@@ -79,7 +83,12 @@ const showcaseItems = [
     { key: 'goals', image: 'goals' },
 ] as const;
 
-const workflowSteps = [{ key: 'plan' }, { key: 'build' }, { key: 'review' }, { key: 'ship' }] as const;
+const workflowSteps = [
+    { key: 'plan' },
+    { key: 'build' },
+    { key: 'review' },
+    { key: 'ship' },
+] as const;
 
 const stackItems = [
     { key: 'laravel', name: 'Laravel', description: 'Backend' },
@@ -95,13 +104,15 @@ const trustItems = [
         key: 'roles',
         icon: Shield,
         title: 'Workspace roles',
-        description: 'Define who can create projects, manage tasks, and configure settings.',
+        description:
+            'Define who can create projects, manage tasks, and configure settings.',
     },
     {
         key: 'approvals',
         icon: Lock,
         title: 'Approval gates',
-        description: 'Require sign-off before tasks move through critical stages.',
+        description:
+            'Require sign-off before tasks move through critical stages.',
     },
     {
         key: 'activity',
@@ -173,7 +184,7 @@ export default function Welcome() {
                 <main>
                     <section className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24 lg:py-32">
                         <div className="mx-auto max-w-7xl">
-                            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
+                            <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
                                 <div className="flex flex-col gap-6">
                                     <h1 className="text-4xl leading-[1.1] font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl">
                                         {t('welcome.hero_title')}
@@ -258,7 +269,10 @@ export default function Welcome() {
                         </div>
                     </section>
 
-                    <section id="features" className="px-4 py-16 md:px-6 md:py-24">
+                    <section
+                        id="features"
+                        className="px-4 py-16 md:px-6 md:py-24"
+                    >
                         <div className="mx-auto max-w-7xl">
                             <div className="mb-12 max-w-2xl">
                                 <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -285,7 +299,8 @@ export default function Welcome() {
                                                 <Icon
                                                     className={cn(
                                                         'size-8 text-primary transition-transform group-hover:-translate-y-1',
-                                                        card.highlight && 'text-primary',
+                                                        card.highlight &&
+                                                            'text-primary',
                                                     )}
                                                 />
                                                 <div className="space-y-3">
@@ -308,7 +323,10 @@ export default function Welcome() {
                         </div>
                     </section>
 
-                    <section id="showcase" className="px-4 py-16 md:px-6 md:py-24">
+                    <section
+                        id="showcase"
+                        className="px-4 py-16 md:px-6 md:py-24"
+                    >
                         <div className="mx-auto max-w-7xl">
                             <div className="mb-12 max-w-2xl">
                                 <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -359,7 +377,10 @@ export default function Welcome() {
                         </div>
                     </section>
 
-                    <section id="workflow" className="bg-muted/30 px-4 py-16 md:px-6 md:py-24">
+                    <section
+                        id="workflow"
+                        className="bg-muted/30 px-4 py-16 md:px-6 md:py-24"
+                    >
                         <div className="mx-auto max-w-7xl">
                             <div className="mb-12 text-center">
                                 <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -450,10 +471,14 @@ export default function Welcome() {
                                                 <Icon className="size-5 text-primary" />
                                             </div>
                                             <h3 className="text-lg font-semibold">
-                                                {t(`welcome.trust.${item.key}.title`)}
+                                                {t(
+                                                    `welcome.trust.${item.key}.title`,
+                                                )}
                                             </h3>
                                             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                                {t(`welcome.trust.${item.key}.description`)}
+                                                {t(
+                                                    `welcome.trust.${item.key}.description`,
+                                                )}
                                             </p>
                                         </article>
                                     );
@@ -500,7 +525,11 @@ export default function Welcome() {
                             <AppLogo />
                             <span>Taska</span>
                         </div>
-                        <p>{t('welcome.footer.copyright', { year: new Date().getFullYear() })}</p>
+                        <p>
+                            {t('welcome.footer.copyright', {
+                                year: new Date().getFullYear(),
+                            })}
+                        </p>
                     </div>
                 </footer>
             </div>

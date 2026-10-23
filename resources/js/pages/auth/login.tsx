@@ -111,9 +111,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
             <div className="mt-6 text-center text-sm text-muted-foreground">
                 {t('auth.no_account')}{' '}
-                <TextLink href={register.url()}>
-                    {t('auth.sign_up')}
-                </TextLink>
+                <TextLink href={register.url()}>{t('auth.sign_up')}</TextLink>
             </div>
         </>
     );

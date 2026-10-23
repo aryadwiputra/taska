@@ -550,11 +550,7 @@ function BoardClient({
         );
     }, []);
 
-    useSocketEvent(
-        `project.${project.id}`,
-        'task.created',
-        handleTaskCreated,
-    );
+    useSocketEvent(`project.${project.id}`, 'task.created', handleTaskCreated);
 
     interface TaskFieldUpdatedEvent {
         taskId: number;
@@ -591,11 +587,7 @@ function BoardClient({
         );
     }, []);
 
-    useSocketEvent(
-        `project.${project.id}`,
-        'task.deleted',
-        handleTaskDeleted,
-    );
+    useSocketEvent(`project.${project.id}`, 'task.deleted', handleTaskDeleted);
 
     interface TasksReorderedEvent {
         columns: BoardColumn[];
@@ -1008,7 +1000,13 @@ function BoardClient({
                                 size="sm"
                                 onClick={() => {
                                     if (
-                                        !canManageBoard(wsRole, userProjectRole as ProjectRole | null | undefined)
+                                        !canManageBoard(
+                                            wsRole,
+                                            userProjectRole as
+                                                | ProjectRole
+                                                | null
+                                                | undefined,
+                                        )
                                     ) {
                                         toastNoAccess();
 

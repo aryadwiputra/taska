@@ -226,7 +226,10 @@ export default function ProjectSettings({
         role?: string;
     } | null;
     const wsRole = currentWorkspace?.role as WorkspaceRole | undefined;
-    const canDelete = canDeleteProject(wsRole, userProjectRole as ProjectRole | null | undefined);
+    const canDelete = canDeleteProject(
+        wsRole,
+        userProjectRole as ProjectRole | null | undefined,
+    );
     const [addMemberOpen, setAddMemberOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null);

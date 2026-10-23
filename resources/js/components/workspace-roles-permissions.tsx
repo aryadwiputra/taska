@@ -20,7 +20,14 @@ interface Props {
     roleLabels: Record<string, string>;
 }
 
-const ROLE_ORDER = ['owner', 'admin', 'manager', 'member', 'viewer', 'guest'] as const;
+const ROLE_ORDER = [
+    'owner',
+    'admin',
+    'manager',
+    'member',
+    'viewer',
+    'guest',
+] as const;
 
 const PERMISSION_GROUPS: Array<{ key: string; permissions: string[] }> = [
     {

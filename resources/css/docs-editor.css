@@ -1,0 +1,230 @@
+/* Taska doc editor — TipTap content styles (shared by editor and saved HTML preview) */
+
+.tiptap,
+.doc-content {
+    outline: none;
+    font-size: 0.925rem;
+    line-height: 1.7;
+    color: var(--foreground);
+    word-break: break-word;
+}
+
+.tiptap > * + *,
+.doc-content > * + * {
+    margin-top: 0.75em;
+}
+
+.tiptap p,
+.doc-content p {
+    margin: 0;
+}
+
+.tiptap p.is-editor-empty:first-child::before,
+.doc-content p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
+}
+
+.tiptap h1,
+.doc-content h1 {
+    font-size: 1.6em;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 1.2em;
+}
+
+.tiptap h2,
+.doc-content h2 {
+    font-size: 1.35em;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-top: 1.1em;
+}
+
+.tiptap h3,
+.doc-content h3 {
+    font-size: 1.15em;
+    font-weight: 600;
+    margin-top: 1em;
+}
+
+.tiptap h1 + *,
+.tiptap h2 + *,
+.tiptap h3 + *,
+.doc-content h1 + *,
+.doc-content h2 + *,
+.doc-content h3 + * {
+    margin-top: 0.35em;
+}
+
+.tiptap ul,
+.tiptap ol,
+.doc-content ul,
+.doc-content ol {
+    padding-left: 1.4em;
+}
+
+.tiptap ul,
+.doc-content ul {
+    list-style: disc;
+}
+
+.tiptap ol,
+.doc-content ol {
+    list-style: decimal;
+}
+
+.tiptap ul ul,
+.tiptap ol ol,
+.tiptap ul ol,
+.tiptap ol ul,
+.doc-content ul ul,
+.doc-content ol ol,
+.doc-content ul ol,
+.doc-content ol ul {
+    margin-top: 0.2em;
+}
+
+.tiptap li > p,
+.doc-content li > p {
+    margin: 0;
+}
+
+.tiptap li > ul,
+.tiptap li > ol,
+.doc-content li > ul,
+.doc-content li > ol {
+    margin-top: 0.2em;
+}
+
+.tiptap blockquote,
+.doc-content blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1em;
+    margin-left: 0;
+    font-style: italic;
+    color: var(--muted-foreground);
+}
+
+.tiptap pre,
+.doc-content pre {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85em 1em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+    overflow-x: auto;
+    line-height: 1.6;
+}
+
+.tiptap code,
+.doc-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+    background: var(--muted);
+    border-radius: 4px;
+    padding: 0.15em 0.35em;
+}
+
+.tiptap pre code,
+.doc-content pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+}
+
+.tiptap a,
+.doc-content a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.tiptap a:hover,
+.doc-content a:hover {
+    text-decoration-thickness: 2px;
+}
+
+.tiptap img,
+.doc-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+.tiptap img.ProseMirror-selectednode,
+.doc-content img.ProseMirror-selectednode {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.tiptap table,
+.doc-content table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    overflow: hidden;
+}
+
+.tiptap table td,
+.tiptap table th,
+.doc-content table td,
+.doc-content table th {
+    border: 1px solid var(--border);
+    padding: 0.4em 0.7em;
+    vertical-align: top;
+    position: relative;
+}
+
+.tiptap table th,
+.doc-content table th {
+    background: color-mix(in srgb, var(--muted) 60%, transparent);
+    font-weight: 600;
+    text-align: left;
+}
+
+.tiptap table .selectedCell::after,
+.doc-content table .selectedCell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    pointer-events: none;
+}
+
+.tiptap .column-resize-handle,
+.doc-content .column-resize-handle {
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary);
+    pointer-events: none;
+}
+
+.tiptap.resize-cursor,
+.doc-content.resize-cursor {
+    cursor: col-resize;
+}
+
+.tiptap mark,
+.doc-content mark {
+    background: color-mix(in srgb, var(--primary) 20%, transparent);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 0.15em;
+}
+
+.tiptap hr,
+.doc-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5em 0;
+}

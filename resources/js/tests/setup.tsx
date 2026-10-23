@@ -29,7 +29,14 @@ vi.mock('@inertiajs/react', () => ({
     Head: vi.fn(() => null),
     setLayoutProps: vi.fn(),
     Link: vi.fn(
-        ({ children, href, ...props }: { children?: React.ReactNode; href?: string }) => (
+        ({
+            children,
+            href,
+            ...props
+        }: {
+            children?: React.ReactNode;
+            href?: string;
+        }) => (
             <a href={typeof href === 'string' ? href : '#'} {...props}>
                 {children}
             </a>

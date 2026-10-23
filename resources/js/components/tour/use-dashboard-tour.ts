@@ -9,7 +9,9 @@ export const TOUR_SEEN_KEY = 'tour_seen_dashboard';
 
 let driverInstance: ReturnType<typeof driver> | null = null;
 
-function createTourDriver(t: (key: string, options?: Record<string, string>) => string) {
+function createTourDriver(
+    t: (key: string, options?: Record<string, string>) => string,
+) {
     if (driverInstance) {
         driverInstance.destroy();
     }
@@ -113,7 +115,10 @@ function createTourDriver(t: (key: string, options?: Record<string, string>) => 
         doneBtnText: t('tour.finish'),
         closeBtnLabel: t('tour.close'),
         showProgress: true,
-        progressText: t('tour.progress', { current: '{{current}}', total: '{{total}}' }),
+        progressText: t('tour.progress', {
+            current: '{{current}}',
+            total: '{{total}}',
+        }),
         skipMissingElement: true,
         onDestroyed: () => {
             localStorage.setItem(TOUR_SEEN_KEY, '1');
@@ -151,7 +156,8 @@ export function useDashboardTour(isEnabled = true) {
     const [mounted] = useState(() => typeof window !== 'undefined');
     const { t } = useTranslation();
 
-    const shouldRun = mounted && isEnabled && !localStorage.getItem(TOUR_SEEN_KEY);
+    const shouldRun =
+        mounted && isEnabled && !localStorage.getItem(TOUR_SEEN_KEY);
 
     useEffect(() => {
         if (!shouldRun) {

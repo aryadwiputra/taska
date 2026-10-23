@@ -276,6 +276,9 @@ export default function DocsShow({
                                 <RichEditor
                                     content={editContent}
                                     onChange={setEditContent}
+                                    workspaceSlug={workspace.slug}
+                                    projectSlug={project.slug}
+                                    docSlug={doc.slug}
                                 />
                             </div>
                             <div className="flex gap-2">

@@ -32,9 +32,21 @@ export type Permission =
     | 'sprint.delete'
     | 'board.manage';
 
-export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer' | 'guest';
+export type WorkspaceRole =
+    | 'owner'
+    | 'admin'
+    | 'manager'
+    | 'member'
+    | 'viewer'
+    | 'guest';
 
-export type ProjectRole = 'lead' | 'manager' | 'developer' | 'qa' | 'member' | 'viewer';
+export type ProjectRole =
+    | 'lead'
+    | 'manager'
+    | 'developer'
+    | 'qa'
+    | 'member'
+    | 'viewer';
 
 export const WORKSPACE_PERMISSIONS: Permission[] = [
     'workspace.view',
@@ -163,7 +175,12 @@ export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
         'task.comment',
     ],
     viewer: ['workspace.view', 'project.view-any'],
-    guest: ['workspace.view', 'project.view-any', 'task.view-own', 'task.comment-own'],
+    guest: [
+        'workspace.view',
+        'project.view-any',
+        'task.view-own',
+        'task.comment-own',
+    ],
 };
 
 export function hasPermission(

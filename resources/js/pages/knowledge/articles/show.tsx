@@ -1,12 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Edit,
-    Eye,
-    FileText,
-    Plus,
-    Trash2,
-} from 'lucide-react';
+import { ArrowLeft, Edit, Eye, FileText, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
