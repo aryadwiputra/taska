@@ -28,6 +28,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { VersionHistory } from '@/components/version-history';
+import { normalizeLegacyDocContent } from '@/lib/doc-content';
 import {
     destroy as docsDestroy,
     index as docsIndex,
@@ -55,7 +56,9 @@ export default function DocsShow({
     const [doc] = useState(initialDoc);
     const [editing, setEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(doc.title);
-    const [editContent, setEditContent] = useState(doc.content || '');
+    const [editContent, setEditContent] = useState(
+        normalizeLegacyDocContent(doc.content || ''),
+    );
     const [editParentId, setEditParentId] = useState<string>(
         String(doc.parent_id ?? 'none'),
     );
@@ -290,7 +293,11 @@ export default function DocsShow({
                                     onClick={() => {
                                         setEditing(false);
                                         setEditTitle(doc.title);
-                                        setEditContent(doc.content || '');
+                                        setEditContent(
+                                            normalizeLegacyDocContent(
+                                                doc.content || '',
+                                            ),
+                                        );
                                         setEditParentId(
                                             String(doc.parent_id ?? 'none'),
                                         );

@@ -1,6 +1,7 @@
 'use no memo';
 
 import { useEffect, useState } from 'react';
+import { normalizeLegacyDocContent } from '@/lib/doc-content';
 import { embed as embedTask } from '@/routes/projects/tasks';
 const TASK_REF_REGEX = /\/task:([A-Z]+-\d+)\b/g;
 
@@ -31,10 +32,11 @@ interface Props {
 }
 
 export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
+    const html = normalizeLegacyDocContent(content);
     const [taskMap, setTaskMap] = useState<Record<string, TaskInfo>>({});
 
     useEffect(() => {
-        const matches = [...content.matchAll(TASK_REF_REGEX)].map((m) => m[1]);
+        const matches = [...html.matchAll(TASK_REF_REGEX)].map((m) => m[1]);
         const uniqueCodes = [...new Set(matches)];
 
         if (uniqueCodes.length === 0) {
@@ -76,9 +78,9 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
 
             setTaskMap(map);
         });
-    }, [content, workspaceSlug]);
+    }, [html, workspaceSlug]);
 
-    const htmlWithLinks = content.replace(TASK_REF_REGEX, (match, code) => {
+    const htmlWithLinks = html.replace(TASK_REF_REGEX, (match, code) => {
         const info = taskMap[code];
 
         if (info) {
@@ -90,12 +92,12 @@ export function TaskEmbedRenderer({ content, workspaceSlug }: Props) {
 
     if (
         Object.keys(taskMap).length === 0 &&
-        ![...content.matchAll(TASK_REF_REGEX)].length
+        ![...html.matchAll(TASK_REF_REGEX)].length
     ) {
         return (
             <div
                 className="doc-content text-sm"
-                dangerouslySetInnerHTML={{ __html: content }}
+                dangerouslySetInnerHTML={{ __html: html }}
             />
         );
     }
